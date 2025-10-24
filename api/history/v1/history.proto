@@ -1,0 +1,254 @@
+syntax = "proto3";
+
+package ghistory.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "cn.qingdou.server/game_common/api/history/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.history.v1";
+option java_outer_classname = "HistoryProtoV1";
+
+service HistoryApi {
+   // 游戏历史记录
+   rpc GameHistoryList(GameHistoryListRequest) returns (GameHistoryListReply);
+
+   // 获取历史记录详情
+   rpc GameHistoryDetail(GameHistoryDetailRequest) returns (GameHistoryDetailReply);
+
+   // 通过开始时间以及结束时间获取历史记录
+   rpc GameHistoryByTime(GameHistoryByTimeRequest) returns (GameHistoryByTimeReply);
+   
+   //  获取下注的条数据，以及下注的总金额，以及赢钱的总金额
+   rpc GetTotalBetAndWin(GetTotalBetAndWinRequest) returns (GetTotalBetAndWinReply);
+
+   // 创建一条记录(初使状态)
+   rpc CreateGameRecord(CreateGameRecordRequest) returns (CreateGameRecordReply);
+
+   // 更新历史记录为已下注状态
+   rpc SetGameRecordStatusBet(SetGameRecordStatusBetRequest) returns (SetGameRecordStatusBetReply);
+
+    // 更新历史记录为结算状态
+   rpc SetGameRecordStatusWin(SetGameRecordStatusWinRequest) returns (SetGameRecordStatusWinReply);
+
+   // 更新历史记录为退款状态
+   rpc SetGameRecordStatusRefund(SetGameRecordStatusRefundRequest) returns (SetGameRecordStatusRefundReply);
+
+   // 更新历史记录的错误状态
+   rpc SetGameRecordStatusError(SetGameRecordStatusErrorRequest) returns (SetGameRecordStatusErrorReply);
+}
+
+message GameHistoryListRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string playerId = 4; //账号id
+    
+    string status = 5; // 数据的状态，空为所有
+    int64 startTime = 6; // 开始时间戳（必传, 单位：毫秒）
+    int64 endTime = 7;   // 结束时间戳（必传, 单位：毫秒）
+
+    int32 page_index = 8; // 分页索引
+    int32 page_size = 9; //  一页的数量
+    bool  needTotalNum = 12; //是否需要返回历史记录总条数据
+
+    bool is_asc = 10; // 是否升序 (默认是倒序)
+    bool no_game_data = 11; //不要返回游戏数据
+}
+
+message GameHistoryListReply{
+    repeated GameHistory list = 1; //记录列表
+
+    int32 page_index = 2; // 分页索引
+    int32 page_size = 3; //  一页的数量
+    int64 totalNum = 4; // 总条数
+}
+
+message GameHistoryDetailRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string playerId = 4; //账号id
+    string roundId = 5; //局号
+
+    string status = 6; // 数据的状态，空为所有
+    google.protobuf.Timestamp createTime = 7; // 创建时间
+}
+
+message GameHistoryDetailReply{
+    GameHistory data = 1; //记录列表
+}
+
+message GameHistory{
+    double bet = 1; //下注
+    double win = 2; //赢钱
+
+    string roundId = 3; //局号
+    string orderNo = 4; //流水号
+
+    string playerId = 5; //账号id
+    string appId = 6; //appid
+    string gameBrand = 7; //游戏品牌
+    string gameId = 8; //游戏id
+    string sample = 9; // 样本数据
+    string note = 10; // 备注
+    string rtp = 11; // 实时赔率
+   
+
+    string status = 12; // 数据的状态，空为所有
+
+    double win_balance = 18; //结算后的金额
+    double after_bet_balance = 19; // 下注后的金额
+    double before_bet_balance = 20; // 下注前的金额
+
+
+    google.protobuf.Timestamp createTime = 13; // 创建时间
+    google.protobuf.Timestamp betTime = 14; // 下注时间
+    google.protobuf.Timestamp winTime = 15; // 赢钱时间
+
+    bytes GameData = 16;
+    int32 compress = 17;
+}
+
+
+message GameHistoryByTimeRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string playerId = 4; //账号id
+    
+    string status = 5; // 数据的状态，空为所有
+    int64 startTime = 6; // 开始时间戳（单位：毫秒）
+    int64 endTime = 7;   // 结束时间戳（单位：毫秒）
+}
+
+
+message GameHistoryByTimeReply{
+    repeated GameHistory list = 1; //记录列表
+    int64 startTime = 2; // 开始时间戳（单位：毫秒）
+    int64 endTime = 3;   // 结束时间戳（单位：毫秒）
+}
+
+message GetTotalBetAndWinRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string playerId = 4; //账号id
+    
+    string status = 5; // 数据的状态，空为所有
+
+    int64 startTime = 6; // 开始时间戳（单位：毫秒）
+    int64 endTime = 7;   // 结束时间戳（单位：毫秒）
+}
+
+message GetTotalBetAndWinReply{
+    double totalBet = 1; // 总下注
+    double totalWin = 2; // 总赢钱
+    int64  recordCount = 3; // 记录数
+}
+
+// 创建一条记录 （创建的状态为init状态）
+message CreateGameRecordRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string playerId = 4; //账号id
+
+    string roundId = 5; //游戏回合, 长度64以內。
+    string orderNo = 6; // 交易id, 长度64以內。
+
+    string RTP = 7;
+    double bet = 8; //下注值
+    string roundMoudle = 9; //游戏的模式
+
+    google.protobuf.Timestamp  createTime = 10; // 状态时间
+
+    string  preOrderNo = 11; //上一把下注交易id, 长度64以內。
+    string currency = 12; // 货币
+    bool isFree = 13; //免费模式
+}
+
+message CreateGameRecordReply{
+    string table = 1; // 数据分配的表名
+    uint64 recordId = 2; //记录的id
+}
+
+// 下注的消息结构
+message SetGameRecordStatusBetRequest{
+    string table = 1; // 数据分配的表名
+    uint64 recordId = 2; //记录的id
+    google.protobuf.Timestamp  betTime = 3; // 状态时间
+    double beforeBalance = 4; //下注前的钱
+    double afterBalance  = 5; //下注后的钱
+
+    string traceId = 6; //traceId
+
+    // 如果未知 recordId 和tableName. 也可以使用使用下参数定位
+    string appId = 7; //appid
+    string gameBrand = 8; //游戏品牌
+    string roundId = 9; //游戏id
+}
+
+message SetGameRecordStatusBetReply{
+ 
+}
+
+// 结算的消息结构
+message SetGameRecordStatusWinRequest{
+    string table = 1; // 数据分配的表名
+    uint64 recordId = 2; //记录的id
+    double win = 3; //赢钱数量
+    google.protobuf.Timestamp  winTime = 4; // 结算时间
+    double winBalance  = 5; //最终结算后的钱
+
+    bytes GameData = 6; // 游戏数据
+    uint32 compress = 7; //数据的压缩方式
+    string traceId = 8; //traceId
+    string simple = 9; // 数据样本信息
+
+
+    // 如果未知 recordId 和tableName. 也可以使用使用下参数定位
+    string appId = 10; //appid
+    string gameBrand = 11; //游戏品牌
+    string roundId  = 12; //游戏id
+}
+
+message SetGameRecordStatusWinReply{
+  
+}
+
+// 更新为退款状态
+message SetGameRecordStatusRefundRequest{
+    string table = 1; // 数据分配的表名
+    uint64 recordId = 2; //记录的id
+    google.protobuf.Timestamp  refundTime = 3; // 退款时间
+    string refundReason = 4; // 退款原因
+    double refundBalance  = 5; //最终结算后的钱
+    string traceId = 6; //traceId
+    double balance  = 7; //退款后的钱
+
+    // 如果未知 recordId 和tableName. 也可以使用使用下参数定位
+    string appId = 8; //appid
+    string gameBrand = 9; //游戏品牌
+    string roundId  = 10; //游戏id
+}
+
+message SetGameRecordStatusRefundReply{
+ 
+}
+
+message SetGameRecordStatusErrorRequest{
+    string table = 1; // 数据分配的表名
+    uint64 recordId = 2; //记录的id
+    string reason = 3; // 错误原因
+
+
+    // 如果未知 recordId 和tableName. 也可以使用使用下参数定位
+    string appId = 4; //appid
+    string gameBrand = 5; //游戏品牌
+    string roundId  = 6; //游戏id
+}
+
+message SetGameRecordStatusErrorReply{
+ 
+}

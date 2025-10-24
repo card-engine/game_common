@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package rtp.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "cn.qingdou.server/game_common/api/rtp/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.rtp.v1";
+option java_outer_classname = "RtpProtoV1";
+
+service RtpApi {
+  // 获取spin
+  rpc SelectSpin (SelectSpinRequest) returns (SelectSpinReply);
+
+  // 获取玩家当前RTP(优先玩家->再按游戏->再按商户)
+  rpc GetPlayerRtp (GetPlayerRtpRequest) returns (GetPlayerRtpReply);
+
+  // 获取baccarat rtp
+  rpc GetBaccaratRtp(GetBaccaratRtpRequest) returns (GetBaccaratRtpReply);
+
+  // baccarat结算
+  rpc SettleBaccarat(SettleBaccaratRequest) returns (SettleBaccaratReply);
+
+  // baccarat重置库存（仅运营层面使用）
+  rpc ResetBaccarat(ResetBaccaratRequest) returns (ResetBaccaratReply);
+}
+
+message SelectSpinRequest{
+    string appId = 1; //商户
+    string playerId = 2; //账号id
+    string gameBrand = 3; //游戏厂商
+    string gameId = 4; //游戏id
+    double bet = 5; //下注
+    string round_model = 6; // 模式: DEFAULT,EXTRA,BUY
+    string currency = 7;
+    string mock = 8;
+}
+
+message SelectSpinReply{
+    int64 spinId = 1;   //spin样本id
+    string gameBrand = 2; //游戏厂商
+    string gameId = 3; //游戏id
+    double bet = 4; //下注
+    double originBet = 5;
+    double originTotalWin = 6;
+    bytes data = 7; // spin数据
+    string round_model = 8; // 模式: DEFAULT,EXTRA,BUY
+    string tableName = 9; //本次表名
+    string rtp = 10;    // 本次rtp档位
+    double rate = 11; // 本次spin的概率
+}
+
+message GetPlayerRtpRequest{
+    string appId = 1; //商户
+    string playerId = 2; //账号id
+    string gameBrand = 3; //游戏厂商
+    string gameId = 4; //游戏id
+}
+
+message GetPlayerRtpReply{
+    string rtp = 1;    // 本次rtp档位
+}
+
+message GetBaccaratRtpRequest{
+    string appId = 1; //商户
+    string gameBrand = 2; //游戏厂商
+    string gameId = 3; //游戏id
+    string roundId = 4; // 局id
+    string rtp = 5;    // rtp档位
+}
+
+message GetBaccaratRtpReply{
+    string rtp = 1;    // rtp档位
+    double rate1 = 2;    // 1倍爆率
+    double rate2 = 3;    // >=2倍爆率
+}
+
+message SettleBaccaratRequest{
+    string appId = 1; //商户
+    string gameBrand = 2; //游戏厂商
+    string gameId = 3; //游戏id
+    double roundBetTotal = 4; //本局下注总额
+    double roundProfitTotal = 5; //本局平台本次盈利
+    string roundId = 6; // 局id
+    string rtp = 7;    // rtp档位
+}
+
+message SettleBaccaratReply{
+}
+
+message ResetBaccaratRequest{
+    string appId = 1; //商户
+    string gameBrand = 2; //游戏厂商
+    string gameId = 3; //游戏id
+    string rtp = 4;    // rtp档位
+}
+
+message ResetBaccaratReply{
+}

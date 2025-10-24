@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package minitoken;
+
+option go_package = "./;minitoken";
+
+message TokenPayload { 
+  string AppId = 1;  
+  string PlayerId = 2;
+  string GameBrand = 3;
+  string GameId = 4;
+  string Token = 5;      
+}
