@@ -1,6 +1,9 @@
-module cn.qingdou.server/game_common
+module github.com/zuodazuoqianggame/game_common
 
 go 1.24.2
+
+require cn.qingdou.server/game_common v1.1.0
+replace cn.qingdou.server/game_common => github.com/zuodazuoqianggame/game_common v1.1.0
 
 require (
 	github.com/bwmarrin/snowflake v0.3.0
