@@ -6,13 +6,15 @@ require cn.qingdou.server/game_common v1.1.0
 replace cn.qingdou.server/game_common => github.com/zuodazuoqianggame/game_common v1.1.0
 
 require (
+	github.com/bitly/go-simplejson v0.5.1
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/go-kratos/kratos/v2 v2.8.4
-	github.com/gofiber/fiber/v2 v2.52.8
+	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/golang/snappy v1.0.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/consul/api v1.32.1
+	github.com/qd2ss/sfs v1.1.0
 	github.com/redis/go-redis/v9 v9.10.0
 	github.com/segmentio/kafka-go v0.4.49
 	go.opentelemetry.io/otel v1.36.0
