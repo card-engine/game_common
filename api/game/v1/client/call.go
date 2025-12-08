@@ -3,8 +3,8 @@ package utils
 import (
 	"context"
 
-	v1 "cn.qingdou.server/game_common/api/game/v1"
 	"github.com/go-kratos/kratos/v2/metadata"
+	v1 "github.com/zuodazuoqianggame/game_common/api/game/v1"
 	google_grpc "google.golang.org/grpc"
 )
 

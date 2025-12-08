@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	minitoken "cn.qingdou.server/game_common/player/mini_token"
+	minitoken "github.com/zuodazuoqianggame/game_common/player/mini_token"
 	"google.golang.org/protobuf/proto"
 )
 

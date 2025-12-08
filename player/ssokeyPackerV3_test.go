@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	minitoken "cn.qingdou.server/game_common/player/mini_token"
+	minitoken "github.com/zuodazuoqianggame/game_common/player/mini_token"
 )
 
 func TestEncodedAndDecodedSSOKeyV3(t *testing.T) {

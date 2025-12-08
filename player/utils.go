@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
-	"cn.qingdou.server/game_common/models"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"github.com/zuodazuoqianggame/game_common/models"
 	"gorm.io/gorm"
 )
 

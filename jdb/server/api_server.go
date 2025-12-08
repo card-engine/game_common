@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"cn.qingdou.server/game_common/sfs/protocol"
-	"cn.qingdou.server/game_common/sfs/utils"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/qd2ss/sfs"
 	"github.com/redis/go-redis/v9"
+	"github.com/zuodazuoqianggame/game_common/sfs/protocol"
+	"github.com/zuodazuoqianggame/game_common/sfs/utils"
 	google_grpc "google.golang.org/grpc"
 )
 

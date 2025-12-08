@@ -1,11 +1,12 @@
 package sharding
 
 import (
-	"cn.qingdou.server/game_common/models"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/zuodazuoqianggame/game_common/models"
 )
 
 // ShardMode 表示分片模式

@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"strconv"
 
-	v1 "cn.qingdou.server/game_common/api/game/v1"
-	api_rpc_client "cn.qingdou.server/game_common/api/game/v1/client"
-	rtp_rpc_v1 "cn.qingdou.server/game_common/api/rtp/v1"
-	rtp_rpc_client "cn.qingdou.server/game_common/api/rtp/v1/client"
-	"cn.qingdou.server/game_common/jili/fish/message"
-	"cn.qingdou.server/game_common/player"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/registry"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
+	v1 "github.com/zuodazuoqianggame/game_common/api/game/v1"
+	api_rpc_client "github.com/zuodazuoqianggame/game_common/api/game/v1/client"
+	rtp_rpc_v1 "github.com/zuodazuoqianggame/game_common/api/rtp/v1"
+	rtp_rpc_client "github.com/zuodazuoqianggame/game_common/api/rtp/v1/client"
+	"github.com/zuodazuoqianggame/game_common/jili/fish/message"
+	"github.com/zuodazuoqianggame/game_common/player"
 	google_grpc "google.golang.org/grpc"
 )
 

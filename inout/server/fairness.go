@@ -10,8 +10,8 @@ import (
 	"math"
 	"math/rand"
 
-	"cn.qingdou.server/game_common/utils"
 	"github.com/google/uuid"
+	"github.com/zuodazuoqianggame/game_common/utils"
 )
 
 // ===========================

@@ -1,8 +1,9 @@
 package utils
 
 import (
-	v1 "cn.qingdou.server/game_common/api/rtp/v1"
 	"context"
+
+	v1 "github.com/zuodazuoqianggame/game_common/api/rtp/v1"
 
 	google_grpc "google.golang.org/grpc"
 )

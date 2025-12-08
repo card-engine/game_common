@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	v1 "cn.qingdou.server/game_common/api/history/v1"
+	v1 "github.com/zuodazuoqianggame/game_common/api/history/v1"
 
 	google_grpc "google.golang.org/grpc"
 )

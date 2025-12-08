@@ -1,8 +1,9 @@
 package server
 
 import (
-	"cn.qingdou.server/game_common/player"
 	"sync"
+
+	"github.com/zuodazuoqianggame/game_common/player"
 
 	"github.com/gofiber/contrib/websocket"
 )

@@ -1,7 +1,7 @@
 package message
 
 import (
-	pb "cn.qingdou.server/game_common/jili/fish/pb"
+	pb "github.com/zuodazuoqianggame/game_common/jili/fish/pb"
 	"google.golang.org/protobuf/proto"
 )
 

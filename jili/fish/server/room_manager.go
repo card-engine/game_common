@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"cn.qingdou.server/game_common/jili/fish/message"
-	"cn.qingdou.server/game_common/jili/fish/pb"
+	"github.com/zuodazuoqianggame/game_common/jili/fish/message"
+	"github.com/zuodazuoqianggame/game_common/jili/fish/pb"
 )
 
 type RoomManager struct {

@@ -11,19 +11,19 @@ import (
 
 	cryptorand "crypto/rand"
 
-	inout_utils "cn.qingdou.server/game_common/inout/utils"
-	"cn.qingdou.server/game_common/player"
-	"cn.qingdou.server/game_common/utils"
 	"github.com/bitly/go-simplejson"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
+	inout_utils "github.com/zuodazuoqianggame/game_common/inout/utils"
+	"github.com/zuodazuoqianggame/game_common/player"
+	"github.com/zuodazuoqianggame/game_common/utils"
 
-	v1 "cn.qingdou.server/game_common/api/game/v1"
-	client_utils "cn.qingdou.server/game_common/api/game/v1/client"
-	rtp_rpc_v1 "cn.qingdou.server/game_common/api/rtp/v1"
-	rtp_rpc_client "cn.qingdou.server/game_common/api/rtp/v1/client"
+	v1 "github.com/zuodazuoqianggame/game_common/api/game/v1"
+	client_utils "github.com/zuodazuoqianggame/game_common/api/game/v1/client"
+	rtp_rpc_v1 "github.com/zuodazuoqianggame/game_common/api/rtp/v1"
+	rtp_rpc_client "github.com/zuodazuoqianggame/game_common/api/rtp/v1/client"
 	google_grpc "google.golang.org/grpc"
 )
 

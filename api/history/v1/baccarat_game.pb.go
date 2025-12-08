@@ -7,12 +7,13 @@
 package v1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -491,7 +492,7 @@ const file_history_v1_baccarat_game_proto_rawDesc = "" +
 	"\vBaccaratApi\x12V\n" +
 	"\x0eCreateBaccarat\x12\".baccarat.v1.CreateBaccaratRequest\x1a .baccarat.v1.CreateBaccaratReply\x12M\n" +
 	"\vGetBaccarat\x12\x1f.baccarat.v1.GetBaccaratRequest\x1a\x1d.baccarat.v1.GetBaccaratReplyB`\n" +
-	"\x1adev.kratos.api.baccarat.v1B\x0eHistoryProtoV1P\x01Z0cn.qingdou.server/game_common/api/baccarat/v1;v1b\x06proto3"
+	"\x1adev.kratos.api.baccarat.v1B\x0eHistoryProtoV1P\x01Z0github.com/zuodazuoqianggame/game_common/api/baccarat/v1;v1b\x06proto3"
 
 var (
 	file_history_v1_baccarat_game_proto_rawDescOnce sync.Once

@@ -7,12 +7,13 @@
 package v1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -804,7 +805,7 @@ const file_api_rtp_v1_rtp_proto_rawDesc = "" +
 	"\x0eSettleBaccarat\x12\x1d.rtp.v1.SettleBaccaratRequest\x1a\x1b.rtp.v1.SettleBaccaratReply\x12I\n" +
 	"\rResetBaccarat\x12\x1c.rtp.v1.ResetBaccaratRequest\x1a\x1a.rtp.v1.ResetBaccaratReplyBR\n" +
 	"\x15dev.kratos.api.rtp.v1B\n" +
-	"RtpProtoV1P\x01Z+cn.qingdou.server/game_common/api/rtp/v1;v1b\x06proto3"
+	"RtpProtoV1P\x01Z+github.com/zuodazuoqianggame/game_common/api/rtp/v1;v1b\x06proto3"
 
 var (
 	file_api_rtp_v1_rtp_proto_rawDescOnce sync.Once

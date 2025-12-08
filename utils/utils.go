@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"cn.qingdou.server/game_common/models"
+	"github.com/zuodazuoqianggame/game_common/models"
 	"gorm.io/gorm"
 )
 

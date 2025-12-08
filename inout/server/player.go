@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 
-	v1 "cn.qingdou.server/game_common/api/game/v1"
-	"cn.qingdou.server/game_common/player"
 	"github.com/gofiber/contrib/websocket"
+	v1 "github.com/zuodazuoqianggame/game_common/api/game/v1"
+	"github.com/zuodazuoqianggame/game_common/player"
 )
 
 type InoutPlayer struct {

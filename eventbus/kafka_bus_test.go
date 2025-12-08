@@ -1,12 +1,13 @@
 package eventbus
 
 import (
-	"cn.qingdou.server/game_common/eventbus/types"
 	"context"
 	"fmt"
-	"github.com/go-kratos/kratos/v2/log"
 	"testing"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/zuodazuoqianggame/game_common/eventbus/types"
 )
 
 const brokers = "sss.cpigame.com:19092"
