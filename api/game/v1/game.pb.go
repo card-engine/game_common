@@ -7,13 +7,12 @@
 package v1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1487,8 +1486,8 @@ const file_game_v1_game_proto_rawDesc = "" +
 	"\x06Refund\x12\x16.game.v1.RefundRequest\x1a\x14.game.v1.RefundReply\x12I\n" +
 	"\x0fGameHistoryList\x12\x1b.game.v1.GameHistoryRequest\x1a\x19.game.v1.GameHistoryReply\x12Q\n" +
 	"\x0fJiliGameHistory\x12\x1f.game.v1.JiliGameHistoryRequest\x1a\x1d.game.v1.JiliGameHistoryReply\x12E\n" +
-	"\vAppGameList\x12\x1b.game.v1.AppGameListRequest\x1a\x19.game.v1.AppGameListReplyBU\n" +
-	"\x16dev.kratos.api.game.v1B\vGameProtoV1P\x01Z,github.com/zuodazuoqianggame/game_common/api/game/v1;v1b\x06proto3"
+	"\vAppGameList\x12\x1b.game.v1.AppGameListRequest\x1a\x19.game.v1.AppGameListReplyB`\n" +
+	"\x16dev.kratos.api.game.v1B\vGameProtoV1P\x01Z7github.com/zuodazuoqianggame/game_common/api/game/v1;v1b\x06proto3"
 
 var (
 	file_game_v1_game_proto_rawDescOnce sync.Once

@@ -7,13 +7,12 @@
 package v1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1814,8 +1813,8 @@ const file_history_v1_history_proto_rawDesc = "" +
 	"\x16SetGameRecordStatusBet\x12*.ghistory.v1.SetGameRecordStatusBetRequest\x1a(.ghistory.v1.SetGameRecordStatusBetReply\x12n\n" +
 	"\x16SetGameRecordStatusWin\x12*.ghistory.v1.SetGameRecordStatusWinRequest\x1a(.ghistory.v1.SetGameRecordStatusWinReply\x12w\n" +
 	"\x19SetGameRecordStatusRefund\x12-.ghistory.v1.SetGameRecordStatusRefundRequest\x1a+.ghistory.v1.SetGameRecordStatusRefundReply\x12t\n" +
-	"\x18SetGameRecordStatusError\x12,.ghistory.v1.SetGameRecordStatusErrorRequest\x1a*.ghistory.v1.SetGameRecordStatusErrorReplyB^\n" +
-	"\x19dev.kratos.api.history.v1B\x0eHistoryProtoV1P\x01Z/github.com/zuodazuoqianggame/game_common/api/history/v1;v1b\x06proto3"
+	"\x18SetGameRecordStatusError\x12,.ghistory.v1.SetGameRecordStatusErrorRequest\x1a*.ghistory.v1.SetGameRecordStatusErrorReplyBi\n" +
+	"\x19dev.kratos.api.history.v1B\x0eHistoryProtoV1P\x01Z:github.com/zuodazuoqianggame/game_common/api/history/v1;v1b\x06proto3"
 
 var (
 	file_history_v1_history_proto_rawDescOnce sync.Once

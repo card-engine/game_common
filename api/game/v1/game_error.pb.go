@@ -7,13 +7,12 @@
 package v1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/go-kratos/kratos/v2/errors"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -159,8 +158,8 @@ const file_game_v1_game_error_proto_rawDesc = "" +
 	"INVALID_IP\x10\x1a\x1a\x04\xa8E\x93\x03\x12\x1b\n" +
 	"\x11MAX_REQUEST_LIMIT\x10\x1b\x1a\x04\xa8E\xad\x03\x12\x15\n" +
 	"\vINVALID_RTP\x10\x1c\x1a\x04\xa8E\x90\x03\x12\x1e\n" +
-	"\x14INSUFFICIENT_BALANCE\x10\x1d\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03BU\n" +
-	"\x16dev.kratos.api.game.v1B\vGameProtoV1P\x01Z,github.com/zuodazuoqianggame/game_common/api/game/v1;v1b\x06proto3"
+	"\x14INSUFFICIENT_BALANCE\x10\x1d\x1a\x04\xa8E\x90\x03\x1a\x04\xa0E\xf4\x03B`\n" +
+	"\x16dev.kratos.api.game.v1B\vGameProtoV1P\x01Z7github.com/zuodazuoqianggame/game_common/api/game/v1;v1b\x06proto3"
 
 var (
 	file_game_v1_game_error_proto_rawDescOnce sync.Once
