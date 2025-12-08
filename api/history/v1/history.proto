@@ -76,7 +76,7 @@ message GameHistoryDetailRequest{
 }
 
 message GameHistoryDetailReply{
-    GameHistory data = 1; //记录列表
+    repeated GameHistory data = 1; //记录列表
 }
 
 message GameHistory{

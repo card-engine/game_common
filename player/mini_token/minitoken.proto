@@ -9,5 +9,8 @@ message TokenPayload {
   string PlayerId = 2;
   string GameBrand = 3;
   string GameId = 4;
-  string Token = 5;      
+
+  // 以下参数，不需要用户填写
+  int64 Expire = 99;       // 过期时间，单位秒
+  string Sign = 100;       // 签名，验证数据是否被修改
 }

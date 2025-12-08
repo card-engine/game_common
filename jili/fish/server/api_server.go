@@ -102,7 +102,13 @@ func (s *JiliFishApiServer) OnWebSocketHandler(token, retryCount string, c *webs
 		retryCountNum = 0
 	}
 
-	playerInfo, err := player.GetPlayerInfoByToken(s.rdb, token)
+	tokenInfo, err := player.DecodedSSOKeyV3(token)
+	if err != nil {
+		s.log.Errorf("DecodedSSOKeyV3 failed: %v", err)
+		return
+	}
+
+	playerInfo, err := player.GetPlayerByAppAndPlayerId(s.rdb, tokenInfo.AppId, tokenInfo.PlayerId)
 	if err != nil {
 		s.log.Errorf("GetPlayerInfoByToken failed: %v", err)
 		return
@@ -139,8 +145,8 @@ func (s *JiliFishApiServer) OnWebSocketHandler(token, retryCount string, c *webs
 			return
 		}
 
-		if err := player.SetBalanceByToken(s.rdb, token, balanceRsp.Balance); err != nil {
-			s.log.Errorf("SetBalanceByToken failed: %v", err)
+		if err := player.UpdateBalance(s.rdb, playerInfo.AppID, playerInfo.PlayerID, balanceRsp.Balance); err != nil {
+			s.log.Errorf("UpdateBalance failed: %v", err)
 			return
 		}
 		s.roomManager.OnLogin(jiliPlayer)

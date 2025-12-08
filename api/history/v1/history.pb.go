@@ -316,7 +316,7 @@ func (x *GameHistoryDetailRequest) GetCreateTime() *timestamppb.Timestamp {
 
 type GameHistoryDetailReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Data          *GameHistory           `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"` //记录列表
+	Data          []*GameHistory         `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty"` //记录列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -351,7 +351,7 @@ func (*GameHistoryDetailReply) Descriptor() ([]byte, []int) {
 	return file_history_v1_history_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GameHistoryDetailReply) GetData() *GameHistory {
+func (x *GameHistoryDetailReply) GetData() []*GameHistory {
 	if x != nil {
 		return x.Data
 	}
@@ -1680,7 +1680,7 @@ const file_history_v1_history_proto_rawDesc = "" +
 	"createTime\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"createTime\"F\n" +
 	"\x16GameHistoryDetailReply\x12,\n" +
-	"\x04data\x18\x01 \x01(\v2\x18.ghistory.v1.GameHistoryR\x04data\"\xfe\x04\n" +
+	"\x04data\x18\x01 \x03(\v2\x18.ghistory.v1.GameHistoryR\x04data\"\xfe\x04\n" +
 	"\vGameHistory\x12\x10\n" +
 	"\x03bet\x18\x01 \x01(\x01R\x03bet\x12\x10\n" +
 	"\x03win\x18\x02 \x01(\x01R\x03win\x12\x18\n" +

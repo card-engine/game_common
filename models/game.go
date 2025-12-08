@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+const (
+	ProxyModel_Local = "Local" // 本地模式
+)
+
 type AppGame struct {
 	ID           int64     `gorm:"column:id;type:bigint(20);primaryKey;" json:"id"`                                               // 主键ID
 	AppId        string    `gorm:"column:app_id;type:varchar(32);not null;comment:'appId'" json:"app_id"`                         // 应用ID
@@ -15,6 +19,7 @@ type AppGame struct {
 	GameBrand    string    `gorm:"column:game_brand;type:varchar(32);default:NULL;comment:'游戏厂商:jili,pg'" json:"game_brand"`      // 游戏厂商
 	Status       string    `gorm:"column:status;type:varchar(8);default:ENABLE;comment:'状态：ENABLE,DISABLE'" json:"status"`        // 状态
 	Rtp          string    `gorm:"column:rtp;type:varchar(32);default:NULL" json:"rtp"`
+	ProxyModel   string    `gorm:"column:proxy_model;type:varchar(8);default:Local;comment:'代理模式：空值或Local为本地'" json:"proxyModel"`                                     // 代理模式                                // 状态
 	CreatedAt    time.Time `gorm:"column:created_at;type:datetime;default:CURRENT_TIMESTAMP;comment:'创建时间'" json:"created_at"`                                        // 创建时间
 	UpdatedAt    time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;comment:'db更新时间'" json:"updated_at"` // 数据库更新时间
 }

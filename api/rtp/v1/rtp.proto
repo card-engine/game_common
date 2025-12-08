@@ -49,6 +49,7 @@ message SelectSpinReply{
     string tableName = 9; //本次表名
     string rtp = 10;    // 本次rtp档位
     double rate = 11; // 本次spin的概率
+    int32  compress = 12; // 压缩数据
 }
 
 message GetPlayerRtpRequest{

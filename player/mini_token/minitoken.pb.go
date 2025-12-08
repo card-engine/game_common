@@ -22,12 +22,14 @@ const (
 )
 
 type TokenPayload struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=AppId,proto3" json:"AppId,omitempty"`
-	PlayerId      string                 `protobuf:"bytes,2,opt,name=PlayerId,proto3" json:"PlayerId,omitempty"`
-	GameBrand     string                 `protobuf:"bytes,3,opt,name=GameBrand,proto3" json:"GameBrand,omitempty"`
-	GameId        string                 `protobuf:"bytes,4,opt,name=GameId,proto3" json:"GameId,omitempty"`
-	Token         string                 `protobuf:"bytes,5,opt,name=Token,proto3" json:"Token,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	AppId     string                 `protobuf:"bytes,1,opt,name=AppId,proto3" json:"AppId,omitempty"`
+	PlayerId  string                 `protobuf:"bytes,2,opt,name=PlayerId,proto3" json:"PlayerId,omitempty"`
+	GameBrand string                 `protobuf:"bytes,3,opt,name=GameBrand,proto3" json:"GameBrand,omitempty"`
+	GameId    string                 `protobuf:"bytes,4,opt,name=GameId,proto3" json:"GameId,omitempty"`
+	// 以下参数，不需要用户填写
+	Expire        int64  `protobuf:"varint,99,opt,name=Expire,proto3" json:"Expire,omitempty"` // 过期时间，单位秒
+	Sign          string `protobuf:"bytes,100,opt,name=Sign,proto3" json:"Sign,omitempty"`     // 签名，验证数据是否被修改
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -90,9 +92,16 @@ func (x *TokenPayload) GetGameId() string {
 	return ""
 }
 
-func (x *TokenPayload) GetToken() string {
+func (x *TokenPayload) GetExpire() int64 {
 	if x != nil {
-		return x.Token
+		return x.Expire
+	}
+	return 0
+}
+
+func (x *TokenPayload) GetSign() string {
+	if x != nil {
+		return x.Sign
 	}
 	return ""
 }
@@ -101,13 +110,14 @@ var File_minitoken_proto protoreflect.FileDescriptor
 
 const file_minitoken_proto_rawDesc = "" +
 	"\n" +
-	"\x0fminitoken.proto\x12\tminitoken\"\x8c\x01\n" +
+	"\x0fminitoken.proto\x12\tminitoken\"\xa2\x01\n" +
 	"\fTokenPayload\x12\x14\n" +
 	"\x05AppId\x18\x01 \x01(\tR\x05AppId\x12\x1a\n" +
 	"\bPlayerId\x18\x02 \x01(\tR\bPlayerId\x12\x1c\n" +
 	"\tGameBrand\x18\x03 \x01(\tR\tGameBrand\x12\x16\n" +
-	"\x06GameId\x18\x04 \x01(\tR\x06GameId\x12\x14\n" +
-	"\x05Token\x18\x05 \x01(\tR\x05TokenB\x0eZ\f./;minitokenb\x06proto3"
+	"\x06GameId\x18\x04 \x01(\tR\x06GameId\x12\x16\n" +
+	"\x06Expire\x18c \x01(\x03R\x06Expire\x12\x12\n" +
+	"\x04Sign\x18d \x01(\tR\x04SignB\x0eZ\f./;minitokenb\x06proto3"
 
 var (
 	file_minitoken_proto_rawDescOnce sync.Once

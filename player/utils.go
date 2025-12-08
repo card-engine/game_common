@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-kratos/kratos/v2/log"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 
 	"cn.qingdou.server/game_common/models"
 	"github.com/google/uuid"
@@ -146,7 +147,7 @@ type PlayerInfo struct {
 	AId      uint64  `json:"aId"`
 }
 
-// GetPlayerInfoByToken 通过 token 从 Redis 获取玩家指定信息
+// Deprecated: 通过 token 从 Redis 获取玩家指定信息, 请使用GetPlayerByAppAndPlayerId
 func GetPlayerInfoByToken(rdb *redis.Client, token string) (*PlayerInfo, error) {
 	ctx := context.Background()
 
@@ -198,6 +199,7 @@ func GetPlayerInfoByToken(rdb *redis.Client, token string) (*PlayerInfo, error) 
 	return playerInfo, nil
 }
 
+// Deprecated: token索引的方式废弃了
 func CheckTokenExists(rdb *redis.Client, token string) (bool, error) {
 	ctx := context.Background()
 	result, err := rdb.Exists(ctx, fmt.Sprintf(RedisKeyPlayerToken, token)).Result()
@@ -207,7 +209,7 @@ func CheckTokenExists(rdb *redis.Client, token string) (bool, error) {
 	return result > 0, nil
 }
 
-// 通过token获取appid
+// Deprecated: 通过token获取appid, token索引的方式废弃了
 func GetAppIDByToken(rdb *redis.Client, token string) (string, error) {
 	ctx := context.Background()
 
@@ -230,7 +232,7 @@ func GetAppIDByToken(rdb *redis.Client, token string) (string, error) {
 	return appId, nil
 }
 
-// 通过token获取金币 balance
+// Deprecated: 通过token获取金币 balance
 func GetBalanceByToken(rdb *redis.Client, token string) (float64, error) {
 	ctx := context.Background()
 	infoKey, err := rdb.GetEx(ctx, fmt.Sprintf(RedisKeyPlayerToken, token), RedisPlayInfoExpire).Result()
@@ -257,7 +259,7 @@ func GetBalanceByToken(rdb *redis.Client, token string) (float64, error) {
 	return balance, nil
 }
 
-// 获取货币类型
+// Deprecated: 获取货币类型, 请使用GetPlayerByAppAndPlayerId
 func GetCurrencyByToken(rdb *redis.Client, token string) (string, error) {
 	ctx := context.Background()
 	infoKey, err := rdb.GetEx(ctx, fmt.Sprintf(RedisKeyPlayerToken, token), RedisPlayInfoExpire).Result()
@@ -285,6 +287,7 @@ var currencySymbolMap = map[string]string{
 	"GBP": "£",
 }
 
+// Deprecated: GetCurrencySymbol 已废弃，请使用 utils.GetCurrencySymbol
 // GetCurrencySymbol 通过货币字母缩写获取货币符号
 func GetCurrencySymbol(currencyCode string) string {
 	if symbol, ok := currencySymbolMap[currencyCode]; ok {
@@ -293,7 +296,7 @@ func GetCurrencySymbol(currencyCode string) string {
 	return "" // 如果未找到对应的符号，返回空字符串
 }
 
-// 通过token设置金币金额
+// Deprecated: 通过token设置金币金额, 请使用UpdateBalance
 func SetBalanceByToken(rdb *redis.Client, token string, amount float64) error {
 	ctx := context.Background()
 
@@ -314,6 +317,7 @@ func SetBalanceByToken(rdb *redis.Client, token string, amount float64) error {
 	return nil
 }
 
+// Deprecated: 此函数已弃用
 func GetTokenBySSOKey(rdb *redis.Client, appId, ssokey string) (string, error) {
 	ctx := context.Background()
 	// 使用 Redis 的 Get 方法获取 token
@@ -416,6 +420,41 @@ func UpdatePlayerRtp(ctx context.Context, db *gorm.DB, appId string, aids []uint
 		return 0, result.Error
 	}
 	return int(result.RowsAffected), nil
+}
+
+func UpdateGameId(rdb *redis.Client, appId, playerId string, gameBrand, gameId string) error {
+	ctx := context.Background()
+	infoKey := fmt.Sprintf(RedisKeyPlayerInfo, appId, playerId)
+	// 使用 HSet 更新 gameId 字段
+	err := rdb.HSet(ctx, infoKey, "gameId", gameId).Err()
+	if err != nil {
+		return fmt.Errorf("更新 gameId 失败: %w", err)
+	}
+	// 更新 brand 字段
+	err = rdb.HSet(ctx, infoKey, "brand", gameBrand).Err()
+	if err != nil {
+		return fmt.Errorf("更新 brand 失败: %w", err)
+	}
+	// 给数据续期
+	rdb.Expire(ctx, infoKey, RedisPlayInfoExpire)
+	return nil
+}
+
+func UpdateBalance(rdb *redis.Client, appId, playerId string, amount float64) error {
+	ctx := context.Background()
+
+	infoKey := fmt.Sprintf(RedisKeyPlayerInfo, appId, playerId)
+
+	// 将 float64 类型的金额转换为字符串
+	amountStr := strconv.FormatFloat(amount, 'f', -1, 64)
+	// 使用 Redis 的 HSet 方法设置 balance
+	err := rdb.HSet(ctx, infoKey, "balance", amountStr).Err()
+	if err != nil {
+		return err
+	}
+	// 给数据续期
+	rdb.Expire(ctx, infoKey, RedisPlayInfoExpire)
+	return nil
 }
 
 // 通过appid以及playerid获取玩家

@@ -1,6 +1,6 @@
 package types
 
-const GAME_EVENT_TOPIC = "gameEvent"
+const GAME_EVENT_TOPIC = "ApiGameEvent"
 
 // 派奖事件
 type WinEvent struct {
