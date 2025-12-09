@@ -1,0 +1,1098 @@
+syntax = "proto3";
+
+package annin_protocol;
+option go_package = "cn.qingdou.server/jili_fish_mine_server/internal/pb;pb";
+import "google/protobuf/timestamp.proto";
+
+import "google/protobuf/any.proto";
+
+// 用户 -> 服务器 消息枚举
+enum UserToServer {
+  U2S_LOGIN_REQ = 0;
+  U2S_LOGOUT = 2;
+  U2S_HEART_CHECK_REQ = 50;
+  U2S_VERIFY = 51;
+  U2S_TRANSFER = 70;
+  U2S_CARD_USE_REQ = 80;
+  U2S_CARD_INFO = 82;
+  U2S_CARD_REDEEM = 83;
+  U2S_JACKPOT = 85;
+  U2S_JACKPOT_DRAW = 86;
+  U2S_VIP_SIGN_REQ = 90;
+  U2S_VIP_EXP_REQ = 91;
+  U2S_VIP_INFO = 92;
+  U2S_PROMOTION_INFO = 95;
+  U2S_FAVORITE_INFO = 100;
+  U2S_FAVORITE_ADD = 101;
+  U2S_FAVORITE_REMOVE = 102;
+  U2S_ITEM_INFO = 105;
+  U2S_ITEM_USE_REQ = 106;
+  U2S_MISSION_INFO = 110;
+  U2S_MISSION_INFO2 = 111;
+  U2S_MAIL_INFO = 115;
+  U2S_CONFIG_INFO = 120;
+  U2S_DEBRIS_INFO = 125;
+  U2S_DEBRIS_GET = 126;
+  U2S_DEBRIS_EXCHANGE = 127;
+  U2S_DEBRIS_ACTIVITY = 128;
+  U2S_PLAYER_LEVEL = 130;
+  U2S_BUFF = 135;
+  U2S_BUFF_USE = 136;
+  U2S_BUFF_BACKPACK = 137;
+  U2S_BUFF_PARAM = 138;
+  U2S_FREESPIN_HISTROY = 140;
+  U2S_FREESPIN_GIVEUP = 141;
+  U2S_FREESPIN_BOUNS = 142;
+  U2S_FREESPIN_ALL = 143;
+  U2S_FREESPIN_AUTO_SEND = 144;
+  U2S_GIFT_CODE = 145;
+  U2S_LIVEBET_GETINFO = 200;
+  U2S_LIVEBET_REWARDINFO = 201;
+  U2S_LIVEBET_BET = 202;
+  U2S_LIVEBET_REWARD = 203;
+}
+
+// 服务器 -> 用户 消息枚举
+enum ServerToUser {
+  S2U_LOGIN_ACK = 0;
+  S2U_LOGOUT_ACK = 1;
+  S2U_HEART_CHECK_ACK = 50;
+  S2U_VERIFY = 51;
+  S2U_ADDCOIN = 62;
+  S2U_TRANSFER = 70;
+  S2U_AGENT_MSG = 71;
+  S2U_MAINTAIN = 75;
+  S2U_CARD_USE_ACK = 80;
+  S2U_CARD_NOTIFY = 81;
+  S2U_CARD_INFO = 82;
+  S2U_CARD_REDEEM = 83;
+  S2U_CHIP_NOTIFY = 84;
+  S2U_JACKPOT = 85;
+  S2U_JACKPOT_DRAW = 86;
+  S2U_JACKPOT_WIN = 87;
+  S2U_JACKPOT_BROADCAST = 88;
+  S2U_VIP_SIGN_ACK = 90;
+  S2U_VIP_EXP_NOTIFY = 91;
+  S2U_VIP_INFO = 92;
+  S2U_PROMOTION_INFO = 95;
+  S2U_FAVORITE_INFO = 100;
+  S2U_ITEM_INFO = 105;
+  S2U_ITEM_USE_ACK = 106;
+  S2U_MISSION_INFO = 110;
+  S2U_MISSION_UPDATE = 111;
+  S2U_MISSION_INFO_2 = 112;
+  S2U_MAIL_INFO = 115;
+  S2U_CONFIG_INFO = 120;
+  S2U_DEBRIS_INFO = 125;
+  S2U_DEBRIS_GET = 126;
+  S2U_DEBRIS_EXCHANGE = 127;
+  S2U_DEBRIS_ACTIVITY = 128;
+  S2U_PLAYER_LEVEL = 130;
+  S2U_BUFF = 135;
+  S2U_BUFF_USE = 136;
+  S2U_BUFF_BACKPACK = 137;
+  S2U_BUFF_PARAM = 138;
+  S2U_FREESPIN_HISTROY = 140;
+  S2U_FREESPIN_GIVEUP = 141;
+  S2U_FREESPIN_BOUNS = 142;
+  S2U_FREESPIN_ALL = 143;
+  S2U_FREESPIN_UPDATE = 144;
+  S2U_GIFT_CODE = 145;
+  S2U_FREESPIN_AUTO_SEND = 146;
+  S2U_LIVEBET_GETINFO = 200;
+  S2U_LIVEBET_REWARDINFO = 201;
+  S2U_LIVEBET_BET = 202;
+  S2U_LIVEBET_REWARD = 203;
+}
+
+  enum LoginResult {
+    LR_SUCCESS = 0;
+    LR_DUPLICATE = 1;
+    LR_INVALID_ACCOUNT = 2;
+    LR_FULL = 3;
+    LR_RELOGIN = 4;
+    LR_RELOGIN_FAIL = 5;
+    LR_MAINTAIN = 6;
+
+        LR_UNKNOWN = 255;
+  }
+
+enum LogoutType {
+  LogoutNone = 0;
+  LogoutDuplicate = 1;
+  LogoutInvalidPlatform = 2;
+  LogoutInvalidGame = 3;
+  LogoutOverdraft = 4;
+  LogoutIdel = 5;
+  LogoutTransfer = 6;
+  LogoutMaintain = 7;
+  LogoutOther = 255;
+}
+
+enum Team {
+  NotTeam = 0;
+  A = 1;
+  B = 2;
+  Tie = 3;
+}
+
+
+
+message Command {
+  uint32 type = 1;
+  bytes data = 2;
+}
+
+message GameId {
+  uint32 game = 1;
+}
+
+message LoginDataAck {
+  LoginResult result = 2;
+  PlayerInfo player = 3;
+  bool novice = 6;
+  Config config = 7;
+  AgentConfig agent = 8;
+  repeated FreeSpin freeSpin = 9;
+  Tournament tournament = 10;
+  Wallet wallet = 22;
+}
+
+message Config {
+  uint32 version = 1;
+  Service service = 2;
+  
+  message Service {
+    bool card = 1;
+    bool jackpot = 2;
+    bool giftCode = 3;
+    bool item = 4;
+    bool livebet = 5;
+    bool debris = 6;
+    bool mission = 7;
+    bool tournament = 8;
+  }
+}
+
+message FreeSpin {
+  uint32 claimId = 1;
+  uint32 remain = 2;
+  uint32 type = 3;
+  double betValue = 4;
+  string referenceId = 5;
+  double bonus = 6;
+  uint32 expiredTime = 7;
+  Bonus bonusData = 8;
+  double maxCash = 9;
+  bool isAllowStop = 10;
+  bool closeOnFinish = 11;
+  
+  message Bonus {
+    double minBonus = 1;
+    double maxBonus = 2;
+    double wager = 3;
+    double multiplier = 4;
+    uint32 validityPeriod = 5;
+    uint32 validityTime = 6;
+    bool isWagerStage = 7;
+  }
+}
+
+message PlayerInfo {
+  uint32 uid = 1;
+  string name = 2;
+  Wallet wallet = 4;
+  double rtp = 5;
+  uint64 accountId = 6;
+}
+
+message LogoutAck {
+  LogoutType  type = 1;
+  uint32 code = 2;
+  string message = 3;
+}
+
+message Vip {
+  uint32 level = 1;
+  bool isMax = 2;
+  double exp = 3;
+  Treasure treasure = 4;
+  
+  message Treasure {
+    double exp = 1;
+    repeated Info info = 2;
+    int64 next = 3;
+    
+    message Info {
+      string index = 1;
+      int32 minVip = 2;
+      double exp = 3;
+      bool isOpen = 4;
+    }
+  }
+}
+
+message Promotion {
+  bool enabled = 1;
+  repeated Info list = 2;
+  
+  message Info {
+    uint32 id = 1;
+    repeated uint32 labels = 2;
+    uint32 dau = 3;
+    uint32 mall = 4;
+    Top top = 5;
+    
+    message Top {
+      double win = 1;
+      double odds = 2;
+    }
+  }
+}
+
+message Reward {
+  message ExpTable {
+    uint32 level = 1;
+    double exp = 2;
+    double reward = 3;
+  }
+  
+  message Level {
+    repeated uint32 rewarded = 1;
+    repeated ExpTable table = 2;
+  }
+  
+  message Week {
+    repeated uint32 rewarded = 1;
+    repeated ExpTable table = 2;
+    int64 next = 3;
+  }
+}
+
+message Wallet {
+  uint32 currency = 1;
+  double coin = 2;
+  double ratio = 3;
+  double rate = 4;
+  string symbol = 5;
+  uint32 decimals = 6;
+}
+
+message VipExp {
+  uint32 level = 1;
+  bool isMax = 2;
+  double exp = 3;
+  double treasure = 4;
+}
+
+message VipSignReq {
+  string index = 1;
+}
+
+message VipSignAck {
+  string index = 1;
+  uint32 itemId = 2;
+  uint32 count = 3;
+  uint32 icon = 4;
+}
+
+message TransferReq {
+  uint32 id = 1;
+}
+
+message TransferAck {
+  uint32 id = 1;
+  string url = 2;
+}
+
+message Card {
+  repeated Data list = 1;
+  repeated Message message = 2;
+  ChipData chip = 3;
+  
+  message Data {
+    uint32 index = 1;
+    uint32 gameId = 2;
+    uint32 cardId = 3;
+    int64 start = 4;
+    int64 end = 5;
+    double cost = 6;
+    uint32 type = 7;
+    uint32 source = 20;
+  }
+  
+  message Message {
+    uint32 cardId = 1;
+    uint32 msgId = 2;
+    int64 createTime = 3;
+    uint32 gameId = 4;
+  }
+  
+  message ChipData {
+    repeated Chip chips = 1;
+    int64 start = 3;
+    int64 end = 4;
+    repeated Formula formulas = 5;
+    
+    message Chip {
+      uint32 id = 1;
+      uint32 amount = 2;
+    }
+    
+    message Formula {
+      uint32 id = 1;
+      uint32 cardId = 2;
+      uint32 amount = 3;
+      uint32 max = 4;
+      uint32 redeemed = 5;
+      repeated Chip chips = 6;
+      uint32 sort = 7;
+      uint32 rank = 8;
+    }
+  }
+}
+
+message CardRedeemRequest {
+  uint32 formulaId = 1;
+}
+
+message CardRedeemAck {
+  repeated Card.ChipData.Chip chips = 1;
+  uint32 formulaId = 2;
+}
+
+message CardUseReq {
+  uint32 index = 1;
+}
+
+message CardUseAck {
+  uint32 index = 1;
+  uint32 seat = 3;
+  bool success = 4;
+  uint32 cardId = 5;
+  uint32 type = 6;
+  double param1 = 7;
+  double param2 = 8;
+  double param3 = 9;
+  double cost = 10;
+}
+
+message LoginData {
+  string os = 1;
+  string language = 2;
+  Browser browser = 3;
+  string version = 4;
+  string model = 5;
+  
+  message Browser {
+    string type = 1;
+    string version = 2;
+    string language = 3;
+    uint32 width = 4;
+    uint32 height = 5;
+    float ratio = 6;
+  }
+}
+
+message Favorite {
+  bool enabled = 1;
+  repeated Info list = 2;
+  
+  message Info {
+    uint32 id = 1;
+    uint32 dau = 2;
+  }
+}
+
+message ItemRequest {
+  uint32 lang = 1;
+}
+
+message ItemUseRequest {
+  uint32 idx = 1;
+  uint32 id = 2;
+}
+
+message ItemUseAck {
+  double bet = 1;
+  uint32 idx = 2;
+  uint32 id = 3;
+  double coin = 4;
+  bool success = 5;
+  uint32 source = 6;
+  google.protobuf.Any meta = 7;  // Assuming Ci is defined elsewhere
+}
+
+message Item {
+  uint32 result = 1;
+  repeated Info list = 2;
+  repeated Mail mail = 3;
+  
+  message Info {
+    uint32 index = 1;
+    uint32 id = 2;
+    uint32 amount = 3;
+    uint32 gameId = 4;
+    uint32 lvMin = 5;
+    uint32 lvMax = 6;
+    double coinLimit = 7;
+    uint32 dailyremaintimes = 9;
+    double bet = 12;
+    uint32 spinPayType = 14;
+    double giveType = 15;
+    uint32 winType = 16;
+    double winMultiplier = 17;
+    double winMaxMag = 18;
+    uint32 winMagSet = 19;
+    double itemValue = 20;
+    string itemName = 21;
+    uint32 icon = 22;
+    uint32 banReason = 23;
+    string itemDesc = 24;
+    uint32 star = 25;
+    string gameName = 26;
+    uint32 currencyNumber = 27;
+    int64 start = 28;
+    int64 expired = 29;
+    double playValue = 30;
+  }
+  
+  message Mail {
+    uint32 idx = 1;
+    uint32 source = 2;
+    uint32 isRead = 3;
+    uint32 action = 4;
+    uint32 gameId = 5;
+    uint32 itemId = 6;
+    double amount = 7;
+    uint32 star = 8;
+    uint32 winType = 9;
+    string createTime = 10;
+    string message = 11;
+  }
+}
+
+message MissionRequest {
+  string lang = 1;
+}
+
+message Mission {
+  message Item {
+    string gameName = 1;
+    uint32 winType = 2;
+    double bet = 3;
+    string game = 4;
+    uint32 icon = 5;
+    string name = 6;
+    uint32 star = 7;
+    double value = 8;
+    uint32 gameId = 9;
+    uint32 id = 10;
+    double winMultiplier = 11;
+    double winMaxMag = 12;
+    double playValue = 13;
+  }
+  
+  message Info {
+    uint32 currentCount = 1;
+    uint32 totalCount = 2;
+    bool finished = 3;
+    uint32 itemCount = 4;
+    string desc = 5;
+    uint32 type = 7;
+    uint32 vip = 8;
+    uint32 itemId = 9;
+    double coin = 10;
+    uint32 gameId = 11;
+    bool lock = 12;
+    uint32 show = 13;
+    int64 extendId = 14;
+  }
+}
+
+message MissionUpdate {
+  repeated Info list = 4;
+  
+  message Info {
+    uint32 reward = 1;
+    double bet = 2;
+    double win = 3;
+    bool fg = 4;
+    repeated Reward list = 5;
+    
+    message Reward {
+      uint32 itemId = 1;
+      uint32 itemCount = 2;
+      int64 extendId = 3;
+    }
+  }
+}
+
+message MailData {
+  repeated Mail mails = 1;
+  
+  message Mail {
+    int32 source = 1;
+    string content = 2;
+  }
+}
+
+message AgentConfig {
+  repeated Banner banners = 1;
+  repeated double betList = 3;
+  repeated double defaultBet = 4;
+  
+  message Banner {
+    string image = 1;
+    int64 start = 2;
+    int64 end = 3;
+  }
+}
+
+message DebrisActivity {
+  uint32 no = 1;
+  int64 start = 2;
+  int64 fall = 3;
+  int64 end = 4;
+  repeated Formula formula = 5;
+  repeated Debris debris = 6;
+  repeated double minbet = 7;
+  double minmul = 8;
+  
+  message Formula {
+    uint32 no = 1;
+    uint32 level = 2;
+    uint32 ftype = 3;
+    uint32 fitem = 4;
+    uint32 ficon = 5;
+    uint32 amount = 6;
+    uint32 max = 7;
+    repeated uint32 dn = 8;
+    repeated uint32 dc = 9;
+  }
+  
+  message Debris {
+    uint32 no = 1;
+    uint32 level = 2;
+    uint32 icon = 3;
+  }
+}
+
+message DebrisInfoReq {
+  uint32 activityNo = 1;
+}
+
+message DebrisInfoAck {
+  uint32 result = 1;
+  uint32 activityNo = 2;
+  repeated Formula changelist = 3;
+  repeated Debris debrislist = 4;
+  
+  message Formula {
+    uint32 formula = 1;
+    uint32 count = 2;
+  }
+  
+  message Debris {
+    uint32 no = 1;
+    uint32 count = 2;
+  }
+}
+
+message DebrisGet {
+  uint32 result = 1;
+  bool get = 2;
+}
+
+message DebrisExchangeReq {
+  uint32 formula = 1;
+  uint32 amount = 2;
+  uint32 activityNo = 3;
+}
+
+message DebrisExchangeAck {
+  uint32 result = 1;
+  uint32 awardType = 2;
+  uint32 itemNo = 3;
+  uint32 amount = 4;
+  uint32 icon = 5;
+}
+
+message AddCoin {
+  double coin = 2;
+}
+
+message PlayerLevel {
+  message Reward {
+    int32 amount = 1;
+    int32 betOpen = 2;
+    int32 origin = 4;
+    repeated int32 newGames = 5;
+    repeated int32 unlock = 6;
+    int32 vipExp = 7;
+    int32 ruby = 8;
+    int32 itemID = 9;
+    int32 ItemCount = 10;
+    int32 buffID = 11;
+    int32 buffCount = 12;
+    int32 cardBookID = 13;
+    int32 cardBookCount = 14;
+    int32 show = 15;
+  }
+}
+
+message JackpotLink {
+  repeated double reward = 1;
+}
+
+message JackpotLinkData {
+  uint32 no = 1;
+  double reward = 2;
+}
+
+message JackpotLinkBroadcast {
+  uint32 accountId = 1;
+  uint32 no = 3;
+  double reward = 4;
+  string name = 5;
+  uint32 game = 6;
+  string nickName = 7;
+}
+
+message JackpotLinkDraw {
+  repeated Draw list = 1;
+  
+  message Draw {
+    uint32 no = 1;
+    string name = 2;
+    double bet = 3;
+    double reward = 4;
+    int64 createTime = 5;
+    string nickName = 7;
+  }
+}
+
+message DailyMissionDataResponse {
+  uint32 missionReward = 1;
+  Info info = 2;
+  repeated Reward list = 3;
+  Mission2 mission2 = 4;
+  
+  message Reward {
+    uint32 ItemID = 1;
+    uint32 ItemCount = 2;
+    int64 ExtendID = 3;
+  }
+  
+  message Info {
+    string Desc = 1;
+    string StartTime = 2;
+    string EndTime = 3;
+    string StartTimestamp = 4;
+    string EndTimestamp = 5;
+    string CurrentDate = 6;
+    int32 OverDay = 7;
+    int32 OverDayMin = 8;
+    repeated Data DailyMissionList = 9;
+    map<uint32, ItemCard> ItemInfo = 10;
+    repeated int32 NextGameIDList = 11;
+    map<uint32, GiftPack> GiftInfo = 12;
+    
+    message Data {
+      string Date = 1;
+      string ConditionDesc = 2;
+      int32 CurrentCount = 3;
+      int32 TotalCount = 4;
+      uint32 ItemID = 5;
+      uint32 ItemCount = 6;
+      bool Finished = 7;
+      int32 Vip = 8;
+      int32 Type = 9;
+      double Coin = 10;
+      int32 Show = 11;
+      bool Lock = 12;
+      int32 GameID = 13;
+      int32 ChainID = 14;
+      int32 MissionIndex = 15;
+      int64 ExtendID = 16;
+    }
+    
+    message ItemCard {
+      int32 GameID = 1;
+      string Game = 2;
+      string ItemName = 3;
+      int32 Icon = 4;
+      double ItemValue = 5;
+      double Bet = 6;
+      string GameName = 7;
+      int32 Star = 8;
+      int32 WinType = 9;
+      double WinMultiplier = 10;
+      double WinMaxMag = 11;
+      double PlayValue = 12;
+    }
+    
+    message GiftPack {
+      repeated Gift List = 1;
+      
+      message Gift {
+        uint32 ItemID = 1;
+        uint32 ItemCount = 2;
+        int64 ExtendID = 3;
+      }
+    }
+  }
+  
+  message Mission2 {
+    OtherInfo Info = 2;
+    repeated LimitMission limitMission = 3;
+    DailyMission dailyMission = 4;
+    
+    enum RewardType {
+  None = 0;
+  Item = 1;
+  Ruby = 2;
+  ForceFG = 3;
+  Ticket = 4;
+  Coin = 5;
+  Buff = 6;
+  CollectGame = 7;
+  Gacha = 8;
+}
+
+enum RewardSource {
+  Source_None = 0;
+  Source_Mission = 1;
+  Source_Daily = 2;
+  Source_Limit = 3;
+}
+    message Award {
+      RewardType ItemType = 1;
+      int32 ItemID = 2;
+      int32 ItemCount = 3;
+      RewardSource Source = 4;
+    }
+    
+    message NeedParam {
+      double Count = 1;
+      double Bet = 2;
+      double TotalBet = 3;
+      double TotalWin = 4;
+      double Multiple = 5;
+      int32 ThemeID = 6;
+      int32 Point = 7;
+      int32 Combo = 8;
+    }
+    
+    message DailyMission {
+      int64 StartTimestamp = 1;
+      int64 EndTimestamp = 2;
+      string CurrentDate = 3;
+      int32 OverDay = 4;
+      int32 OverDayMin = 5;
+      repeated DailyMissionData DailyMissionList = 6;
+      repeated int32 NextGameIDList = 7;
+      
+      message DailyMissionData {
+        int32 CurrentCount = 1;
+        int32 TotalCount = 2;
+        int32 Kind = 3;
+        int64 EndTimestamp = 4;
+        int32 GameID = 5;
+        int32 ChainID = 6;
+        int32 Serial = 7;
+        int32 MissionIndex = 8;
+        repeated Award AwardList = 9;
+        bool Lock = 10;
+        int32 Show = 11;
+        bool Finished = 12;
+        int32 Vip = 13;
+        int32 Type = 14;
+        NeedParam Param = 15;
+      }
+    }
+    
+    message LimitMission {
+      int32 CurrentCount = 1;
+      int32 TotalCount = 2;
+      int32 Kind = 3;
+      int64 EndTimestamp = 4;
+      int32 GameID = 5;
+      int32 ChainID = 6;
+      int32 Serial = 7;
+      int32 MissionIndex = 8;
+      repeated Award AwardList = 9;
+      bool IsLock = 10;
+      NeedParam Param = 11;
+    }
+    
+    message ItemCard {
+      int32 ItemID = 1;
+      int32 GameID = 2;
+      double Bet = 3;
+      int32 Star = 4;
+      int32 Icon = 5;
+      int32 WinType = 6;
+    }
+    
+    message OtherInfo {
+      map<int32, ItemCard> ItmeInfo = 1;
+    }
+  }
+}
+
+message ContestBoard {
+  int32 id = 1;
+  repeated Contest list = 2;
+  google.protobuf.Timestamp startTime = 3;  // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  google.protobuf.Timestamp endTime = 4;    // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  repeated TeamInfo Team = 5;
+  string contestName = 6;
+}
+
+message Contest {
+  int32 id = 1;
+  int32 raceID = 2;
+  int32 TeamAID = 3;
+  int32 TeamBID = 4;
+  bool isReward = 5;
+  google.protobuf.Timestamp startTime = 6;  // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  google.protobuf.Timestamp endTime = 7;    // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  google.protobuf.Timestamp betTime = 8;    // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  double maxPrize = 9;
+  int64 maxTicket = 10;
+  WinData Win = 11;
+  ContestTicket Ticket = 12;
+  
+  message WinData {
+    int32 ScoreA = 1;
+    int32 ScoreB = 2;
+    Team Win = 3;
+  }
+}
+
+message Info {
+  repeated ContestBoard contest = 1;
+  int64 ticket = 2;
+}
+
+message ContestTicket {
+  Ticket A = 1;
+  Ticket B = 2;
+  
+  message Ticket {
+    int64 Total = 1;
+    int64 My = 2;
+  }
+}
+
+message RewardReq {
+  int32 contestID = 1;
+  int32 raceID = 2;
+  uint64 accountID = 3;
+  int32 apiID = 4;
+  int32 gameID = 5;
+  int64 roundIndex = 6;
+}
+
+message RewardResp {
+  double coin = 1;
+}
+
+message ContestBet {
+  int32 contestID = 1;
+  int32 raceID = 2;
+  int64 ticket = 3;
+  uint64 accountID = 4;
+  int32 apiID = 5;
+  Team team = 6;
+}
+
+message RewardData {
+  int32 ApiID = 1;
+  int32 ContestID = 3;
+  int32 RaceID = 4;
+  double Coin = 5;
+  google.protobuf.Timestamp CreateTime = 6;  // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  bool IsReward = 7;
+  google.protobuf.Timestamp ExpiredTime = 8;  // Assuming google.protobuf.Timestamp is a google.protobuf.Timestamp type
+  Team Team = 9;
+}
+
+message RewardListReq {
+  uint64 accountID = 1;
+  int32 contestID = 2;
+}
+
+message RewardListResp {
+  repeated RewardData list = 1;
+}
+
+message TeamInfo {
+  int32 ContestID = 1;
+  int32 TeamID = 2;
+  string Name = 3;
+  string Icon = 4;
+}
+
+message GiftCodeReq {
+  string code = 1;
+}
+
+message GiftCodeAck {
+  uint32 result = 1;
+  FreeSpin freeSpin = 2;
+  uint32 type = 3;
+}
+
+message FreeSpinGiveUpReq {
+  string referenceId = 1;
+}
+
+message FreeSpinGiveUpAck {
+  uint32 result = 1;
+  string referenceId = 2;
+}
+
+message FreeSpinHistory {
+  repeated Record records = 1;
+  
+  message Record {
+    uint32 state = 1;
+    uint32 gameId = 2;
+    double bonus = 3;
+    uint32 type = 4;
+    string referenceId = 5;
+    int32 recordTime = 6;
+  }
+}
+
+message FreeSpinAll {
+  uint32 result = 1;
+  repeated Game games = 2;
+  
+  message Game {
+    uint32 remain = 1;
+    uint32 gameId = 2;
+    string referenceId = 3;
+    int32 expiredTime = 4;
+  }
+}
+
+message FreeSpinUpdate {
+  string referenceId = 1;
+  uint32 remain = 2;
+  double bonus = 3;
+  double wager = 4;
+}
+
+message FreeSpinBonusReq {
+  string referenceId = 1;
+}
+
+message FreeSpinBonusAck {
+  double coin = 1;
+  string referenceId = 2;
+  double remain = 3;
+}
+
+message FreeSpinAutoSendAck {
+  uint32 result = 1;
+  repeated Setting settings = 2;
+  
+  message Setting {
+    string name = 1;
+    uint32 startTime = 2;
+    uint32 endTime = 3;
+    uint32 registerTime = 4;
+    uint32 freeSpinType = 5;
+    repeated uint32 gameIds = 6;
+    bool isAvailable = 7;
+  }
+}
+
+message Tournament {
+  uint32 id = 1;
+  double balance = 2;
+  double initBalance = 3;
+  double minBet = 4;
+  double maxBet = 5;
+  uint32 goal = 6;
+  uint32 startTimestamp = 7;
+  uint32 endTimestamp = 8;
+  bool buyBonusOn = 9;
+  bool extraBetOn = 10;
+  uint32 category = 11;
+}
+
+message AgentMessage {
+  uint32 code = 1;
+  string title = 2;
+  string message = 3;
+}
+
+// Longhu protocol messages
+message GetLonghuListRequest {
+  int32 apiID = 1;
+  int32 accountID = 2;
+  int32 subAgentCode = 3;
+  int32 GameID = 4;
+}
+
+message LonghuListMixPlayer {
+  int32 no = 1;
+  string account = 2;
+  string nickname = 3;
+  int32 gameID = 4;
+  double win = 5;
+  double odd = 6;
+  int64 createTime = 7;
+}
+
+message LonghuListMixPlayerAdmin {
+  LonghuListMixPlayer player = 1;
+  repeated LonghuListMixPlayer playerList = 2;
+}
+
+message LonghuListMix {
+  LonghuListMixPlayerAdmin win = 1;
+  LonghuListMixPlayerAdmin odd = 2;
+}
+
+message LonghuListMixPlayerV2 {
+  int32 no = 1;
+  bytes account = 2;
+  bytes nickname = 3;
+  int32 gameID = 4;
+  double win = 5;
+  double odd = 6;
+  int64 createTime = 7;
+}
+
+message LonghuListMixPlayerAdminV2 {
+  LonghuListMixPlayerV2 player = 1;
+  repeated LonghuListMixPlayerV2 playerList = 2;
+}
+
+message LonghuListMixV2 {
+  LonghuListMixPlayerAdminV2 win = 1;
+  LonghuListMixPlayerAdminV2 odd = 2;
+}
+
+message LonghuListMixPlayerAdminV3 {
+  repeated LonghuListMixPlayerV2 playerList = 1;
+}
+
+message LonghuListMixV3 {
+  LonghuListMixPlayerAdminV3 win = 1;
+  LonghuListMixPlayerAdminV3 odd = 2;
+  LonghuListMixPlayerAdminV3 oddgames = 3;
+  LonghuListMixPlayerAdminV3 wingames = 4;
+}
+
+message LonghuListResponseV3 {
+  int32 errorCode = 1;
+  string message = 2;
+  LonghuListMixV3 data = 3;
+  int64 resetTime = 4;
+}

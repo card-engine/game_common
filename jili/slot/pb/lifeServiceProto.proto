@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package lifeServiceProto;
+option go_package = "/pb";
+
+message LifeServiceInitInfo {
+  string userID = 1;           // Field tag 1
+  int64 accountID = 2;         // Field tag 2
+  int32 gameID = 3;            // Field tag 3
+  string token = 4;            // Field tag 4
+  int32 route = 5;             // Field tag 5
+  int32 apiID = 6;             // Field tag 6
+}

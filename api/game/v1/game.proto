@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package game.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/card-engine/game_common/api/game/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.game.v1";
+option java_outer_classname = "GameProtoV1";
+
+service GameApi {
+    // 获取商户平台玩家钱包拥有货币余额。
+    rpc Balance (BalanceRequest) returns (BalanceReply);
+
+    // 玩家游戏投注数据及开奖结果信息推送，先扣除玩家投注金额，再加上玩家中奖金额
+    rpc Bet(BetRequest) returns (BetReply);
+
+    // 派彩
+    rpc Win(WinRequest) returns (WinReply);
+
+    // 回退
+    rpc Refund(RefundRequest) returns (RefundReply);
+
+    // 游戏历史记录
+    rpc GameHistoryList(GameHistoryRequest) returns (GameHistoryReply);
+
+    // Jili游戏历史记录
+    rpc JiliGameHistory(JiliGameHistoryRequest) returns (JiliGameHistoryReply);
+
+    // 商户游戏列表
+    rpc AppGameList(AppGameListRequest) returns (AppGameListReply);
+}
+
+message BalanceRequest {
+    string playerId = 1;
+    string currency = 2;
+}
+
+message BalanceReply {
+    string currency = 1;
+    double balance = 2;
+}
+
+message BetRequest{
+    string playerId = 1; //账号id
+    string roundId = 2; //游戏回合, 长度64以內。
+    string preRoundId = 3; //上一把游戏回合, 长度64以內。
+
+    string currency = 4;
+    double bet = 5; //下注
+    string gameBrand = 6; //游戏品牌
+    string gameId = 7; //游戏id
+    string rtp = 8; //rtp档位
+
+    string round_model = 9; // 模式
+    bytes game_data = 10; // 游戏数据
+    string traceId = 11; // 跟踪id
+    string transactionId = 12; // 下注交易id
+    bool isFree = 13; // 是否免费模式
+    string preTransactionId = 14; // 上一次下注交易id
+}
+
+message BetReply{
+    string currency = 1;
+    double balance = 2;
+}
+
+message WinRequest{
+    string playerId = 1; //账号id
+    string roundId = 2; //游戏回合, 长度64以內。
+    string preRoundId = 3; //上一把游戏回合, 长度64以內。
+    string currency = 4;
+    double bet = 5; //下注
+    string gameBrand = 6; //游戏品牌
+    string gameId = 7; //游戏id
+    double win = 8; //赢钱
+    string betTransactionId = 9; // 下注交易id(必填，用来查关联下注记录)
+    bytes game_data = 10; // 游戏数据
+}
+
+message WinReply{
+    string currency = 1;
+    double balance = 2;
+    bool hashBalance = 3; // 是否有余额，部分商家不返回余额
+}
+
+message RefundRequest{
+    string playerId = 1; //账号id
+    string roundId = 2; //游戏回合, 长度64以內。
+    string preRoundId = 3; //上一把游戏回合, 长度64以內。
+    string currency = 4;
+    double bet = 5; //下注
+    string gameBrand = 6; //游戏品牌
+    string gameId = 7; //游戏id
+    string betTransactionId = 8; // 下注交易id(必填，用来查关联下注记录)
+}
+
+message RefundReply{
+    string status = 1; // 状态：SETTLED-已经结算，CANCELED-已经取消, NOTFOUND-没有订单, REFUNDING-正在处理
+    double balance = 2; // 玩家余额
+}
+
+message PlayerRtpRequest{
+    string playerId = 1; //账号id
+}
+
+message PlayerReply{
+    string rtp = 1; // rtp档位
+}
+
+message GameHistoryRequest{
+    string gameBrand = 1; //游戏品牌
+    string gameId = 2; //游戏id
+    string playerId = 3; //账号id
+    string page_token = 4; // 分页
+    int32 page_size = 5;
+    string roundId = 6; //游戏回合, 长度64以內。
+}
+
+message GameHistoryReply{
+    repeated GameHistory list = 1; //记录列表
+    string page_token = 2; //分页
+}
+
+message GameHistory{
+    string playerId = 1; //账号id
+    string roundId = 2; //游戏回合, 长度64以內。
+    string preRoundId = 3; //上一把游戏回合, 长度64以內。
+    string currency = 4;
+    double bet = 5; //下注
+    string gameBrand = 6; //游戏品牌
+    string gameId = 7; //游戏id
+    string rtp = 8; //rtp档位
+    double win = 9; //赢钱
+    bytes game_data = 10; // 游戏数据
+    google.protobuf.Timestamp created_at = 11;
+    double postBalance = 12;
+    string roundModel = 13; // 模式:DEFAULT,EXTRA,BUY
+    string gameType = 14; // 游戏类型：slot
+    string traceId = 15; //traceId,下注时游戏自己拼接参数
+}
+
+message JiliGameHistoryRequest{
+    string appId = 1; //appid
+    string playerId = 2; //账号id
+    string gameName = 3; //游戏名称
+    int32 startIndex = 4; // 分页
+    int32 endIndex = 5; // 分页
+    string roundId = 6; //游戏回合, 长度64以內。
+    google.protobuf.Timestamp startTime = 7;
+    google.protobuf.Timestamp endTime = 8;
+}
+
+message JiliGameHistoryReply{
+    repeated GameHistory list = 1; //记录列表
+}
+
+message AppGameListRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+}
+
+message AppGameListReply{
+    repeated AppGameList list = 1; //记录列表
+}
+
+message AppGameList{
+    string gameId = 1; //游戏ID
+    string gameName = 2; //游戏id
+    string gameFullName = 3; //游戏全名称
+    string gameType = 4; //游戏类型(slot)
+    string gameBrand = 5; //游戏厂商
+}

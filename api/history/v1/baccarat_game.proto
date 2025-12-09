@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package baccarat.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/card-engine/game_common/api/baccarat/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.baccarat.v1";
+option java_outer_classname = "HistoryProtoV1";
+
+// 百人场
+service BaccaratApi {
+   // 创建游戏记录
+   rpc CreateBaccarat(CreateBaccaratRequest) returns (CreateBaccaratReply);
+
+   // 获取记录详情
+   rpc GetBaccarat(GetBaccaratRequest) returns (GetBaccaratReply);
+}
+
+message CreateBaccaratRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string roundId = 4; //游戏id
+    string roomName = 5; //房间
+    string rtp = 6; // rtp
+    google.protobuf.Timestamp startTime = 7; // 开始时间
+    google.protobuf.Timestamp endTime = 8;   // 结束时间
+    double totalPlayerBet = 9; // 总下注
+    double totalPlayerWin = 10; // 总派奖
+    bytes gameData = 11; //  自定义游戏数据
+}
+
+message CreateBaccaratReply{
+    int64 baccaratId = 1;   // 记录id
+}
+
+message GetBaccaratRequest{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string roundId = 4; //游戏id
+    string roomName = 5; //房间
+}
+
+message GetBaccaratReply{
+    BaccaratDetail data = 1; //记录详情
+}
+
+message BaccaratDetail{
+    string appId = 1; //appid
+    string gameBrand = 2; //游戏品牌
+    string gameId = 3; //游戏id
+    string roundId = 4; //游戏id
+    string roomName = 5; //房间
+    string rtp = 6; // rtp
+    google.protobuf.Timestamp startTime = 7; // 开始时间
+    google.protobuf.Timestamp endTime = 8;   // 结束时间
+    double totalPlayerBet = 9; // 总下注
+    double totalPlayerWin = 10; // 总派奖
+    bytes gameData = 11; //  自定义游戏数据
+    google.protobuf.Timestamp createTime = 13; // 创建时间
+}

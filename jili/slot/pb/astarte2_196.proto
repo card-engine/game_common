@@ -1,0 +1,863 @@
+syntax = "proto3";
+
+package serverProto;
+
+option go_package = "/pb";
+
+import "google/protobuf/timestamp.proto";
+
+// AckType 枚举
+enum AckType {
+    spin = 0;
+    info = 1;
+    notice = 2;
+    logout = 3;
+    lastSpin = 4;
+    getBackPack = 5;
+    checkItem = 6;
+    getMail = 7;
+    readMail = 8;
+    getDailyMission = 9;
+    getNowMission = 10;
+    customAck = 11;
+    checkSignUpStatus = 12;
+    trialInfo = 14;
+    trialSignUp = 16;
+    trialGiveUp = 17;
+    getAllItemCanUse = 18;
+    vipSignInfo = 19;
+    vipSignReward = 20;
+    jpInfo = 21;
+    jpHistory = 22;
+    lotteryPlayerInfo = 23;
+    lotteryReward = 24;
+    fullJpInfo = 25;
+    fullJpHistory = 26;
+    fullJpInfoAll = 27;
+    debrisInfo = 29;
+    debrisPlayerInfo = 30;
+    debrisGet = 31;
+    debrisExchange = 32;
+    jpShowData = 33;
+    getPlayerLevel = 34;
+    unshow = 36;
+    spinend = 37;
+    mallinfo = 38;
+    giftcodeverify = 39;
+    giftcodecheckblock = 40;
+    freeAbandon = 41;
+    freeGetAll = 42;
+    freeGetHistory = 43;
+    freeBonusReward = 44;
+    buffGetBack = 45;
+    buffGetNow = 46;
+    buffUseReport = 47;
+    buffGetParam = 48;
+    getMission2 = 49;
+    jilijpHistory = 50;
+    jilijpSetting = 51;
+    jilijpRecentWin = 52;
+}
+
+// Error 枚举
+enum Error {
+    success = 0;
+    SpecialError = 123;
+    plateInvalid = 211;
+    gameInvalid = 241;
+    kicked = 242;
+    internal = 243;
+    paramter = 251;
+    ackType = 252;
+    reLogin = 253;
+    spinBet = 301;
+    spinRetry = 303;
+    spinReject = 304;
+    spinCoinError = 305;
+    spinErrorNoKick = 306;
+    spinCurrecny = 311;
+    spinLock = 312;
+    spinMGA = 321;
+    spinUnmarshal = 322;
+    spinBetZero = 323;
+    spinExtra = 324;
+    spinItem = 325;
+    spinMall = 326;
+    spinBuy = 327;
+    spinFree = 328;
+    spinTournaments = 329;
+    spinNil = 330;
+    spinBuff = 331;
+    missionUnavailable = 392;
+    itemUnavailable = 500;
+    signUnavailable = 600;
+    trialUnavailable = 700;
+    trialIsEnd = 701;
+    freeSpinError = 702;
+    vipSignUnavailable = 800;
+    DebrisUnavailable = 801;
+    DebrisError = 802;
+    NoMallSetting = 901;
+    BuyBonusUnavailable = 902;
+    GiftCodeError = 911;
+    BuffError = 921;
+    unknow = 10000;
+}
+
+// Request 消息
+message Request {
+    AckType ack = 1;
+    bytes req = 2;
+}
+
+// GaiaResponse 消息
+message GaiaResponse {
+    int32 type = 1;
+    Error ret = 2;
+    string token = 3;
+    string ErrorMsg = 4;
+    bytes data = 5;
+    google.protobuf.Timestamp now = 6;
+}
+
+// BuffReq 消息
+message BuffReq {
+    int32 lang = 1;
+    int32 gameid = 2;
+    int64 buffidx = 3;
+    int64 buffid = 4;
+    repeated int64 idlist = 5;
+}
+
+// PlayerBuff 消息
+message PlayerBuff {
+    int64 BuffIndex = 1;
+    int64 BuffID = 2;
+    int64 BeginTime = 3;
+    int64 EndTime = 4;
+    int32 BuffType = 5;
+    double Param1 = 6;
+    double Param2 = 7;
+    double Param3 = 8;
+    double Param4 = 9;
+}
+
+// BuffList 消息
+message BuffList {
+    repeated PlayerBuff Buff = 1;
+}
+
+// BuffResp 消息
+message BuffResp {
+    double BuffMul = 1;
+    double BuffMulWin = 2;
+    int32 BuffExbet = 3;
+    int32 BuffFree = 4;
+}
+
+// DebrisReq 消息定义
+message DebrisReq {
+  uint32 no = 1;
+  uint32 formula = 2;
+  uint32 amount = 3;
+  uint32 currencynumber = 4;
+}
+// freeSpinList 消息定义
+message freeSpinList {
+  repeated freeData free = 1;
+}
+// freeData 消息定义
+message freeData {
+  string id = 1;
+  int32 remain = 2;
+  // 使用枚举类型来表示 type
+  freeType type = 3;
+  double bet = 4;
+  double maxWin = 5;
+  double nowWin = 6;
+  freeBonus bonusData = 7;
+  google.protobuf.Timestamp expired = 8;
+  bool isAllowStop = 9;
+  bool closeOnFinish = 10;
+}
+// freeType 枚举定义
+enum freeType {
+  NormalFree = 0;
+  GiftCodeFree = 1;
+  TadaFree = 2;
+  FreeBonue = 3;
+}
+// freeBonus 消息定义
+message freeBonus {
+  double wager = 1;
+  double wagerOdds = 2;
+  int32 period = 3;
+  google.protobuf.Timestamp expired = 4;
+  bool isInWager = 6;
+  double maxWin = 7;
+  bool isEnd = 8;
+  double baseWin = 9;
+}
+
+
+
+// 定义 freeBonusGame 消息
+message freeBonusGame {
+    int32 gameID = 1;
+    int32 remain = 2;
+    string id = 3;
+    google.protobuf.Timestamp expired = 4;
+}
+// 定义 freeBonusGameList 消息
+message freeBonusGameList {
+    repeated freeBonusGame list = 1;
+}
+// 定义 freeBonusRecord 消息
+message freeBonusRecord {
+    int32 state = 1;
+    int32 gameId = 2;
+    double bonus = 3;
+    freeType type = 4;
+    string id = 5;
+    google.protobuf.Timestamp recordTime = 6;
+}
+// 定义 freeBonusRecordList 消息
+message freeBonusRecordList {
+    repeated freeBonusRecord list = 1;
+}
+
+
+// freeReq 消息定义
+message freeReq {
+  string id = 1;
+}
+// freeBonusRewardReq 消息定义
+message freeBonusRewardReq {
+  string id = 1;
+}
+// freeBonusRewardResp 消息定义
+message freeBonusRewardResp {
+  freeBonus bonusData = 1;
+  double win = 2;
+  bool isOK = 3;
+  freeData free = 4;
+}
+// FullJpListResp 消息定义
+message FullJpListResp {
+  double value = 1;
+  double full = 2;
+  uint32 minVip = 3;
+  double minBet = 4;
+}
+// FullJpHistoryReq 消息定义
+message FullJpHistoryReq {
+  google.protobuf.Timestamp startTime = 1;
+  google.protobuf.Timestamp endTime = 2;
+}
+// FullJpHistoryResp 消息定义
+message FullJpHistoryResp {
+  repeated FullJpHistoryInfo list = 1;
+}
+// FullJpAllResp 消息定义
+message FullJpAllResp {
+  repeated FullJp list = 1;
+}
+// FullJpHistoryInfo 消息定义
+message FullJpHistoryInfo {
+  string winner = 1;
+  double win = 2;
+  int32 time = 3;
+}
+// FullJp 消息定义
+message FullJp {
+  uint32 gameID = 1;
+  double value = 2;
+  double full = 3;
+}
+// VerifyGiftCodeRequest 消息定义
+message VerifyGiftCodeRequest {
+  string Giftcode = 1;
+}
+// VerifyGiftCodeResponse 消息定义
+message VerifyGiftCodeResponse {
+  int32 Code = 1;
+  int32 Round = 2;
+  int32 Type = 3;
+  freeSpinList freeSpin = 4;
+}
+// CheckBlockGiftCodeResponse 消息定义
+message CheckBlockGiftCodeResponse {
+  int32 Code = 1;
+  string Message = 2;
+  bool IsBlock = 3;
+  int32 BlockDuration = 4;
+  int32 ErrorInputAmount = 5;
+}
+// InfoReq 消息定义
+message InfoReq {
+  string os = 1;
+  string language = 2;
+  Browser browser = 3;
+  string version = 4;
+  string model = 5;
+}
+
+// 定义 Browser 消息类型，用于表示浏览器的相关信息
+message Browser {
+  // 浏览器的类型，如 Chrome、Firefox 等
+  string type = 1;
+  // 浏览器的版本号
+  string version = 2;
+  // 浏览器的语言设置
+  string language = 3;
+  // 浏览器窗口的宽度
+  uint32 width = 4;
+  // 浏览器窗口的高度
+  uint32 height = 5;
+  // 浏览器的比例
+  float ratio = 6;
+}
+// 定义 GameInfoAck 消息类型，用于表示游戏信息的确认消息
+message GameInfoAck {
+  // 钱包信息列表，每个元素是一个 WalletInfo 消息
+  repeated WalletInfo WalletInfo = 1;
+  // 偏好轮次显示信息，是一个 PreferRoundShow 消息
+  PreferRoundShow Prefer = 2;
+  // 免费旋转剩余次数
+  int32 FreeSpinRemain = 3;
+  // 额外信息，以字节数组形式存储
+  bytes extraInfo = 5;
+  // 游戏的理论回报率
+  double rtp = 6;
+  // 解锁大奖的投注金额列表
+  repeated double jpUnlockBet = 7;
+  // 商城信息，是一个 MallInfo 消息
+  MallInfo mall = 8;
+  // API 类型
+  int32 ApiType = 9;
+  // 免费旋转的投注金额
+  double FreeSpinBet = 10;
+  // 游戏商城信息，是一个 GameMallInfo 消息
+  GameMallInfo gameMall = 12;
+  // 最大赔率
+  double MaxOdd = 13;
+  // 免费旋转列表信息，是一个 freeSpinList 消息
+  freeSpinList freeSpin = 14;
+  // 免费旋转的类型
+  int32 freeSpinType = 15;
+  // 锦标赛信息，是一个 Tournament 消息
+  Tournament tournament = 16;
+}
+
+
+// 定义钱包信息的消息结构
+message WalletInfo {
+    // 货币编号，使用 int32 类型存储
+    int32 currencyNumber = 1;
+    // 货币名称，使用 string 类型存储
+    string currencyName = 2;
+    // 货币符号，使用 string 类型存储
+    string currencySymbol = 3;
+    // 钱包中的金币数量，使用 double 类型存储
+    double coin = 4;
+    // 投注金额列表，每个投注金额使用 double 类型存储
+    repeated double bet = 5;
+    // 单位，使用 double 类型存储
+    double unit = 6;
+    // 比例，使用 double 类型存储
+    double ratio = 7;
+    // 费率，使用 double 类型存储
+    double rate = 8;
+    // 上限，使用 double 类型存储
+    double upper = 9;
+    // 下限，使用 double 类型存储
+    double lower = 10;
+    // 周期，使用 double 类型存储
+    double cycle = 11;
+    // 小数位数，使用 int32 类型存储
+    int32 decimal = 12;
+}
+// 定义偏好轮次展示信息的消息结构
+message PreferRoundShow {
+    // 基础轮次相关数值，使用 double 类型存储
+    double BaseRound = 1;
+    // Sigma 轮次相关数值，使用 double 类型存储
+    double SigmaRound = 2;
+    // 变异系数相关数值，使用 double 类型存储
+    double CV = 3;
+    // 命中率相关数值，使用 double 类型存储
+    double HR = 4;
+    // 最大连赢轮次相关数值，使用 double 类型存储
+    double MGR = 5;
+    // 范围，使用 int32 类型存储
+    int32 Range = 6;
+    // 展示标志，使用 int32 类型存储
+    int32 Show = 7;
+}
+
+// 商城信息
+message MallInfo {
+    // 价格赔率，使用双精度浮点数存储
+    double PriceOdd = 1;
+    // 描述类型，使用 32 位有符号整数存储
+    int32 DescType = 2;
+    // 最大投注金额，使用双精度浮点数存储
+    double MaxBet = 3;
+    // 替代 ID，使用 32 位有符号整数存储
+    int32 AlterID = 4;
+    // 显示标志，使用 32 位有符号整数存储
+    int32 Show = 5;
+}
+
+// 游戏商城信息
+message GameMallInfo {
+    // 最大投注金额，使用双精度浮点数存储
+    double MaxBet = 1;
+    // 价格赔率列表，每个元素为双精度浮点数
+    repeated double PriceOdd = 2;
+    // 替代 ID 列表，每个元素为 32 位有符号整数
+    repeated int32 AlterID = 3;
+}
+
+// 定义 goalType 枚举
+enum goalType {
+    NONE = 0;
+    ACCWIN = 1;
+    MULT = 2;
+}
+// 定义 categoryType 枚举
+enum categoryType {
+    Normal0 = 0;
+    Normal1 = 1;
+    GameClash = 2;
+    Championship = 3;
+}
+// 定义 Tournament 消息
+message Tournament {
+    int32 id = 1;
+    double balance = 2;
+    double initBalance = 3;
+    double MinBet = 4;
+    double MaxBet = 5;
+    goalType goal = 6;
+    google.protobuf.Timestamp start = 7;
+    google.protobuf.Timestamp end = 8;
+    bool buyBonusOn = 9;
+    bool extraBetOn = 10;
+    categoryType category = 11;
+}
+// 定义 Itemdata 消息
+message Itemdata {
+    int32 itemindex = 1;
+    int32 itemid = 2;
+    int32 amount = 3;
+    int32 gameid = 4;
+    int32 lvmin = 5;
+    int32 lvmax = 6;
+    double coinlimit = 7;
+    int32 dailyremaintimes = 8;
+    string startTime = 9;
+    string expiredtime = 10;
+    double bet = 11;
+    int32 spinpaytype = 12;
+    double givetype = 13;
+    int32 wintype = 14;
+    double winmultiplier = 15;
+    double winmaxmag = 16;
+    int32 winmagset = 17;
+    double itemvalue = 18;
+    string itemname = 19;
+    int32 icon = 20;
+    int32 banreason = 21;
+    string itemdesc = 22;
+    int32 star = 23;
+    string gamename = 24;
+    int32 currencynumber = 25;
+    int32 source = 26;
+    double playvalue = 27;
+    int64 start = 28;
+    int64 expired = 29;
+}
+// 定义 BackPackInfo 消息
+message BackPackInfo {
+    int32 result = 1;
+    repeated Itemdata playeritemdata = 2;
+}
+// 定义 BackPack 消息
+message BackPack {
+    BackPackInfo info = 1;
+    int32 ret = 2;
+}
+// 定义 CheckUseItemReq 消息
+message CheckUseItemReq {
+    double bet = 1;
+    int32 itemindex = 2;
+    int32 itemid = 3;
+    int32 amount = 4;
+    int32 currencyNumber = 5;
+}
+// 定义 ItemInfo 消息
+message ItemInfo {
+    int32 result = 1;
+    double bet = 2;
+    int32 spinpaytype = 3;
+    int32 givetype = 4;
+    int32 wintype = 5;
+    double winmultiplier = 6;
+    double winmaxmag = 7;
+    double winmagupperbound = 8;
+    double winmaglowerbound = 9;
+    int32 star = 10;
+    int32 icon = 11;
+    int32 alterid = 12;
+    double coinlimit = 13;
+    int32 source = 14;
+    double playvalue = 15;
+}
+
+
+// 检查使用物品响应
+message CheckUseItem {
+    ItemInfo info = 1;
+    int32 ret = 2;
+}
+// 物品列表数据
+message ItemListData {
+    int32 gameid = 1;
+    int32 ownamount = 2;
+    int32 canamount = 3;
+    int32 minitemindex = 4;
+}
+// 列出所有游戏信息响应
+message ListAllGameInfo {
+    int32 result = 1;
+    repeated ItemListData canuseitem = 2;
+}
+// 邮件数据
+message Maildata {
+    int32 idx = 1;
+    int32 accountid = 2;
+    int32 source = 3;
+    Content content = 4;
+    int32 isread = 5;
+    string createtime = 6;
+    int64 created = 7;
+}
+// 邮件内容
+message Content {
+    int32 action = 1;
+    int32 gameid = 2;
+    int32 itemid = 3;
+    double amount = 4;
+    string createtime = 5;
+    int32 wintype = 6;
+    string msg = 7;
+    int32 star = 8;
+}
+// 邮件信息
+message MailInfo {
+    int32 result = 1;
+    repeated Maildata usermailackdata = 2;
+    int32 isread = 3;
+}
+// 获取用户邮件响应
+message GetUserMail {
+    MailInfo info = 1;
+    int32 ret = 2;
+}
+// 读取邮件信息
+message ReadMailInfo {
+    int32 result = 1;
+}
+// 读取邮件响应
+message ReadMailResp {
+    ReadMailInfo info = 1;
+    int32 ret = 2;
+}
+// JP 信息
+message JpInfo {
+    enum JpType {
+        None = 0;
+        Mini = 1;
+        Major = 2;
+        Grand = 3;
+        Full_Jp = 64;
+    }
+    JpType type = 1;
+    double value = 2;
+}
+// JP 列表响应
+message JpListResp {
+    repeated JpInfo info = 1;
+}
+// JP 历史请求
+message JpHistoryReq {
+    google.protobuf.Timestamp startTime = 1;
+    google.protobuf.Timestamp endTime = 2;
+}
+// JP 历史信息
+message JpHistoryInfo {
+    enum JpType {
+        None = 0;
+        Mini = 1;
+        Major = 2;
+        Grand = 3;
+        Full_Jp = 64;
+    }
+    JpType type = 1;
+    string winner = 2;
+    double win = 3;
+    int32 gameID = 4;
+    string nickname = 5;
+}
+// JP 历史响应
+message JpHistoryResp {
+    repeated JpHistoryInfo list = 1;
+}
+
+
+// JpType 枚举定义
+enum JpType {
+  None = 0;
+  Mini = 1;
+  Major = 2;
+  Grand = 3;
+  Full_Jp = 100; // 0x64 十进制为 100
+}
+// NoticeType 枚举定义
+enum NoticeType {
+  CoinChange = 0;
+  Message = 1;
+  EventGift = 2;
+  CustomType = 3;
+  ExChange = 4;
+}
+// VipError 枚举定义
+enum VipError {
+  VipSuccess = 0;
+  Unavailable = 1;
+  ParameterError = 2;
+  Reject = 3;
+}
+// JpMarqueeInfo 消息定义
+message JpMarqueeInfo {
+  uint32 aID = 1;
+  uint32 gameID = 2;
+  JpType type = 3;
+  string winner = 4;
+  double win = 5;
+  string winnerNickname = 6;
+}
+// JpOpen 消息定义
+message JpOpen {
+  JpType type = 1;
+  double win = 2;
+}
+
+
+// JpShowData 消息定义
+message JpShowData {
+  repeated JpInfo info = 1;
+  repeated int32 game = 2;
+}
+// DailyMissionInfo 消息定义
+message DailyMissionInfo {
+  string message = 1;
+  bytes messageb = 2;
+  bytes list = 3;
+}
+// NoticeReq 消息定义
+message NoticeReq {
+  string lang = 1;
+  int32 currencyNumber = 2;
+  string Stamp = 3;
+  int32 level = 4;
+}
+// NoticeInfo 消息定义
+message NoticeInfo {
+  NoticeType type = 1;
+  double value = 2;
+  string message = 3;
+  bytes customData = 4;
+  int32 currencyNumber = 5;
+}
+// NoticeResponse 消息定义
+message NoticeResponse {
+  repeated NoticeInfo notice = 1;
+  string Stamp = 2;
+}
+// VipSignInfoReq 消息定义
+message VipSignInfoReq {
+  int32 currency = 1;
+}
+// Treasure 消息定义
+message Treasure {
+  string Index = 1;
+  int32 MinVip = 2;
+  double Exp = 3;
+  bool IsOpen = 4;
+}
+// VipSignInfoResp 消息定义
+message VipSignInfoResp {
+  repeated Treasure TreasureList = 1;
+  google.protobuf.Timestamp ExpiredTime = 2;
+  VipError Error = 3;
+}
+
+
+// VipSignReward 请求消息
+message VipSignRewardReq {
+  int32 currency = 1;
+  string treasureIndex = 2;
+}
+// VipSignReward 响应消息
+message VipSignRewardResp {
+  int32 ItemID = 1;
+  int32 Count = 2;
+  Error Error = 3;
+  int32 Icon = 4;
+}
+// Spin 请求消息
+message SpinReq {
+  double bet = 1;
+  uint32 cheat = 2;
+  uint32 itemIndex = 3;
+  uint32 itemID = 4;
+  int32 currencyNumber = 7;
+  double mallBet = 8;
+  uint32 vip = 9;
+  bytes customReq = 10;
+  bool isFree = 11;
+  uint32 Extra = 12;
+  uint32 Level = 13;
+  int32 BDType = 14;
+  int32 BBTimes = 15;
+  double AccuMallBet = 16;
+  double GameMallBet = 17;
+  int32 GameMallType = 18;
+  bool isr = 19;
+  int32 BuyCustomType = 20;
+  bool isturbo = 21;
+  ItemSpin item = 22;
+  MallSpin mall = 23;
+  BuySpin buy = 24;
+  SpecialCase special = 25;
+  ExtraSpin extraSpin = 26;
+  FreeSpin freeSpin = 27;
+  bytes clientRecord = 28;
+  SpecialBonus specialBonus = 29;
+  bool istournament = 30;
+}
+// 客户端记录消息
+message ClientRecord {
+  BDType BDType = 1;
+  int32 BBTimes = 2;
+  double AccuMallBet = 3;
+}
+// BD 类型枚举
+enum BDType {
+  BD_NONE = 0;
+  BD_ITEM = 1;
+  BD_BUY_BONUS = 2;
+  BD_FREE_SPIN = 3;
+  BD_BUY_BONUS_GAME = 4;
+}
+// 物品旋转消息
+message ItemSpin {
+  uint32 ID = 1;
+  uint32 Index = 2;
+}
+// 额外旋转消息
+message ExtraSpin {
+  uint32 Index = 1;
+}
+// 商城旋转消息
+message MallSpin {
+  MallType Type = 1;
+  int32 Index = 2;
+  double Bet = 3;
+}
+// 商城类型枚举
+enum MallType {
+  NORMAL_MALL = 0;
+  GAME_MALL = 1;
+}
+// 购买旋转消息
+message BuySpin {
+  int32 BuyCustomType = 1;
+}
+
+
+// 定义 FreeSpin 消息
+message FreeSpin {
+  bool free = 1;
+}
+// 定义 SpecialCase 消息
+message SpecialCase {
+  bool turbo = 1;
+  uint32 cheat = 2;
+  bool robot = 3;
+  bool tournament = 4;
+}
+// 定义 SpinResponse 消息
+message SpinResponse {
+  bytes data = 1;
+  ServiceData service = 2;
+  double totalWin = 3;
+  int64 roundIndex = 4;
+  double postMoney = 6;
+  int32 StartRound = 7;
+  bool hasspin = 8;
+  BDType BDType = 9;
+  int32 BBTimes = 10;
+  double MallBet = 11;
+  double AccuMallBet = 12;
+  int32 ItemID = 13;
+  int32 ItemIcon = 14;
+  int32 ItemAmount = 15;
+  double BaseBet = 16;
+  double RealBet = 17;
+  int32 SpinType = 18;
+  int32 ItemLevel = 19;
+  int64 roundIndexV2 = 20;
+  double GameMallBet = 21;
+  int32 GameMallType = 22;
+  SpinReq spinReq = 23;
+}
+// 定义 SpinEndReq 消息
+message SpinEndReq {
+  int32 NowRound = 1;
+  bool IsEnd = 2;
+}
+// 定义 SpinEndAck 消息
+message SpinEndAck {
+  int32 AckType = 1;
+  int32 NowRound = 2;
+  double NowMoney = 3;
+}
+// 定义 ExtraSpinReq 消息
+message ExtraSpinReq {
+  int64 bet = 1;
+  int32 currencyNumber = 2;
+  uint32 vip = 3;
+}
+// 定义 ServiceData 消息
+message ServiceData {
+  uint32 missionReward = 1;
+  int32 jpType = 2;
+  double jpWin = 3;
+  double fullJpWin = 4;
+  int32 trialfinish = 5;
+  int32 trialaward = 6;
+  int32 freeremain = 7;
+  bytes cardlist = 8;
+  bytes buff = 9;
+  bytes missionlist = 13;
+  freeSpinList freeRemainV2 = 15;
+  bytes mission2 = 16;
+ // jilijpProto.JiliJpOpen jiliJpOpen = 17;
+}
+
+message SpecialBonus {
+  bool used = 1;
+}

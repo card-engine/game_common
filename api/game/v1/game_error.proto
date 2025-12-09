@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package game.v1;
+import "errors/errors.proto";
+
+option go_package = "github.com/card-engine/game_common/api/game/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.game.v1";
+option java_outer_classname = "GameProtoV1";
+
+enum ErrorReason {
+    // 设置缺省错误码
+    option (errors.default_code) = 500;
+
+    // 业务错误码
+    SUCCESS = 0 [(errors.code) = 200]; // 成功
+    INTERNAL_SERVER_ERROR = 9 [(errors.code) = 500]; // 内部服务器错误
+    INVALID_OPERATOR = 10 [(errors.code) = 400]; // 无效的运营商
+    LIMITED_PERMISSIONS = 11 [(errors.code) = 403]; // 运营商权限不足
+    INVALID_HASH_CODE = 12 [(errors.code) = 400]; // 无效的哈希码
+    INVALID_PARAMETERS = 13 [(errors.code) = 400]; // 请求参数错误
+    INVALID_PLAYER_TOKEN = 14 [(errors.code) = 401]; // 无效的玩家令牌
+    PLAYER_TOKEN_EXPIRED = 15 [(errors.code) = 401]; // 玩家令牌已过期
+    GAME_MAINTENANCE = 16 [(errors.code) = 503]; // 游戏维护中
+    GAME_UNAVAILABLE = 17 [(errors.code) = 503]; // 游戏不可用
+    GAME_NOT_FOUND = 18 [(errors.code) = 404]; // 游戏不存在
+    PLAYER_NOT_FOUND_ERROR = 19 [(errors.code) = 404]; // 玩家不存在
+    BET_PENDING = 20 [(errors.code) = 408]; // 投注异常
+    TRANSACTION_NOT_FOUND = 21 [(errors.code) = 404]; // 交易不存在
+    INVALID_CURRENCY_CODE = 22 [(errors.code) = 400]; // 货币代码错误
+    INVALID_REQUEST = 23 [(errors.code) = 400]; // 无效请求
+    PLAYER_ALREADY_EXISTED = 24 [(errors.code) = 409]; // 玩家已存在
+    TRANSACTION_EXISTS = 25 [(errors.code) = 409]; // 交易已存在
+    INVALID_IP = 26 [(errors.code) = 403]; // 无效 IP
+    MAX_REQUEST_LIMIT = 27 [(errors.code) = 429]; // 已达最大请求限制
+    INVALID_RTP = 28 [(errors.code) = 400]; // 无效 RTP
+    INSUFFICIENT_BALANCE = 29 [(errors.code) = 400]; // 玩家余额不足
+}
