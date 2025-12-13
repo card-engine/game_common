@@ -54,25 +54,37 @@ func NewRoomManager(roomCreator RoomCreator, tableMatcherType TableMatcherType, 
 }
 
 func (r *RoomManager) ExitRoom(player *InoutPlayer, isDisconnect bool) {
-	player.room = nil
-	player.roomManager = nil
+	room := player.room
+
+	defer func() {
+		player.room = nil
+		player.roomManager = nil
+	}()
+
 	//防止执行两次，使用LoadAndDelete会安全点
 	r.players.Delete(player.GetPlayerIdent())
 
 	r.playerRoomMapMu.Lock()
-	defer r.playerRoomMapMu.Unlock()
 	playerIdent := player.GetPlayerIdent()
 	_, ok := r.playerRoomMap[playerIdent]
 	if ok {
 		delete(r.playerRoomMap, playerIdent)
 	}
+	r.playerRoomMapMu.Unlock()
 
 	if isDisconnect && player.conn != nil {
 		player.conn.Close()
 	}
+
+	// 如果是一次性房间，那么通知room也释放内存
+	if r.tableMatcherType == TableMatcherType_SINGLE {
+		room.OnDispose()
+	}
 }
 
 func (r *RoomManager) OnLogin(player *InoutPlayer) error {
+	player.roomManager = r
+
 	//========================================================
 	//判断是不是断线重连回来的
 	r.playerRoomMapMu.Lock()
@@ -91,7 +103,7 @@ func (r *RoomManager) OnLogin(player *InoutPlayer) error {
 
 		return room.OnReConnect(player)
 	}
-	//============================================================
+	//=========================配房逻辑==================================
 	if r.tableMatcherType == TableMatcherType_RTP {
 		roomTypeStr := fmt.Sprintf("%v-%v", player.PlayerInfo.AppID, player.Rtp)
 		r.roomMapMu.Lock()

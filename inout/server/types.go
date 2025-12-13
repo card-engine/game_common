@@ -14,6 +14,8 @@ type RoomImp interface {
 	OnDisConnect(player *InoutPlayer) error
 	// 玩家收到了消息了
 	OnMessage(player *InoutPlayer, msgId, action, payload string) error
+	// 房间销毁时间的调用
+	OnDispose()
 }
 
 // 配桌算法
