@@ -214,7 +214,8 @@ func (s *InoutGameApiServer) onCustomMessage(player *InoutPlayer, msgType string
 			s.log.Errorf("NewJson failed: %v", err)
 			return err
 		}
-		if len(simpleJson.MustArray()) < 2 {
+
+		if len(simpleJson.MustArray()) < 1 {
 			s.log.Errorf("invalid custom message payload: %s", payload)
 			return errors.New("invalid custom message payload")
 		}
@@ -226,18 +227,21 @@ func (s *InoutGameApiServer) onCustomMessage(player *InoutPlayer, msgType string
 			return err
 		}
 
+		var dataJson *simplejson.Json = nil
+		if len(simpleJson.MustArray()) > 1 {
+			dataJson = simpleJson.GetIndex(1)
+		}
+
 		switch action {
 		case "gameService-latencyTest":
 			responseMsg := fmt.Sprintf(`%s[{"date":%v}]`, responseType, time.Now().UnixMilli())
 			return player.Send(responseMsg)
 		case "gameService":
-			dataJson := simpleJson.GetIndex(1)
 			return s.onHandleGameServiceMessage(player, dataJson, responseType)
 		case "gameService-get-my-bets-history":
 			// 交给房间处理
-			return s.roomManager.OnMessage(player, responseType, action, payload)
+			return s.roomManager.OnMessage(player, responseType, action, "{}")
 		case "changeGameAvatar":
-			dataJson := simpleJson.GetIndex(1)
 			// 处理修改游戏头像消息
 			return s.onHandleChangeGameAvatar(player, dataJson, responseType)
 		}
