@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package game_bet_config.v1;
+
+option go_package = "cn.qingdou.server/game_common/api/game_bet_config/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.game_bet_config.v1";
+option java_outer_classname = "GameBetConfigProtoV1";
+
+// 游戏下注配置
+service GameBetConfigApi {
+  // 获取游戏下注配置详情
+  rpc GetGameBetConfig(GetGameBetConfigRequest) returns (GetGameBetConfigReply);
+}
+
+message GetGameBetConfigRequest{
+  string appId = 1; //appid
+  string gameBrand = 2; //游戏品牌
+  string gameId = 3; //游戏id
+}
+
+message GetGameBetConfigReply{
+  GameBetConfig betConfig = 1;  // 游戏下注配置
+  string configJson = 2; //原始游戏下注配置json字符串
+}
+
+message GameBetConfig{
+  double minBet = 1;   // 最小下注金额
+  double maxBet = 2;   // 最大下注金额
+  double defaultBet = 3; // 默认下注金额
+  double maxWinLimit = 4; // 最大中奖金额
+  repeated double betOptions = 5; // 下注选项
+}
