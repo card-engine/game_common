@@ -23,7 +23,10 @@ type Player struct {
 
 func NewPlayer(gameBrand GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, Rtp string) *Player {
 	return &Player{
-		gameBrand: gameBrand,
+		gameBrand:  gameBrand,
+		conn:       conn,
+		PlayerInfo: PlayerInfo,
+		Rtp:        Rtp,
 	}
 }
 
@@ -39,12 +42,20 @@ func (p *Player) GetConn() *websocket.Conn {
 	return p.conn
 }
 
-// 直接发送原始文本消息
-func (p *Player) Send(data string) error {
+func (p *Player) SendString(msg string) error {
+	return p.send(websocket.TextMessage, []byte(msg))
+}
+
+func (p *Player) SendBinary(data []byte) error {
+	return p.send(websocket.BinaryMessage, data)
+}
+
+// 直接发送原始文本消息, messageType有websocket.TextMessage和websocket.BinaryMessage
+func (p *Player) send(messageType int, data []byte) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.conn != nil {
-		if err := p.conn.WriteMessage(websocket.TextMessage, []byte(data)); err != nil {
+		if err := p.conn.WriteMessage(messageType, data); err != nil {
 			p.conn.Close()
 		}
 	}
@@ -76,7 +87,7 @@ func (p *Player) setBalance(balance float64) error {
 	p.PlayerInfo.Balance = balance
 	if p.gameBrand == GameBrand_Inout {
 		balanceMsg := fmt.Sprintf(`42["onBalanceChange",{"currency":"%s","balance":"%.2f"}]`, p.PlayerInfo.Currency, balance)
-		return p.Send(balanceMsg)
+		return p.SendString(balanceMsg)
 	}
 
 	return nil
@@ -111,4 +122,12 @@ func (p *Player) GetBalance() float64 {
 // 用户的唯一标识
 func (p *Player) GetPlayerIdent() string {
 	return fmt.Sprintf("%s-%s", p.GetAppId(), p.GetPlayerId())
+}
+
+// ================================
+func (p *Player) GetLang() string {
+	if p.PlayerInfo == nil || p.PlayerInfo.Lang == "" {
+		return "en"
+	}
+	return p.PlayerInfo.Lang
 }

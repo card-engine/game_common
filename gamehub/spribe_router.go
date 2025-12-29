@@ -26,6 +26,7 @@ type SpribeRouter struct {
 	apiGrpcConn *google_grpc.ClientConn
 	rtpGrpcConn *google_grpc.ClientConn
 	roomManager *RoomManager
+	logger      log.Logger
 }
 
 func NewSpribeRouter(
@@ -35,8 +36,8 @@ func NewSpribeRouter(
 	apiGrpcConn *google_grpc.ClientConn,
 	rtpGrpcConn *google_grpc.ClientConn,
 	roomManager *RoomManager,
-	logger log.Logger) *InoutRouter {
-	return &InoutRouter{
+	logger log.Logger) *SpribeRouter {
+	return &SpribeRouter{
 		app:         app,
 		gameName:    gameName,
 		log:         log.NewHelper(logger),
@@ -51,15 +52,16 @@ func NewSpribeRouter(
 func (r *SpribeRouter) Route() {
 	app := r.app
 
+	routPath := fmt.Sprintf("/%s/websocket", r.gameName)
 	// 只允许WebSocket升级的中间件
-	app.Use("/aviator/websocket", func(c *fiber.Ctx) error {
+	app.Use(routPath, func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {
 			return c.Next()
 		}
 		return fiber.ErrUpgradeRequired
 	})
 
-	app.Get("/aviator/websocket", websocket.New(func(c *websocket.Conn) {
+	app.Get(routPath, websocket.New(func(c *websocket.Conn) {
 		step := 0
 
 		var player *Player = nil

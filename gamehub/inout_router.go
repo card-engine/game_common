@@ -178,11 +178,11 @@ func (r *InoutRouter) OnMessage(player *Player, msg []byte) error {
 
 func (r *InoutRouter) startHandshake(player *Player) error {
 	handshakeMsg := fmt.Sprintf(`0{"sid":"%s","upgrades":[],"pingInterval":25000,"pingTimeout":20000,"maxPayload":1000000}`, r.generateSessionID())
-	return player.Send(handshakeMsg)
+	return player.SendString(handshakeMsg)
 }
 
 func (r *InoutRouter) onPing(player *Player) error {
-	return player.Send("3")
+	return player.SendString("3")
 }
 
 // 处理所有42xx消息并返回43xx响应
@@ -215,7 +215,7 @@ func (r *InoutRouter) onCustomMessage(player *Player, msgType string, payload st
 		switch action {
 		case "gameService-latencyTest":
 			responseMsg := fmt.Sprintf(`%s[{"date":%v}]`, responseType, time.Now().UnixMilli())
-			return player.Send(responseMsg)
+			return player.SendString(responseMsg)
 		case "gameService":
 			return r.onHandleGameServiceMessage(player, dataJson, responseType)
 		case "gameService-get-my-bets-history":
@@ -273,7 +273,7 @@ func (r *InoutRouter) onCustomMessage(player *Player, msgType string, payload st
 
 	// 默认返回通用的43x[null]响应
 	responseMsg := fmt.Sprintf("%s[null]", responseType)
-	return player.Send(responseMsg)
+	return player.SendString(responseMsg)
 }
 
 // handleChangeGameAvatar 处理修改游戏头像
@@ -335,7 +335,7 @@ func (r *InoutRouter) onHandleGameServiceMessage(player *Player, data *simplejso
 func (r *InoutRouter) onInitData(player *Player) error {
 	// 发送连接成功消息
 	connectMsg := fmt.Sprintf(`40{"sid":"%s"}`, r.generateSessionID())
-	if err := player.Send(connectMsg); err != nil {
+	if err := player.SendString(connectMsg); err != nil {
 		r.log.Errorf("Send connectMsg failed: %v", err)
 		return err
 	}
@@ -367,7 +367,7 @@ func (r *InoutRouter) onInitData(player *Player) error {
 		nickname = nickname[:15] // 截断到前15个字符
 	}
 
-	err = player.Send(fmt.Sprintf(`42["myData",{"userId":"%s","nickname":"%s","gameAvatar":null}]`, player.GetPlayerId(), nickname))
+	err = player.SendString(fmt.Sprintf(`42["myData",{"userId":"%s","nickname":"%s","gameAvatar":null}]`, player.GetPlayerId(), nickname))
 	if err != nil {
 		r.log.Errorf("Send myData failed: %v", err)
 		return err
@@ -379,7 +379,7 @@ func (r *InoutRouter) onInitData(player *Player) error {
 		return err
 	}
 
-	err = player.Send(fmt.Sprintf(`42["currencies",%s]`, string(jsonData)))
+	err = player.SendString(fmt.Sprintf(`42["currencies",%s]`, string(jsonData)))
 	if err != nil {
 		return err
 	}

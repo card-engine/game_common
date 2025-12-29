@@ -141,6 +141,7 @@ type PlayerInfo struct {
 	AppID    string  `json:"appId"`
 	PlayerID string  `json:"playerId"`
 	Brand    string  `json:"brand"`
+	Lang     string  `json:"lang"` //玩家所使用的语言
 	GameID   string  `json:"gameId"`
 	Currency string  `json:"currency"`
 	Balance  float64 `json:"balance"`
