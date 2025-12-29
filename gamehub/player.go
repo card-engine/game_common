@@ -2,6 +2,7 @@ package gamehub
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
@@ -130,4 +131,18 @@ func (p *Player) GetLang() string {
 		return "en"
 	}
 	return p.PlayerInfo.Lang
+}
+
+// =================================
+// 获取玩家的RTP
+func (p *Player) GetRtpStr() string {
+	return p.Rtp
+}
+
+func (p *Player) GetRtp() float64 {
+	rtp, err := strconv.ParseFloat(p.Rtp, 64)
+	if err != nil {
+		return 97
+	}
+	return rtp
 }

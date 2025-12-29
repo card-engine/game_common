@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	v1 "github.com/card-engine/game_common/api/game/v1"
+	client_utils "github.com/card-engine/game_common/api/game/v1/client"
 	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
 	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/player"
@@ -183,7 +185,23 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (*Player, error) 
 		return nil, err
 	}
 
-	spribePlayer := NewPlayer(GameBrand_Spribe, c, playerInfo, rtp.Rtp)
+	player := NewPlayer(GameBrand_Spribe, c, playerInfo, rtp.Rtp)
+
+	// 初使化金币
+	balanceRsp, err := client_utils.Balance(context.Background(), r.apiGrpcConn, playerInfo.AppID, &v1.BalanceRequest{
+		PlayerId: playerInfo.PlayerID,
+		Currency: playerInfo.Currency,
+	})
+
+	if err != nil {
+		r.log.Errorf("Balance failed: %v", err)
+		return nil, err
+	}
+
+	if err := player.SetBalanceByBalanceReply(balanceRsp); err != nil {
+		r.log.Errorf("SetBalanceByBalanceReply failed: %v", err)
+		return nil, err
+	}
 
 	// 注：这个时区要改成商户时区，待修正
 	// room := r.GetRoom(playerInfo.AppID, playerInfo.Currency, rtp.Rtp, "Asia/Shanghai")
@@ -195,10 +213,10 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (*Player, error) 
 	// 	conn.Close()
 	// 	return nil, err
 	// }
-	if err := r.roomManager.OnLogin(spribePlayer); err != nil {
+	if err := r.roomManager.OnLogin(player); err != nil {
 		return nil, err
 	}
-	return spribePlayer, nil
+	return player, nil
 }
 
 func (s *SpribeRouter) onMessage(player *Player, buff []byte) error {
