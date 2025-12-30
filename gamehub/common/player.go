@@ -1,4 +1,4 @@
-package gamehub
+package common
 
 import (
 	"fmt"
@@ -6,23 +6,24 @@ import (
 	"sync"
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
+	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/player"
 	"github.com/gofiber/contrib/websocket"
 )
 
 type Player struct {
-	gameBrand GameBrand
+	gameBrand types.GameBrand
 	conn      *websocket.Conn
 	mu        sync.Mutex // 新增互斥锁
 
-	room        RoomImp
-	roomManager *RoomManager
+	room        types.RoomImp
+	roomManager types.RoomManagerImp
 
 	PlayerInfo *player.PlayerInfo
 	Rtp        string
 }
 
-func NewPlayer(gameBrand GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, Rtp string) *Player {
+func NewPlayer(gameBrand types.GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, Rtp string) *Player {
 	return &Player{
 		gameBrand:  gameBrand,
 		conn:       conn,
@@ -41,6 +42,31 @@ func (p *Player) GetConn() *websocket.Conn {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	return p.conn
+}
+
+func (p *Player) CloseConn() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if p.conn != nil {
+		p.conn.Close()
+		p.conn = nil
+	}
+}
+
+func (p *Player) SetRoom(room types.RoomImp) {
+	p.room = room
+}
+
+func (p *Player) GetRoom() types.RoomImp {
+	return p.room
+}
+
+func (p *Player) GetRoomManager() types.RoomManagerImp {
+	return p.roomManager
+}
+
+func (p *Player) SetRoomManager(roomManager types.RoomManagerImp) {
+	p.roomManager = roomManager
 }
 
 func (p *Player) SendString(msg string) error {
@@ -68,10 +94,11 @@ func (p *Player) IsConnect() bool {
 }
 
 // 从房间移出去
-func (p *Player) ExitRoom(isDisconnect bool) {
+func (p *Player) ExitRoom(isDisconnect bool) error {
 	if p.roomManager != nil {
 		p.roomManager.ExitRoom(p, isDisconnect)
 	}
+	return nil
 }
 
 func (p *Player) GetPlayerId() string {
@@ -82,11 +109,15 @@ func (p *Player) GetAppId() string {
 	return p.PlayerInfo.AppID
 }
 
+func (p *Player) GetCurrency() string {
+	return p.PlayerInfo.Currency
+}
+
 // ========================================================================================
 // 设置玩家的余额，设置成不直接使用，通过下方的场景来更新玩家的余额
 func (p *Player) setBalance(balance float64) error {
 	p.PlayerInfo.Balance = balance
-	if p.gameBrand == GameBrand_Inout {
+	if p.gameBrand == types.GameBrand_Inout {
 		balanceMsg := fmt.Sprintf(`42["onBalanceChange",{"currency":"%s","balance":"%.2f"}]`, p.PlayerInfo.Currency, balance)
 		return p.SendString(balanceMsg)
 	}
@@ -145,4 +176,9 @@ func (p *Player) GetRtp() float64 {
 		return 97
 	}
 	return rtp
+}
+
+// ==============================
+func (p *Player) GetPlayerInfo() *player.PlayerInfo {
+	return p.PlayerInfo
 }

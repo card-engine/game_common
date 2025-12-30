@@ -1,4 +1,4 @@
-package gamehub
+package spribe
 
 import (
 	"hash/fnv"

@@ -1,4 +1,4 @@
-package gamehub
+package spribe
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	client_utils "github.com/card-engine/game_common/api/game/v1/client"
 	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
 	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
+	"github.com/card-engine/game_common/gamehub/common"
+	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/player"
 	"github.com/card-engine/game_common/sfs/protocol"
 	"github.com/card-engine/game_common/sfs/utils"
@@ -27,7 +29,7 @@ type SpribeRouter struct {
 	rdb         *redis.Client
 	apiGrpcConn *google_grpc.ClientConn
 	rtpGrpcConn *google_grpc.ClientConn
-	roomManager *RoomManager
+	roomManager *common.RoomManager
 	logger      log.Logger
 }
 
@@ -37,7 +39,7 @@ func NewSpribeRouter(
 	rdb *redis.Client,
 	apiGrpcConn *google_grpc.ClientConn,
 	rtpGrpcConn *google_grpc.ClientConn,
-	roomManager *RoomManager,
+	roomManager *common.RoomManager,
 	logger log.Logger) *SpribeRouter {
 	return &SpribeRouter{
 		app:         app,
@@ -66,7 +68,7 @@ func (r *SpribeRouter) Route() {
 	app.Get(routPath, websocket.New(func(c *websocket.Conn) {
 		step := 0
 
-		var player *Player = nil
+		var player types.PlayerImp = nil
 
 		defer func() {
 			if player != nil {
@@ -136,7 +138,7 @@ func (s *SpribeRouter) onHandshake(c *websocket.Conn, buff []byte) error {
 }
 
 // 登陆
-func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (*Player, error) {
+func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp, error) {
 	action, controller, data, err := utils.Unpack(buff)
 	if err != nil {
 		return nil, err
@@ -185,7 +187,7 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (*Player, error) 
 		return nil, err
 	}
 
-	player := NewPlayer(GameBrand_Spribe, c, playerInfo, rtp.Rtp)
+	player := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, rtp.Rtp)
 
 	// 初使化金币
 	balanceRsp, err := client_utils.Balance(context.Background(), r.apiGrpcConn, playerInfo.AppID, &v1.BalanceRequest{
@@ -219,11 +221,11 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (*Player, error) 
 	return player, nil
 }
 
-func (s *SpribeRouter) onMessage(player *Player, buff []byte) error {
+func (s *SpribeRouter) onMessage(player types.PlayerImp, buff []byte) error {
 	return s.roomManager.OnMessage(player, buff)
 }
 
-func (s *SpribeRouter) onDisconnect(player *Player) error {
+func (s *SpribeRouter) onDisconnect(player types.PlayerImp) error {
 	return s.roomManager.OnDisConnect(player)
 }
 

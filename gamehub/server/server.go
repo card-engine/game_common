@@ -1,8 +1,12 @@
-package gamehub
+package sever
 
 import (
 	"context"
 
+	"github.com/card-engine/game_common/gamehub/common"
+	"github.com/card-engine/game_common/gamehub/inout"
+	"github.com/card-engine/game_common/gamehub/spribe"
+	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gofiber/fiber/v2"
 	"github.com/redis/go-redis/v9"
@@ -15,16 +19,16 @@ type GameApiServer struct {
 	log *log.Helper
 
 	serverAddr string //服务器绑定的地址
-	router     Router
+	router     types.Router
 }
 
 func InitGameApiServer(
-	gameBrand GameBrand, // 游戏品牌
+	gameBrand types.GameBrand, // 游戏品牌
 	serverName string, // 服务器名称
 	gameName string, // 游戏名称
 	serverAddr string, // 服务器绑定的地址
-	tableMatcherType TableMatcherType, // 配桌算法
-	roomCreator RoomCreator, // 房间创建器
+	tableMatcherType types.TableMatcherType, // 配桌算法
+	roomCreator types.RoomCreator, // 房间创建器
 	rdb *redis.Client, // redis 客户端
 	apiGrpcConn *google_grpc.ClientConn,
 	rtpGrpcConn *google_grpc.ClientConn, // rtp 客户端
@@ -38,13 +42,13 @@ func InitGameApiServer(
 		serverAddr: serverAddr,
 	}
 
-	roomManager := NewRoomManager(gameBrand, roomCreator, tableMatcherType, logger)
+	roomManager := common.NewRoomManager(gameBrand, roomCreator, tableMatcherType, logger)
 
 	switch gameBrand {
-	case GameBrand_Inout:
-		s.router = NewInoutRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, logger)
-	case GameBrand_Spribe:
-		s.router = NewSpribeRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, logger)
+	case types.GameBrand_Inout:
+		s.router = inout.NewInoutRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, logger)
+	case types.GameBrand_Spribe:
+		s.router = spribe.NewSpribeRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, logger)
 	}
 
 	s.route()
