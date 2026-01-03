@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.7
 // 	protoc        v5.29.3
-// source: rtp/v1/rtp.proto
+// source: api/rtp/v1/rtp.proto
 
 package v1
 
@@ -32,13 +32,14 @@ type SelectSpinRequest struct {
 	RoundModel    string                 `protobuf:"bytes,6,opt,name=round_model,json=roundModel,proto3" json:"round_model,omitempty"` // 模式: DEFAULT,EXTRA,BUY
 	Currency      string                 `protobuf:"bytes,7,opt,name=currency,proto3" json:"currency,omitempty"`
 	Mock          string                 `protobuf:"bytes,8,opt,name=mock,proto3" json:"mock,omitempty"`
+	RoundExtModel string                 `protobuf:"bytes,9,opt,name=round_ext_model,json=roundExtModel,proto3" json:"round_ext_model,omitempty"` // 扩展模式.BUY的填值[1, 2, 3],EXTRA的填[1.5, 3]
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SelectSpinRequest) Reset() {
 	*x = SelectSpinRequest{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[0]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -50,7 +51,7 @@ func (x *SelectSpinRequest) String() string {
 func (*SelectSpinRequest) ProtoMessage() {}
 
 func (x *SelectSpinRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[0]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -63,7 +64,7 @@ func (x *SelectSpinRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectSpinRequest.ProtoReflect.Descriptor instead.
 func (*SelectSpinRequest) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{0}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SelectSpinRequest) GetAppId() string {
@@ -122,6 +123,13 @@ func (x *SelectSpinRequest) GetMock() string {
 	return ""
 }
 
+func (x *SelectSpinRequest) GetRoundExtModel() string {
+	if x != nil {
+		return x.RoundExtModel
+	}
+	return ""
+}
+
 type SelectSpinReply struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	SpinId         int64                  `protobuf:"varint,1,opt,name=spinId,proto3" json:"spinId,omitempty"`      //spin样本id
@@ -142,7 +150,7 @@ type SelectSpinReply struct {
 
 func (x *SelectSpinReply) Reset() {
 	*x = SelectSpinReply{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[1]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -154,7 +162,7 @@ func (x *SelectSpinReply) String() string {
 func (*SelectSpinReply) ProtoMessage() {}
 
 func (x *SelectSpinReply) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[1]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -167,7 +175,7 @@ func (x *SelectSpinReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SelectSpinReply.ProtoReflect.Descriptor instead.
 func (*SelectSpinReply) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{1}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *SelectSpinReply) GetSpinId() int64 {
@@ -266,7 +274,7 @@ type GetPlayerRtpRequest struct {
 
 func (x *GetPlayerRtpRequest) Reset() {
 	*x = GetPlayerRtpRequest{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[2]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -278,7 +286,7 @@ func (x *GetPlayerRtpRequest) String() string {
 func (*GetPlayerRtpRequest) ProtoMessage() {}
 
 func (x *GetPlayerRtpRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[2]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -291,7 +299,7 @@ func (x *GetPlayerRtpRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlayerRtpRequest.ProtoReflect.Descriptor instead.
 func (*GetPlayerRtpRequest) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{2}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetPlayerRtpRequest) GetAppId() string {
@@ -331,7 +339,7 @@ type GetPlayerRtpReply struct {
 
 func (x *GetPlayerRtpReply) Reset() {
 	*x = GetPlayerRtpReply{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[3]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -343,7 +351,7 @@ func (x *GetPlayerRtpReply) String() string {
 func (*GetPlayerRtpReply) ProtoMessage() {}
 
 func (x *GetPlayerRtpReply) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[3]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -356,7 +364,7 @@ func (x *GetPlayerRtpReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlayerRtpReply.ProtoReflect.Descriptor instead.
 func (*GetPlayerRtpReply) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{3}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetPlayerRtpReply) GetRtp() string {
@@ -379,7 +387,7 @@ type GetBaccaratRtpRequest struct {
 
 func (x *GetBaccaratRtpRequest) Reset() {
 	*x = GetBaccaratRtpRequest{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[4]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -391,7 +399,7 @@ func (x *GetBaccaratRtpRequest) String() string {
 func (*GetBaccaratRtpRequest) ProtoMessage() {}
 
 func (x *GetBaccaratRtpRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[4]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -404,7 +412,7 @@ func (x *GetBaccaratRtpRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaccaratRtpRequest.ProtoReflect.Descriptor instead.
 func (*GetBaccaratRtpRequest) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{4}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetBaccaratRtpRequest) GetAppId() string {
@@ -453,7 +461,7 @@ type GetBaccaratRtpReply struct {
 
 func (x *GetBaccaratRtpReply) Reset() {
 	*x = GetBaccaratRtpReply{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[5]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -465,7 +473,7 @@ func (x *GetBaccaratRtpReply) String() string {
 func (*GetBaccaratRtpReply) ProtoMessage() {}
 
 func (x *GetBaccaratRtpReply) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[5]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -478,7 +486,7 @@ func (x *GetBaccaratRtpReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaccaratRtpReply.ProtoReflect.Descriptor instead.
 func (*GetBaccaratRtpReply) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{5}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetBaccaratRtpReply) GetRtp() string {
@@ -517,7 +525,7 @@ type SettleBaccaratRequest struct {
 
 func (x *SettleBaccaratRequest) Reset() {
 	*x = SettleBaccaratRequest{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[6]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -529,7 +537,7 @@ func (x *SettleBaccaratRequest) String() string {
 func (*SettleBaccaratRequest) ProtoMessage() {}
 
 func (x *SettleBaccaratRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[6]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -542,7 +550,7 @@ func (x *SettleBaccaratRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SettleBaccaratRequest.ProtoReflect.Descriptor instead.
 func (*SettleBaccaratRequest) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{6}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SettleBaccaratRequest) GetAppId() string {
@@ -602,7 +610,7 @@ type SettleBaccaratReply struct {
 
 func (x *SettleBaccaratReply) Reset() {
 	*x = SettleBaccaratReply{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[7]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -614,7 +622,7 @@ func (x *SettleBaccaratReply) String() string {
 func (*SettleBaccaratReply) ProtoMessage() {}
 
 func (x *SettleBaccaratReply) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[7]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -627,7 +635,7 @@ func (x *SettleBaccaratReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SettleBaccaratReply.ProtoReflect.Descriptor instead.
 func (*SettleBaccaratReply) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{7}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{7}
 }
 
 type ResetBaccaratRequest struct {
@@ -642,7 +650,7 @@ type ResetBaccaratRequest struct {
 
 func (x *ResetBaccaratRequest) Reset() {
 	*x = ResetBaccaratRequest{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[8]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -654,7 +662,7 @@ func (x *ResetBaccaratRequest) String() string {
 func (*ResetBaccaratRequest) ProtoMessage() {}
 
 func (x *ResetBaccaratRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[8]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -667,7 +675,7 @@ func (x *ResetBaccaratRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetBaccaratRequest.ProtoReflect.Descriptor instead.
 func (*ResetBaccaratRequest) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{8}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ResetBaccaratRequest) GetAppId() string {
@@ -706,7 +714,7 @@ type ResetBaccaratReply struct {
 
 func (x *ResetBaccaratReply) Reset() {
 	*x = ResetBaccaratReply{}
-	mi := &file_rtp_v1_rtp_proto_msgTypes[9]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +726,7 @@ func (x *ResetBaccaratReply) String() string {
 func (*ResetBaccaratReply) ProtoMessage() {}
 
 func (x *ResetBaccaratReply) ProtoReflect() protoreflect.Message {
-	mi := &file_rtp_v1_rtp_proto_msgTypes[9]
+	mi := &file_api_rtp_v1_rtp_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,14 +739,14 @@ func (x *ResetBaccaratReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetBaccaratReply.ProtoReflect.Descriptor instead.
 func (*ResetBaccaratReply) Descriptor() ([]byte, []int) {
-	return file_rtp_v1_rtp_proto_rawDescGZIP(), []int{9}
+	return file_api_rtp_v1_rtp_proto_rawDescGZIP(), []int{9}
 }
 
-var File_rtp_v1_rtp_proto protoreflect.FileDescriptor
+var File_api_rtp_v1_rtp_proto protoreflect.FileDescriptor
 
-const file_rtp_v1_rtp_proto_rawDesc = "" +
+const file_api_rtp_v1_rtp_proto_rawDesc = "" +
 	"\n" +
-	"\x10rtp/v1/rtp.proto\x12\x06rtp.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xde\x01\n" +
+	"\x14api/rtp/v1/rtp.proto\x12\x06rtp.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x86\x02\n" +
 	"\x11SelectSpinRequest\x12\x14\n" +
 	"\x05appId\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
 	"\bplayerId\x18\x02 \x01(\tR\bplayerId\x12\x1c\n" +
@@ -748,7 +756,8 @@ const file_rtp_v1_rtp_proto_rawDesc = "" +
 	"\vround_model\x18\x06 \x01(\tR\n" +
 	"roundModel\x12\x1a\n" +
 	"\bcurrency\x18\a \x01(\tR\bcurrency\x12\x12\n" +
-	"\x04mock\x18\b \x01(\tR\x04mock\"\xcc\x02\n" +
+	"\x04mock\x18\b \x01(\tR\x04mock\x12&\n" +
+	"\x0fround_ext_model\x18\t \x01(\tR\rroundExtModel\"\xcc\x02\n" +
 	"\x0fSelectSpinReply\x12\x16\n" +
 	"\x06spinId\x18\x01 \x01(\x03R\x06spinId\x12\x1c\n" +
 	"\tgameBrand\x18\x02 \x01(\tR\tgameBrand\x12\x16\n" +
@@ -807,19 +816,19 @@ const file_rtp_v1_rtp_proto_rawDesc = "" +
 	"RtpProtoV1P\x01Z0github.com/card-engine/game_common/api/rtp/v1;v1b\x06proto3"
 
 var (
-	file_rtp_v1_rtp_proto_rawDescOnce sync.Once
-	file_rtp_v1_rtp_proto_rawDescData []byte
+	file_api_rtp_v1_rtp_proto_rawDescOnce sync.Once
+	file_api_rtp_v1_rtp_proto_rawDescData []byte
 )
 
-func file_rtp_v1_rtp_proto_rawDescGZIP() []byte {
-	file_rtp_v1_rtp_proto_rawDescOnce.Do(func() {
-		file_rtp_v1_rtp_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_rtp_v1_rtp_proto_rawDesc), len(file_rtp_v1_rtp_proto_rawDesc)))
+func file_api_rtp_v1_rtp_proto_rawDescGZIP() []byte {
+	file_api_rtp_v1_rtp_proto_rawDescOnce.Do(func() {
+		file_api_rtp_v1_rtp_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_rtp_v1_rtp_proto_rawDesc), len(file_api_rtp_v1_rtp_proto_rawDesc)))
 	})
-	return file_rtp_v1_rtp_proto_rawDescData
+	return file_api_rtp_v1_rtp_proto_rawDescData
 }
 
-var file_rtp_v1_rtp_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_rtp_v1_rtp_proto_goTypes = []any{
+var file_api_rtp_v1_rtp_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_api_rtp_v1_rtp_proto_goTypes = []any{
 	(*SelectSpinRequest)(nil),     // 0: rtp.v1.SelectSpinRequest
 	(*SelectSpinReply)(nil),       // 1: rtp.v1.SelectSpinReply
 	(*GetPlayerRtpRequest)(nil),   // 2: rtp.v1.GetPlayerRtpRequest
@@ -831,7 +840,7 @@ var file_rtp_v1_rtp_proto_goTypes = []any{
 	(*ResetBaccaratRequest)(nil),  // 8: rtp.v1.ResetBaccaratRequest
 	(*ResetBaccaratReply)(nil),    // 9: rtp.v1.ResetBaccaratReply
 }
-var file_rtp_v1_rtp_proto_depIdxs = []int32{
+var file_api_rtp_v1_rtp_proto_depIdxs = []int32{
 	0, // 0: rtp.v1.RtpApi.SelectSpin:input_type -> rtp.v1.SelectSpinRequest
 	2, // 1: rtp.v1.RtpApi.GetPlayerRtp:input_type -> rtp.v1.GetPlayerRtpRequest
 	4, // 2: rtp.v1.RtpApi.GetBaccaratRtp:input_type -> rtp.v1.GetBaccaratRtpRequest
@@ -849,26 +858,26 @@ var file_rtp_v1_rtp_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_rtp_v1_rtp_proto_init() }
-func file_rtp_v1_rtp_proto_init() {
-	if File_rtp_v1_rtp_proto != nil {
+func init() { file_api_rtp_v1_rtp_proto_init() }
+func file_api_rtp_v1_rtp_proto_init() {
+	if File_api_rtp_v1_rtp_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rtp_v1_rtp_proto_rawDesc), len(file_rtp_v1_rtp_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_rtp_v1_rtp_proto_rawDesc), len(file_api_rtp_v1_rtp_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rtp_v1_rtp_proto_goTypes,
-		DependencyIndexes: file_rtp_v1_rtp_proto_depIdxs,
-		MessageInfos:      file_rtp_v1_rtp_proto_msgTypes,
+		GoTypes:           file_api_rtp_v1_rtp_proto_goTypes,
+		DependencyIndexes: file_api_rtp_v1_rtp_proto_depIdxs,
+		MessageInfos:      file_api_rtp_v1_rtp_proto_msgTypes,
 	}.Build()
-	File_rtp_v1_rtp_proto = out.File
-	file_rtp_v1_rtp_proto_goTypes = nil
-	file_rtp_v1_rtp_proto_depIdxs = nil
+	File_api_rtp_v1_rtp_proto = out.File
+	file_api_rtp_v1_rtp_proto_goTypes = nil
+	file_api_rtp_v1_rtp_proto_depIdxs = nil
 }

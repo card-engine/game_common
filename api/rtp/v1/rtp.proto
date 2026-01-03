@@ -35,6 +35,7 @@ message SelectSpinRequest{
     string round_model = 6; // 模式: DEFAULT,EXTRA,BUY
     string currency = 7;
     string mock = 8;
+    string round_ext_model = 9; // 扩展模式.BUY的填值[1, 2, 3],EXTRA的填[1.5, 3]
 }
 
 message SelectSpinReply{

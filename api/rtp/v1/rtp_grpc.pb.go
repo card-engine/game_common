@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: rtp/v1/rtp.proto
+// source: api/rtp/v1/rtp.proto
 
 package v1
 
@@ -279,5 +279,5 @@ var RtpApi_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rtp/v1/rtp.proto",
+	Metadata: "api/rtp/v1/rtp.proto",
 }
