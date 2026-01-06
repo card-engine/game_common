@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -92,9 +91,8 @@ func (r *RoomManager) ExitRoom(player types.PlayerImp, isDisconnect bool) {
 	}
 }
 
-func (r *RoomManager) OnLogin(player types.PlayerImp) error {
-	player.SetRoomManager(r)
-
+// 尝试重连游戏， 返回的第一个参数是错误信息，第二个参数是是否进行了重连
+func (r *RoomManager) TryReConnectGame(player types.PlayerImp) (error, bool) {
 	//========================================================
 	//判断是不是断线重连回来的
 	r.playerRoomMapMu.Lock()
@@ -110,59 +108,50 @@ func (r *RoomManager) OnLogin(player types.PlayerImp) error {
 				oldPlayer.conn.Close()
 			}
 		}
-		r.players.Store(playerIdent, player)
 
-		return room.OnReConnect(player)
+		// 更新管理器记录的新的玩家对像
+		r.players.Store(playerIdent, player)
+		player.SetRoomManager(r)
+
+		return room.OnReConnect(player), ok
 	}
 	//=========================配房逻辑==================================
-	if r.tableMatcherType == types.TableMatcherType_RTP {
-		roomTypeStr := fmt.Sprintf("%v-%v", player.GetPlayerInfo().AppID, player.GetRtpStr())
-		r.roomMapMu.Lock()
+	return nil, ok
+}
 
-		if rooms, ok := r.roomMap[roomTypeStr]; ok {
+func (r *RoomManager) OnJoin(player types.PlayerImp, roomType string, roomArgs interface{}) error {
+	player.SetRoomManager(r)
+
+	r.roomMapMu.Lock()
+	if roomType != "" {
+		if rooms, ok := r.roomMap[roomType]; ok {
 			for _, room := range rooms {
 				// 找到了一个可以登陆的房间
-				if err := room.OnLogin(player); err == nil {
+				if err := room.OnJoin(player); err == nil {
 					player.SetRoom(room)
 					break
 				}
 			}
 		}
+	}
 
-		if player.GetRoom() == nil {
-			var roomArgs interface{} = &types.RtpRoomArgs{
-				Appid:    player.GetPlayerInfo().AppID,
-				Rtp:      player.GetRtpStr(),
-				Currency: player.GetPlayerInfo().Currency,
-			}
-
-			room := r.roomCreator.CreateRoom(roomArgs)
-			if err := room.OnLogin(player); err == nil {
-				player.SetRoom(room)
-			} else {
-				r.log.Errorf("create room %s failed, err: %v", roomTypeStr, err)
-				r.roomMapMu.Unlock()
-				return err
-			}
-
-			r.roomMap[roomTypeStr] = append(r.roomMap[roomTypeStr], room)
-		}
-		r.roomMapMu.Unlock()
-
-	} else if r.tableMatcherType == types.TableMatcherType_SINGLE {
-		var roomArgs interface{} = &types.SingleRoomArgs{
-			Appid: player.GetPlayerInfo().AppID,
-		}
-
+	if player.GetRoom() == nil {
 		room := r.roomCreator.CreateRoom(roomArgs)
-		if err := room.OnLogin(player); err == nil {
+		if err := room.OnJoin(player); err == nil {
 			player.SetRoom(room)
 		} else {
-			r.log.Errorf("create room %s failed, err: %v", err)
+			r.log.Errorf("create room %s failed, err: %v", roomType, err)
 			r.roomMapMu.Unlock()
 			return err
 		}
+
+		if roomType != "" {
+			r.roomMap[roomType] = append(r.roomMap[roomType], room)
+		}
 	}
+	r.roomMapMu.Unlock()
+
+	playerIdent := player.GetPlayerIdent()
 
 	// 保存登陆信息，以便后续判断是否是重连回来的用户
 	r.playerRoomMapMu.Lock()

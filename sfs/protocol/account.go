@@ -51,3 +51,29 @@ type LoginRespond struct {
 }
 
 // ========================================
+
+type JDBGameLoginReq struct {
+	BankId        string  `sfs:"bankId"`
+	ClientType    string  `sfs:"clientType"`
+	Debug         bool    `sfs:"debug"`
+	GameLoginName string  `sfs:"gameLoginName"`
+	GamePass      string  `sfs:"gamePass"`
+	GameType      int32   `sfs:"gameType"`
+	GameUid       string  `sfs:"gameUid"`
+	Host          string  `sfs:"host"`
+	MachineType   int32   `sfs:"machineType"`
+	Password      string  `sfs:"password"`
+	Port          int32   `sfs:"port"`
+	SessionID0    string  `sfs:"sessionID0"`
+	SessionID1    string  `sfs:"sessionID1"`
+	SessionID2    string  `sfs:"sessionID2"`
+	SessionID3    string  `sfs:"sessionID3"`
+	SessionID4    string  `sfs:"sessionID4"`
+	StartBalance  float64 `sfs:"startBalance"`
+	T             string  `sfs:"t"`
+	Uid           string  `sfs:"uid"`
+	UseSSL        bool    `sfs:"useSSL"`
+	UserName      string  `sfs:"userName"`
+	Zone          string  `sfs:"zone"`
+	ZoneName      string  `sfs:"zoneName"`
+}

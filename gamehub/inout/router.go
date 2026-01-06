@@ -37,6 +37,7 @@ type InoutRouter struct {
 	apiGrpcConn *google_grpc.ClientConn
 	rtpGrpcConn *google_grpc.ClientConn
 	roomManager *common.RoomManager
+	lobby       types.LobbyImp
 	logger      log.Logger
 }
 
@@ -47,6 +48,7 @@ func NewInoutRouter(
 	apiGrpcConn *google_grpc.ClientConn,
 	rtpGrpcConn *google_grpc.ClientConn,
 	roomManager *common.RoomManager,
+	lobby types.LobbyImp,
 	logger log.Logger) *InoutRouter {
 	return &InoutRouter{
 		app:         app,
@@ -56,6 +58,7 @@ func NewInoutRouter(
 		apiGrpcConn: apiGrpcConn,
 		rtpGrpcConn: rtpGrpcConn,
 		roomManager: roomManager,
+		lobby:       lobby,
 		logger:      logger,
 	}
 }
@@ -359,7 +362,7 @@ func (r *InoutRouter) onInitData(player types.PlayerImp) error {
 	}
 
 	// 剩下的交给房间处理
-	if err := r.roomManager.OnLogin(player); err != nil {
+	if err := r.lobby.OnLogin(player); err != nil {
 		r.log.Errorf("OnLogin failed: %v", err)
 		return err
 	}

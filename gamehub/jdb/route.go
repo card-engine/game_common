@@ -1,4 +1,4 @@
-package spribe
+package jdb
 
 import (
 	"context"
@@ -21,7 +21,7 @@ import (
 	google_grpc "google.golang.org/grpc"
 )
 
-type SpribeRouter struct {
+type JDBRouter struct {
 	log      *log.Helper
 	app      *fiber.App
 	gameName string
@@ -30,11 +30,13 @@ type SpribeRouter struct {
 	apiGrpcConn *google_grpc.ClientConn
 	rtpGrpcConn *google_grpc.ClientConn
 	roomManager *common.RoomManager
-	lobby       types.LobbyImp
-	logger      log.Logger
+
+	lobby types.LobbyImp
+
+	logger log.Logger
 }
 
-func NewSpribeRouter(
+func NewJdbRouter(
 	gameName string,
 	app *fiber.App,
 	rdb *redis.Client,
@@ -42,8 +44,8 @@ func NewSpribeRouter(
 	rtpGrpcConn *google_grpc.ClientConn,
 	roomManager *common.RoomManager,
 	lobby types.LobbyImp,
-	logger log.Logger) *SpribeRouter {
-	return &SpribeRouter{
+	logger log.Logger) *JDBRouter {
+	return &JDBRouter{
 		app:         app,
 		gameName:    gameName,
 		log:         log.NewHelper(logger),
@@ -56,7 +58,7 @@ func NewSpribeRouter(
 	}
 }
 
-func (r *SpribeRouter) Route() {
+func (r *JDBRouter) Route() {
 	app := r.app
 
 	routPath := fmt.Sprintf("/%s/websocket", r.gameName)
@@ -69,7 +71,7 @@ func (r *SpribeRouter) Route() {
 	})
 
 	app.Get(routPath, websocket.New(func(c *websocket.Conn) {
-		step := 0
+		// step := 0
 
 		var player types.PlayerImp = nil
 
@@ -85,37 +87,86 @@ func (r *SpribeRouter) Route() {
 			}
 		}()
 
+		// 第一阶段：握手
+		_, msg, err := c.ReadMessage()
+		if err != nil {
+			r.log.Errorf("read websocket message error: %v", err)
+			return
+		}
+		if err := r.onHandshake(c, msg); err != nil {
+			r.log.Errorf("handshake error: %v", err)
+			return
+		}
+
+		// 第二阶段：smartfoxserver层面的登录
+		_, msg, err = c.ReadMessage()
+		if err != nil {
+			r.log.Errorf("read websocket message error: %v", err)
+			return
+		}
+		if err := r.onSamrtFoxServerLogin(c, msg); err != nil {
+			r.log.Errorf("login error: %v", err)
+			return
+		}
+
+		// 第三阶段：游戏层的登录
+		_, msg, err = c.ReadMessage()
+		if err != nil {
+			r.log.Errorf("read websocket message error: %v", err)
+			return
+		}
+		if _player, err := r.onLogin(c, msg); err != nil {
+			r.log.Errorf("login error: %v", err)
+			return
+		} else {
+			player = _player
+		}
+
+		// 第三阶段：正常消息处理
 		for {
 			_, msg, err := c.ReadMessage()
-
 			if err != nil {
 				r.log.Errorf("read websocket message error: %v", err)
 				break
 			}
 
-			if step == 0 {
-				if err := r.onHandshake(c, msg); err != nil {
-					r.log.Errorf("handshake error: %v", err)
-					break
-				}
-				step += 1
-			} else if step == 1 {
-				if player, err = r.onLogin(c, msg); err != nil {
-					r.log.Errorf("login error: %v", err)
-					break
-				}
-				step += 1
-			} else {
-				if err := r.onMessage(player, msg); err != nil {
-					r.log.Errorf("handle message error: %v", err)
-					break
-				}
+			if err := r.onMessage(player, msg); err != nil {
+				r.log.Errorf("handle message error: %v", err)
+				break
 			}
 		}
+
+		// for {
+		// 	_, msg, err := c.ReadMessage()
+
+		// 	if err != nil {
+		// 		r.log.Errorf("read websocket message error: %v", err)
+		// 		break
+		// 	}
+
+		// 	if step == 0 {
+		// 		if err := r.onHandshake(c, msg); err != nil {
+		// 			r.log.Errorf("handshake error: %v", err)
+		// 			break
+		// 		}
+		// 		step += 1
+		// 	} else if step == 1 {
+		// 		if player, err = r.onLogin(c, msg); err != nil {
+		// 			r.log.Errorf("login error: %v", err)
+		// 			break
+		// 		}
+		// 		step += 1
+		// 	} else {
+		// 		if err := r.onMessage(player, msg); err != nil {
+		// 			r.log.Errorf("handle message error: %v", err)
+		// 			break
+		// 		}
+		// 	}
+		//}
 	}))
 }
 
-func (s *SpribeRouter) onHandshake(c *websocket.Conn, buff []byte) error {
+func (s *JDBRouter) onHandshake(c *websocket.Conn, buff []byte) error {
 	action, controller, data, err := utils.Unpack(buff)
 	if err != nil {
 		return err
@@ -140,26 +191,58 @@ func (s *SpribeRouter) onHandshake(c *websocket.Conn, buff []byte) error {
 	return s.Send(c, 0, 0, rsp)
 }
 
+func (r *JDBRouter) onSamrtFoxServerLogin(c *websocket.Conn, buff []byte) error {
+	action, controller, data, err := utils.Unpack(buff)
+	if err != nil {
+		return err
+	}
+
+	// 判断如果不是登陆协议
+	if !(controller == 0 && action == 1) {
+		return fmt.Errorf("login action error")
+	}
+
+	// 解析请求参数
+	var req protocol.LoginRequest
+	if err := sfs.Unmarshal(data, &req); err != nil {
+		return err
+	}
+
+	rsp, err := sfs.Marshal(protocol.LoginRespond{
+		Id: 50,
+		Pi: 0,
+		Rl: []interface{}{},
+		Rs: 0,
+		Un: req.UserName,
+		Zn: req.ZoneName,
+	})
+	if err != nil {
+		return err
+	}
+
+	return r.Send(c, 0, 1, rsp)
+}
+
 // 登陆
-func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp, error) {
+func (r *JDBRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp, error) {
 	action, controller, data, err := utils.Unpack(buff)
 	if err != nil {
 		return nil, err
 	}
 
 	// 判断如果不是登陆协议
-	if !(controller == 0 && action == 1) {
+	if !(controller == 1 && action == 13 && data["c"].(string) == "gameLogin" && data["p"] != nil) {
 		return nil, fmt.Errorf("login action error")
 	}
 
 	// 解析请求参数
-	var req protocol.LoginRequest
-	if err := sfs.Unmarshal(data, &req); err != nil {
+	var req protocol.JDBGameLoginReq
+	if err := sfs.Unmarshal(data["p"].(sfs.SFSObject), &req); err != nil {
 		return nil, err
 	}
 
 	// appid := req.Payload.Jurisdiction
-	ssokey := req.Payload.Token
+	ssokey := req.SessionID3
 
 	params, err := player.DecodedSSOKeyV3(ssokey)
 	if err != nil {
@@ -224,15 +307,36 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp,
 	return player, nil
 }
 
-func (s *SpribeRouter) onMessage(player types.PlayerImp, buff []byte) error {
-	return s.roomManager.OnMessage(player, buff)
+func (s *JDBRouter) onMessage(player types.PlayerImp, msg []byte) error {
+	action, controller, data, err := utils.Unpack(msg)
+	if err != nil {
+		return err
+	}
+
+	// ping
+	if action == 29 && controller == 0 {
+		return player.SendBinary(msg)
+	} else if action == 13 && controller == 1 {
+
+		// 如果有大厅的话，将消息转发至大厅
+		if s.lobby != nil {
+			if err := s.lobby.OnMessage(player, data); err != nil {
+				return err
+			}
+		}
+		return s.roomManager.OnMessage(player, data)
+	} else {
+		s.log.Debugf("unhandled message, action: %d, controller: %d", action, controller)
+	}
+
+	return nil
 }
 
-func (s *SpribeRouter) onDisconnect(player types.PlayerImp) error {
+func (s *JDBRouter) onDisconnect(player types.PlayerImp) error {
 	return s.roomManager.OnDisConnect(player)
 }
 
-func (s *SpribeRouter) Send(c *websocket.Conn, controller int16, action uint8, payload sfs.SFSObject) error {
+func (s *JDBRouter) Send(c *websocket.Conn, controller int16, action uint8, payload sfs.SFSObject) error {
 	sendData := sfs.SFSObject{
 		"a": action,
 		"c": controller,

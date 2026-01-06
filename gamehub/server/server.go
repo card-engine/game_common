@@ -5,6 +5,7 @@ import (
 
 	"github.com/card-engine/game_common/gamehub/common"
 	"github.com/card-engine/game_common/gamehub/inout"
+	"github.com/card-engine/game_common/gamehub/jdb"
 	"github.com/card-engine/game_common/gamehub/spribe"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/go-kratos/kratos/v2/log"
@@ -22,13 +23,30 @@ type GameApiServer struct {
 	router     types.Router
 }
 
-func InitGameApiServer(
+// 没有大厅类的游戏
+func InitGameApiServer(gameBrand types.GameBrand, // 游戏品牌
+	serverName string, // 服务器名称
+	gameName string, // 游戏名称
+	serverAddr string, // 服务器绑定的地址
+	tableMatcherType types.TableMatcherType, // 配桌算法
+	roomCreator types.RoomCreator, // 房间创建器
+	rdb *redis.Client, // redis 客户端
+	apiGrpcConn *google_grpc.ClientConn,
+	rtpGrpcConn *google_grpc.ClientConn, // rtp 客户端
+	logger log.Logger) *GameApiServer {
+	// 没有大厅的使用自建无大厅创建器
+	return InitGameApiServerWithLobby(gameBrand, serverName, gameName, serverAddr, tableMatcherType, roomCreator, common.NewNoLobbyCreator(tableMatcherType), rdb, apiGrpcConn, rtpGrpcConn, logger)
+}
+
+// 有大厅的游戏的服务器
+func InitGameApiServerWithLobby(
 	gameBrand types.GameBrand, // 游戏品牌
 	serverName string, // 服务器名称
 	gameName string, // 游戏名称
 	serverAddr string, // 服务器绑定的地址
 	tableMatcherType types.TableMatcherType, // 配桌算法
 	roomCreator types.RoomCreator, // 房间创建器
+	lobbyCreator types.LobbyCreator, // 大厅创建器
 	rdb *redis.Client, // redis 客户端
 	apiGrpcConn *google_grpc.ClientConn,
 	rtpGrpcConn *google_grpc.ClientConn, // rtp 客户端
@@ -44,11 +62,18 @@ func InitGameApiServer(
 
 	roomManager := common.NewRoomManager(gameBrand, roomCreator, tableMatcherType, logger)
 
+	var lobby types.LobbyImp = nil
+	if lobbyCreator != nil {
+		lobby = lobbyCreator.CreateLobby(roomManager)
+	}
+
 	switch gameBrand {
 	case types.GameBrand_Inout:
-		s.router = inout.NewInoutRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, logger)
+		s.router = inout.NewInoutRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, lobby, logger)
 	case types.GameBrand_Spribe:
-		s.router = spribe.NewSpribeRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, logger)
+		s.router = spribe.NewSpribeRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, lobby, logger)
+	case types.GameBrand_Jdb:
+		s.router = jdb.NewJdbRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, lobby, logger)
 	}
 
 	s.route()
