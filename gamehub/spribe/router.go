@@ -225,7 +225,27 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp,
 }
 
 func (s *SpribeRouter) onMessage(player types.PlayerImp, buff []byte) error {
-	return s.roomManager.OnMessage(player, buff)
+	action, controller, data, err := utils.Unpack(buff)
+	if err != nil {
+		return err
+	}
+
+	// ping
+	if action == 29 && controller == 0 {
+		return player.SendBinary(buff)
+	} else if action == 13 && controller == 1 {
+		// 如果有大厅的话，将消息转发至大厅
+		if s.lobby != nil {
+			if err := s.lobby.OnMessage(player, data); err != nil {
+				return err
+			}
+		}
+		return s.roomManager.OnMessage(player, data)
+	} else {
+		s.log.Debugf("unhandled message, action: %d, controller: %d", action, controller)
+	}
+
+	return nil
 }
 
 func (s *SpribeRouter) onDisconnect(player types.PlayerImp) error {

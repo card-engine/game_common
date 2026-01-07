@@ -307,15 +307,15 @@ func (r *JDBRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp, er
 	return player, nil
 }
 
-func (s *JDBRouter) onMessage(player types.PlayerImp, msg []byte) error {
-	action, controller, data, err := utils.Unpack(msg)
+func (s *JDBRouter) onMessage(player types.PlayerImp, buff []byte) error {
+	action, controller, data, err := utils.Unpack(buff)
 	if err != nil {
 		return err
 	}
 
 	// ping
 	if action == 29 && controller == 0 {
-		return player.SendBinary(msg)
+		return player.SendBinary(buff)
 	} else if action == 13 && controller == 1 {
 
 		// 如果有大厅的话，将消息转发至大厅
