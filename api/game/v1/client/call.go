@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
 	"github.com/go-kratos/kratos/v2/metadata"
@@ -55,4 +56,14 @@ func AppGameList(ctx context.Context, grpcClient *google_grpc.ClientConn, appid 
 	client := v1.NewGameApiClient(grpcClient)
 	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
 	return client.AppGameList(ctx, req)
+}
+
+// 交易（直接综合了bet&win&refund接口）
+func Transaction(ctx context.Context, grpcClient *google_grpc.ClientConn, appid string, req *v1.TransactionRequest) (*v1.TransactionReply, error) {
+	if req.TransactionType != "bet" && req.TransactionType != "win" && req.TransactionType != "refund" {
+		return nil, fmt.Errorf("transaction_type %s error", req.TransactionType)
+	}
+	client := v1.NewGameApiClient(grpcClient)
+	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
+	return client.Transaction(ctx, req)
 }

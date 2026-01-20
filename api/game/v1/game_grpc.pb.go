@@ -8,6 +8,7 @@ package v1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -26,6 +27,7 @@ const (
 	GameApi_GameHistoryList_FullMethodName = "/game.v1.GameApi/GameHistoryList"
 	GameApi_JiliGameHistory_FullMethodName = "/game.v1.GameApi/JiliGameHistory"
 	GameApi_AppGameList_FullMethodName     = "/game.v1.GameApi/AppGameList"
+	GameApi_Transaction_FullMethodName     = "/game.v1.GameApi/Transaction"
 )
 
 // GameApiClient is the client API for GameApi service.
@@ -46,6 +48,8 @@ type GameApiClient interface {
 	JiliGameHistory(ctx context.Context, in *JiliGameHistoryRequest, opts ...grpc.CallOption) (*JiliGameHistoryReply, error)
 	// 商户游戏列表
 	AppGameList(ctx context.Context, in *AppGameListRequest, opts ...grpc.CallOption) (*AppGameListReply, error)
+	// 交易接口，同时支持: 下注，退钱，派彩
+	Transaction(ctx context.Context, in *TransactionRequest, opts ...grpc.CallOption) (*TransactionReply, error)
 }
 
 type gameApiClient struct {
@@ -126,6 +130,16 @@ func (c *gameApiClient) AppGameList(ctx context.Context, in *AppGameListRequest,
 	return out, nil
 }
 
+func (c *gameApiClient) Transaction(ctx context.Context, in *TransactionRequest, opts ...grpc.CallOption) (*TransactionReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TransactionReply)
+	err := c.cc.Invoke(ctx, GameApi_Transaction_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GameApiServer is the server API for GameApi service.
 // All implementations must embed UnimplementedGameApiServer
 // for forward compatibility.
@@ -144,6 +158,8 @@ type GameApiServer interface {
 	JiliGameHistory(context.Context, *JiliGameHistoryRequest) (*JiliGameHistoryReply, error)
 	// 商户游戏列表
 	AppGameList(context.Context, *AppGameListRequest) (*AppGameListReply, error)
+	// 交易接口，同时支持: 下注，退钱，派彩
+	Transaction(context.Context, *TransactionRequest) (*TransactionReply, error)
 	mustEmbedUnimplementedGameApiServer()
 }
 
@@ -174,6 +190,9 @@ func (UnimplementedGameApiServer) JiliGameHistory(context.Context, *JiliGameHist
 }
 func (UnimplementedGameApiServer) AppGameList(context.Context, *AppGameListRequest) (*AppGameListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AppGameList not implemented")
+}
+func (UnimplementedGameApiServer) Transaction(context.Context, *TransactionRequest) (*TransactionReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Transaction not implemented")
 }
 func (UnimplementedGameApiServer) mustEmbedUnimplementedGameApiServer() {}
 func (UnimplementedGameApiServer) testEmbeddedByValue()                 {}
@@ -322,6 +341,24 @@ func _GameApi_AppGameList_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameApi_Transaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameApiServer).Transaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameApi_Transaction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameApiServer).Transaction(ctx, req.(*TransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GameApi_ServiceDesc is the grpc.ServiceDesc for GameApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -357,7 +394,11 @@ var GameApi_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "AppGameList",
 			Handler:    _GameApi_AppGameList_Handler,
 		},
+		{
+			MethodName: "Transaction",
+			Handler:    _GameApi_Transaction_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "game/v1/game.proto",
+	Metadata: "api/game/v1/game.proto",
 }

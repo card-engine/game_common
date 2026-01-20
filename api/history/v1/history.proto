@@ -18,7 +18,7 @@ service HistoryApi {
 
    // 通过开始时间以及结束时间获取历史记录
    rpc GameHistoryByTime(GameHistoryByTimeRequest) returns (GameHistoryByTimeReply);
-   
+
    //  获取下注的条数据，以及下注的总金额，以及赢钱的总金额
    rpc GetTotalBetAndWin(GetTotalBetAndWinRequest) returns (GetTotalBetAndWinReply);
 
@@ -43,7 +43,7 @@ message GameHistoryListRequest{
     string gameBrand = 2; //游戏品牌
     string gameId = 3; //游戏id
     string playerId = 4; //账号id
-    
+
     string status = 5; // 数据的状态，空为所有
     int64 startTime = 6; // 开始时间戳（必传, 单位：毫秒）
     int64 endTime = 7;   // 结束时间戳（必传, 单位：毫秒）
@@ -93,7 +93,7 @@ message GameHistory{
     string sample = 9; // 样本数据
     string note = 10; // 备注
     string rtp = 11; // 实时赔率
-   
+
 
     string status = 12; // 数据的状态，空为所有
 
@@ -116,7 +116,7 @@ message GameHistoryByTimeRequest{
     string gameBrand = 2; //游戏品牌
     string gameId = 3; //游戏id
     string playerId = 4; //账号id
-    
+
     string status = 5; // 数据的状态，空为所有
     int64 startTime = 6; // 开始时间戳（单位：毫秒）
     int64 endTime = 7;   // 结束时间戳（单位：毫秒）
@@ -134,7 +134,7 @@ message GetTotalBetAndWinRequest{
     string gameBrand = 2; //游戏品牌
     string gameId = 3; //游戏id
     string playerId = 4; //账号id
-    
+
     string status = 5; // 数据的状态，空为所有
 
     int64 startTime = 6; // 开始时间戳（单位：毫秒）
@@ -190,7 +190,7 @@ message SetGameRecordStatusBetRequest{
 }
 
 message SetGameRecordStatusBetReply{
- 
+
 }
 
 // 结算的消息结构
@@ -214,7 +214,7 @@ message SetGameRecordStatusWinRequest{
 }
 
 message SetGameRecordStatusWinReply{
-  
+
 }
 
 // 更新为退款状态
@@ -234,7 +234,7 @@ message SetGameRecordStatusRefundRequest{
 }
 
 message SetGameRecordStatusRefundReply{
- 
+
 }
 
 message SetGameRecordStatusErrorRequest{
@@ -250,5 +250,5 @@ message SetGameRecordStatusErrorRequest{
 }
 
 message SetGameRecordStatusErrorReply{
- 
+
 }

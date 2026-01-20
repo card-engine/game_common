@@ -30,6 +30,9 @@ service GameApi {
 
     // 商户游戏列表
     rpc AppGameList(AppGameListRequest) returns (AppGameListReply);
+
+    // 交易接口，同时支持: 下注，退钱，派彩
+    rpc Transaction(TransactionRequest) returns (TransactionReply);
 }
 
 message BalanceRequest {
@@ -171,4 +174,29 @@ message AppGameList{
     string gameFullName = 3; //游戏全名称
     string gameType = 4; //游戏类型(slot)
     string gameBrand = 5; //游戏厂商
+}
+
+
+message TransactionRequest{
+    string playerId = 1; //账号id
+    string roundId = 2; //游戏回合, 长度64以內。
+    string preRoundId = 3; //上一把游戏回合, 长度64以內。
+    string currency = 4;
+    double amount = 5; //金额
+    string gameBrand = 6; //游戏品牌
+    string gameId = 7; //游戏id
+    string rtp = 8; //rtp档位
+    string round_model = 9; // 模式
+    bytes game_data = 10; // 游戏数据
+    string traceId = 11; // 跟踪id
+    string transactionId = 12; // 交易id
+    bool isFree = 13; // 是否免费模式
+    string preTransactionId = 14; // 上一次交易id
+    string transactionType = 15;    // 交易类型: bet-下注, win-派彩, refund-退钱
+    google.protobuf.Timestamp created_at = 16;
+}
+
+message TransactionReply{
+    string currency = 1;
+    double balance = 2;
 }

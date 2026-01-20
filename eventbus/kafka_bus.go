@@ -3,9 +3,10 @@ package eventbus
 import (
 	"context"
 	"fmt"
-	"github.com/go-kratos/kratos/v2/log"
 	"sync"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -43,6 +44,11 @@ func (b *KafkaBus) Publish(ctx context.Context, topic string, evt *Event) error 
 				Balancer:     &kafka.LeastBytes{},
 				Async:        true,
 				RequiredAcks: kafka.RequireAll,
+				Completion: func(messages []kafka.Message, err error) {
+					if err != nil {
+						log.Errorf("Kafka write failed for topic %s: %v", topic, err)
+					}
+				},
 			}
 			b.writers[topic] = writer
 			log.Infof("Created new Kafka %s writer for topic %s", b.brokers, topic)
