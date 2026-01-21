@@ -6,6 +6,7 @@ import (
 	"github.com/card-engine/game_common/gamehub/common"
 	"github.com/card-engine/game_common/gamehub/inout"
 	"github.com/card-engine/game_common/gamehub/jdb"
+	"github.com/card-engine/game_common/gamehub/jili"
 	"github.com/card-engine/game_common/gamehub/spribe"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/go-kratos/kratos/v2/log"
@@ -74,6 +75,10 @@ func InitGameApiServerWithLobby(
 		s.router = spribe.NewSpribeRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, lobby, logger)
 	case types.GameBrand_Jdb:
 		s.router = jdb.NewJdbRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, lobby, logger)
+	case types.GameBrand_Jili:
+		s.router = jili.NewJiliRouter(gameName, app, rdb, apiGrpcConn, rtpGrpcConn, roomManager, lobby, logger)
+	default:
+		s.log.Fatalf("gameBrand %v not support", gameBrand)
 	}
 
 	s.route()

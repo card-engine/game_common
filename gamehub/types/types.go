@@ -15,6 +15,7 @@ const (
 	GameBrand_Inout  GameBrand = "inout"
 	GameBrand_Spribe GameBrand = "spribe"
 	GameBrand_Jdb    GameBrand = "jdb"
+	GameBrand_Jili   GameBrand = "jili"
 )
 
 type RoomManagerImp interface {
