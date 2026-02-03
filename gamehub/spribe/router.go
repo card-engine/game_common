@@ -260,7 +260,7 @@ func (s *SpribeRouter) Send(c *websocket.Conn, controller int16, action uint8, p
 	}
 
 	packer := sfs.NewPacker()
-	buff, err := packer.Pack(sendData, false)
+	buff, err := packer.Pack(sendData)
 	if err != nil {
 		return err
 	}

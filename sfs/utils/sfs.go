@@ -47,7 +47,7 @@ func Pack(controller int16, action uint8, data sfs.SFSObject) ([]byte, error) {
 	}
 
 	packer := sfs.NewPacker()
-	buff, err := packer.Pack(sendData, false)
+	buff, err := packer.Pack(sendData)
 	if err != nil {
 		return nil, err
 	}

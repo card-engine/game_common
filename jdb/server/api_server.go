@@ -235,7 +235,7 @@ func (s *JdbGameApiServer) Send(c *websocket.Conn, controller int16, action uint
 	}
 
 	packer := sfs.NewPacker()
-	buff, err := packer.Pack(sendData, false)
+	buff, err := packer.Pack(sendData)
 	if err != nil {
 		return err
 	}

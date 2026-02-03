@@ -12,7 +12,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/consul/api v1.32.1
 	github.com/ouqiang/timewheel v1.0.1
-	github.com/qd2ss/sfs v1.1.0
+	github.com/qd2ss/sfs v1.1.2
 	github.com/redis/go-redis/v9 v9.10.0
 	github.com/segmentio/kafka-go v0.4.49
 	go.opentelemetry.io/otel v1.36.0

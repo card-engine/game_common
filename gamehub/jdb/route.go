@@ -344,7 +344,7 @@ func (s *JDBRouter) Send(c *websocket.Conn, controller int16, action uint8, payl
 	}
 
 	packer := sfs.NewPacker()
-	buff, err := packer.Pack(sendData, false)
+	buff, err := packer.Pack(sendData)
 	if err != nil {
 		return err
 	}
