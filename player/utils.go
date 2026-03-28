@@ -57,7 +57,8 @@ func InitPlayer(rdb *redis.Client, db *gorm.DB, appId string, playerId string, s
 	}
 
 	appInfo, err := GetAppInfoByID(db, appId)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil {
+		log.Error("InitPlayer appInfo error: ", err)
 		return err
 	}
 	// 默认的rtp
@@ -89,7 +90,21 @@ func InitPlayer(rdb *redis.Client, db *gorm.DB, appId string, playerId string, s
 				NickName:  playerId,
 			}).Error
 			if err != nil {
-				return err
+				// 如果是唯一索引冲突，说明并发创建了，重新查询即可
+				if strings.Contains(err.Error(), "Duplicate") ||
+					strings.Contains(err.Error(), "UNIQUE") ||
+					strings.Contains(err.Error(), "idx_app_account") {
+					err = db.Where("app_id = ? AND account_id = ?", appInfo.AppId, playerId).First(&playerInfo).Error
+					if err != nil {
+						return err // ← 这里会返回错误
+					}
+				} else {
+					return err // ← 非重复错误直接返回
+				}
+			}
+			err = db.Where("app_id = ? AND account_id = ?", appInfo.AppId, playerId).First(&playerInfo).Error
+			if err != nil {
+				return err // ← 这里会返回错误
 			}
 		} else {
 			// 其他错误，返回错误信息
@@ -115,6 +130,7 @@ func InitPlayer(rdb *redis.Client, db *gorm.DB, appId string, playerId string, s
 	}).Err()
 
 	if err != nil {
+		log.Error("InitPlayer redis set player info error: ", err)
 		return nil
 	}
 	// 数据设置过期
