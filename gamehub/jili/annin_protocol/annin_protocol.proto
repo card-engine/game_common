@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package annin_protocol;
-option go_package = "cn.qingdou.server/jili_fish_mine_server/internal/pb;pb";
+option go_package = "github.com/card-engine/game_common/gamehub/jili/annin_protocol;annin_protocol";
 import "google/protobuf/timestamp.proto";
 
 import "google/protobuf/any.proto";

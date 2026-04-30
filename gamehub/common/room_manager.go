@@ -83,7 +83,10 @@ func (r *RoomManager) ExitRoom(player types.PlayerImp, isDisconnect bool) {
 	}
 	r.playerRoomMapMu.Unlock()
 
-	player.CloseConn()
+	// 如果需要断开连接，那么关闭连接
+	if isDisconnect {
+		player.CloseConn()
+	}
 
 	// 如果是一次性房间，那么通知room也释放内存
 	if r.tableMatcherType == types.TableMatcherType_SINGLE {
