@@ -6,8 +6,6 @@ import (
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
 	client_utils "github.com/card-engine/game_common/api/game/v1/client"
-	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
-	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/gamehub/common"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/player"
@@ -261,19 +259,19 @@ func (r *JDBRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp, er
 		return nil, err
 	}
 
-	rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), r.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
-		PlayerId:  params.PlayerId,
-		AppId:     params.AppId,
-		GameBrand: "spribe",
-		GameId:    r.gameName,
-	})
+	// rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), r.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
+	// 	PlayerId:  params.PlayerId,
+	// 	AppId:     params.AppId,
+	// 	GameBrand: "spribe",
+	// 	GameId:    r.gameName,
+	// })
 
-	if err != nil {
-		r.log.Errorf("GetPlayerRtp(%v) failed. err: %v", params.PlayerId, err)
-		return nil, err
-	}
+	// if err != nil {
+	// 	r.log.Errorf("GetPlayerRtp(%v) failed. err: %v", params.PlayerId, err)
+	// 	return nil, err
+	// }
 
-	player := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, rtp.Rtp)
+	player := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, r.rtpGrpcConn, r.log)
 
 	// 初使化金币
 	balanceRsp, err := client_utils.Balance(context.Background(), r.apiGrpcConn, playerInfo.AppID, &v1.BalanceRequest{

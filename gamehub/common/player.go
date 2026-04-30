@@ -1,14 +1,20 @@
 package common
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"sync"
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
+	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
+	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/player"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gofiber/contrib/websocket"
+
+	google_grpc "google.golang.org/grpc"
 )
 
 type Player struct {
@@ -21,14 +27,19 @@ type Player struct {
 
 	PlayerInfo *player.PlayerInfo
 	Rtp        string
+
+	rtpGrpcConn *google_grpc.ClientConn
+	log         *log.Helper
 }
 
-func NewPlayer(gameBrand types.GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, Rtp string) *Player {
+func NewPlayer(gameBrand types.GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, rtpGrpcConn *google_grpc.ClientConn, log *log.Helper) *Player {
 	return &Player{
-		gameBrand:  gameBrand,
-		conn:       conn,
-		PlayerInfo: PlayerInfo,
-		Rtp:        Rtp,
+		gameBrand:   gameBrand,
+		conn:        conn,
+		PlayerInfo:  PlayerInfo,
+		rtpGrpcConn: rtpGrpcConn,
+
+		log: log,
 	}
 }
 
@@ -165,13 +176,35 @@ func (p *Player) GetLang() string {
 }
 
 // =================================
+func (p *Player) RefreshRtp() (string, error) {
+	rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), p.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
+		PlayerId:  p.PlayerInfo.PlayerID,
+		AppId:     p.PlayerInfo.AppID,
+		GameBrand: string(p.gameBrand),
+		GameId:    p.PlayerInfo.GameID,
+	})
+	if err != nil {
+		p.log.Errorf("GetPlayerRtp failed: %v", err)
+		// 这里只是兜底
+		if p.Rtp == "" {
+			p.Rtp = "95"
+		}
+		return p.Rtp, err
+	}
+	p.Rtp = rtp.Rtp
+	return p.Rtp, nil
+}
+
 // 获取玩家的RTP
 func (p *Player) GetRtpStr() string {
+	// 每次获取RTP都刷新一下，避免缓存过期
+	p.RefreshRtp()
 	return p.Rtp
 }
 
 func (p *Player) GetRtp() float64 {
-	rtp, err := strconv.ParseFloat(p.Rtp, 64)
+	rtpStr := p.GetRtpStr()
+	rtp, err := strconv.ParseFloat(rtpStr, 64)
 	if err != nil {
 		return 97
 	}
