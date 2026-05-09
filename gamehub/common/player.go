@@ -11,8 +11,10 @@ import (
 	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/player"
+	"github.com/card-engine/game_common/sfs/utils"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gofiber/contrib/websocket"
+	"github.com/qd2ss/sfs"
 
 	google_grpc "google.golang.org/grpc"
 )
@@ -128,9 +130,25 @@ func (p *Player) GetCurrency() string {
 // 设置玩家的余额，设置成不直接使用，通过下方的场景来更新玩家的余额
 func (p *Player) setBalance(balance float64) error {
 	p.PlayerInfo.Balance = balance
-	if p.gameBrand == types.GameBrand_Inout {
+	switch p.gameBrand {
+	case types.GameBrand_Inout:
 		balanceMsg := fmt.Sprintf(`42["onBalanceChange",{"currency":"%s","balance":"%.2f"}]`, p.PlayerInfo.Currency, balance)
 		return p.SendString(balanceMsg)
+	case types.GameBrand_Spribe:
+		rsp := sfs.SFSObject{
+			"c": "newBalance",
+			"p": sfs.SFSObject{
+				"code":       200,
+				"newBalance": float64(balance),
+			},
+		}
+
+		buff, err := utils.Pack(1, 13, rsp)
+		if err != nil {
+			return err
+		}
+
+		return p.SendBinary(buff)
 	}
 
 	return nil

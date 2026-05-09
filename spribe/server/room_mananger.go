@@ -152,7 +152,7 @@ func (r *RoomManager) OnMessage(player *SpribePlayer, msg []byte) error {
 	if player.room == nil {
 		return nil
 	}
-	return player.room.OnMessage(player, msgId, action, payload)
+	return player.room.OnMessage(player, msg)
 }
 
 func (r *RoomManager) OnDisConnect(player *SpribePlayer) error {

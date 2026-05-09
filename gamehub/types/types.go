@@ -25,6 +25,9 @@ type RoomManagerImp interface {
 	// 玩家退出房间
 	ExitRoom(player PlayerImp, isDisconnect bool)
 
+	// 如果玩家发生rtp变化，则需要切换房间。
+	SwitchRoom(player PlayerImp, args interface{}) error
+
 	// 玩家登录房间
 	OnJoin(player PlayerImp, roomType string, roomArgs interface{}) error
 
@@ -76,6 +79,8 @@ type RoomImp interface {
 	GetPlayerNum() int32
 	// 玩家进入房间
 	OnJoin(player PlayerImp) error
+	// 如果玩家发生rtp变化，则需要切换房间。
+	OnSwitch(player PlayerImp, args interface{}) error
 	// 玩家重连房间
 	OnReConnect(player PlayerImp) error
 	// 玩家退出房间

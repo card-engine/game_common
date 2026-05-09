@@ -1,5 +1,7 @@
 package utils
 
+import "math/rand"
+
 // 机器人人名库
 var BotNicknames = []string{
 	"Ace", "Bolt", "Comet", "Dash", "Echo", "Fury", "Ghost", "Hawk",
@@ -81,4 +83,9 @@ var BotNicknames = []string{
 	"PhantomX", "SpectraX", "WraithX", "ShadeX", "OblivionX", "DarkNova", "SolarNova", "LunarNova",
 	"VoidNova", "PulseNova", "CyberNova", "TitanNova", "NeoNova", "RoboNova", "StarNova",
 	"QuantumNova", "VortexNova", "NovaUnit", "XenoNova", "AetherNova", "PlasmaNova",
+}
+
+// 生成一个随机昵称
+func GenerateBotNickname() string {
+	return BotNicknames[rand.Intn(len(BotNicknames))]
 }
