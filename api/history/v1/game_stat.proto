@@ -24,5 +24,6 @@ message GetUserStatRequest{
 message GetUserStatReply{
     double totalBet = 1; // 总下注
     double totalWin = 2; // 总赢钱
-    int64  recordCount = 3; // 记录数
+    int64  roundCount = 3; // 记录数
+    float  realtimeRtp = 4; // 实时rtp
 }

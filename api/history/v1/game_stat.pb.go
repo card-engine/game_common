@@ -92,9 +92,10 @@ func (x *GetUserStatRequest) GetEndTime() *timestamppb.Timestamp {
 
 type GetUserStatReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TotalBet      float64                `protobuf:"fixed64,1,opt,name=totalBet,proto3" json:"totalBet,omitempty"`      // 总下注
-	TotalWin      float64                `protobuf:"fixed64,2,opt,name=totalWin,proto3" json:"totalWin,omitempty"`      // 总赢钱
-	RecordCount   int64                  `protobuf:"varint,3,opt,name=recordCount,proto3" json:"recordCount,omitempty"` // 记录数
+	TotalBet      float64                `protobuf:"fixed64,1,opt,name=totalBet,proto3" json:"totalBet,omitempty"`       // 总下注
+	TotalWin      float64                `protobuf:"fixed64,2,opt,name=totalWin,proto3" json:"totalWin,omitempty"`       // 总赢钱
+	RoundCount    int64                  `protobuf:"varint,3,opt,name=roundCount,proto3" json:"roundCount,omitempty"`    // 记录数
+	RealtimeRtp   float32                `protobuf:"fixed32,4,opt,name=realtimeRtp,proto3" json:"realtimeRtp,omitempty"` // 实时rtp
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -143,9 +144,16 @@ func (x *GetUserStatReply) GetTotalWin() float64 {
 	return 0
 }
 
-func (x *GetUserStatReply) GetRecordCount() int64 {
+func (x *GetUserStatReply) GetRoundCount() int64 {
 	if x != nil {
-		return x.RecordCount
+		return x.RoundCount
+	}
+	return 0
+}
+
+func (x *GetUserStatReply) GetRealtimeRtp() float32 {
+	if x != nil {
+		return x.RealtimeRtp
 	}
 	return 0
 }
@@ -159,11 +167,14 @@ const file_api_history_v1_game_stat_proto_rawDesc = "" +
 	"\x05appId\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
 	"\bplayerId\x18\x02 \x01(\tR\bplayerId\x128\n" +
 	"\tstartTime\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x124\n" +
-	"\aendTime\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"l\n" +
+	"\aendTime\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"\x8c\x01\n" +
 	"\x10GetUserStatReply\x12\x1a\n" +
 	"\btotalBet\x18\x01 \x01(\x01R\btotalBet\x12\x1a\n" +
-	"\btotalWin\x18\x02 \x01(\x01R\btotalWin\x12 \n" +
-	"\vrecordCount\x18\x03 \x01(\x03R\vrecordCount2\\\n" +
+	"\btotalWin\x18\x02 \x01(\x01R\btotalWin\x12\x1e\n" +
+	"\n" +
+	"roundCount\x18\x03 \x01(\x03R\n" +
+	"roundCount\x12 \n" +
+	"\vrealtimeRtp\x18\x04 \x01(\x02R\vrealtimeRtp2\\\n" +
 	"\vGameStatApi\x12M\n" +
 	"\vGetUserStat\x12\x1f.baccarat.v1.GetUserStatRequest\x1a\x1d.baccarat.v1.GetUserStatReplyBg\n" +
 	"\x1bdev.kratos.api.game_stat.v1B\x0eHistoryProtoV1P\x01Z6github.com/card-engine/game_common/api/game_stat/v1;v1b\x06proto3"
