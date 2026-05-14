@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package baccarat.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/card-engine/game_common/api/game_stat/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.game_stat.v1";
+option java_outer_classname = "HistoryProtoV1";
+
+// 统计
+service GameStatApi {
+   rpc GetUserStat(GetUserStatRequest) returns (GetUserStatReply);
+}
+
+message GetUserStatRequest{
+    string appId = 1; //appid
+    string playerId = 2; //玩家id
+    google.protobuf.Timestamp startTime = 3; // 开始时间
+    google.protobuf.Timestamp endTime = 4;   // 结束时间
+}
+
+message GetUserStatReply{
+    double totalBet = 1; // 总下注
+    double totalWin = 2; // 总赢钱
+    int64  recordCount = 3; // 记录数
+}
