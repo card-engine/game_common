@@ -7,8 +7,6 @@ import (
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
 	client_utils "github.com/card-engine/game_common/api/game/v1/client"
-	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
-	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/gamehub/common"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/jili/fish/message"
@@ -98,19 +96,19 @@ func (s *JiliRouter) onWebSocketHandler(token, retryCount string, c *websocket.C
 		return err
 	}
 
-	rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), s.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
-		PlayerId:  playerInfo.PlayerID,
-		AppId:     playerInfo.AppID,
-		GameBrand: "jili",
-		GameId:    playerInfo.GameID,
-	})
+	// rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), s.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
+	// 	PlayerId:  playerInfo.PlayerID,
+	// 	AppId:     playerInfo.AppID,
+	// 	GameBrand: "jili",
+	// 	GameId:    playerInfo.GameID,
+	// })
 
-	if err != nil {
-		s.log.Errorf("GetPlayerRtp(%v) failed. err: %v", playerInfo.PlayerID, err)
-		return err
-	}
+	// if err != nil {
+	// 	s.log.Errorf("GetPlayerRtp(%v) failed. err: %v", playerInfo.PlayerID, err)
+	// 	return err
+	// }
 
-	jiliPlayer := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, rtp.Rtp)
+	jiliPlayer := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, s.rtpGrpcConn, s.log)
 
 	defer func() {
 		if jiliPlayer != nil {

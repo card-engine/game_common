@@ -5,6 +5,7 @@ go 1.24.4
 require (
 	github.com/bitly/go-simplejson v0.5.1
 	github.com/bwmarrin/snowflake v0.3.0
+	github.com/card-engine/common v1.0.1
 	github.com/go-kratos/kratos/v2 v2.8.4
 	github.com/gofiber/fiber/v2 v2.52.9
 	github.com/gofiber/websocket/v2 v2.2.1
@@ -23,7 +24,11 @@ require (
 	gorm.io/gorm v1.30.0
 )
 
-require github.com/pierrec/lz4/v4 v4.1.15 // indirect
+require (
+	github.com/go-redsync/redsync/v4 v4.13.0 // indirect
+	github.com/pierrec/lz4/v4 v4.1.15 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0
@@ -59,7 +64,7 @@ require (
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel/metric v1.36.0 // indirect
 	go.opentelemetry.io/otel/trace v1.36.0 // indirect
-	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect

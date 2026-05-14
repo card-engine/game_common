@@ -150,7 +150,9 @@ func (s *SpribeGameApiServer) onHandshake(c *websocket.Conn, buff []byte) error 
 
 // 登陆
 func (s *SpribeGameApiServer) onLogin(c *websocket.Conn, buff []byte) (*SpribePlayer, error) {
-	return s.roomManager.OnLogin(c, buff)
+	// 该 server 包目前缺少完整的登录解析逻辑（token/用户信息/rtp 等）。
+	// 为避免影响全仓编译，这里先返回明确错误；如需要启用该服务，再补齐实现。
+	return nil, fmt.Errorf("spribe/server onLogin not implemented")
 }
 
 func (s *SpribeGameApiServer) onMessage(player *SpribePlayer, buff []byte) error {

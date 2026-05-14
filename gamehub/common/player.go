@@ -1,14 +1,22 @@
 package common
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"sync"
 
 	v1 "github.com/card-engine/game_common/api/game/v1"
+	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
+	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/gamehub/types"
 	"github.com/card-engine/game_common/player"
+	"github.com/card-engine/game_common/sfs/utils"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/gofiber/contrib/websocket"
+	"github.com/qd2ss/sfs"
+
+	google_grpc "google.golang.org/grpc"
 )
 
 type Player struct {
@@ -21,14 +29,19 @@ type Player struct {
 
 	PlayerInfo *player.PlayerInfo
 	Rtp        string
+
+	rtpGrpcConn *google_grpc.ClientConn
+	log         *log.Helper
 }
 
-func NewPlayer(gameBrand types.GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, Rtp string) *Player {
+func NewPlayer(gameBrand types.GameBrand, conn *websocket.Conn, PlayerInfo *player.PlayerInfo, rtpGrpcConn *google_grpc.ClientConn, log *log.Helper) *Player {
 	return &Player{
-		gameBrand:  gameBrand,
-		conn:       conn,
-		PlayerInfo: PlayerInfo,
-		Rtp:        Rtp,
+		gameBrand:   gameBrand,
+		conn:        conn,
+		PlayerInfo:  PlayerInfo,
+		rtpGrpcConn: rtpGrpcConn,
+
+		log: log,
 	}
 }
 
@@ -117,9 +130,25 @@ func (p *Player) GetCurrency() string {
 // 设置玩家的余额，设置成不直接使用，通过下方的场景来更新玩家的余额
 func (p *Player) setBalance(balance float64) error {
 	p.PlayerInfo.Balance = balance
-	if p.gameBrand == types.GameBrand_Inout {
+	switch p.gameBrand {
+	case types.GameBrand_Inout:
 		balanceMsg := fmt.Sprintf(`42["onBalanceChange",{"currency":"%s","balance":"%.2f"}]`, p.PlayerInfo.Currency, balance)
 		return p.SendString(balanceMsg)
+	case types.GameBrand_Spribe:
+		rsp := sfs.SFSObject{
+			"c": "newBalance",
+			"p": sfs.SFSObject{
+				"code":       200,
+				"newBalance": float64(balance),
+			},
+		}
+
+		buff, err := utils.Pack(1, 13, rsp)
+		if err != nil {
+			return err
+		}
+
+		return p.SendBinary(buff)
 	}
 
 	return nil
@@ -165,13 +194,35 @@ func (p *Player) GetLang() string {
 }
 
 // =================================
+func (p *Player) RefreshRtp() (string, error) {
+	rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), p.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
+		PlayerId:  p.PlayerInfo.PlayerID,
+		AppId:     p.PlayerInfo.AppID,
+		GameBrand: string(p.gameBrand),
+		GameId:    p.PlayerInfo.GameID,
+	})
+	if err != nil {
+		p.log.Errorf("GetPlayerRtp failed: %v", err)
+		// 这里只是兜底
+		if p.Rtp == "" {
+			p.Rtp = "95"
+		}
+		return p.Rtp, err
+	}
+	p.Rtp = rtp.Rtp
+	return p.Rtp, nil
+}
+
 // 获取玩家的RTP
 func (p *Player) GetRtpStr() string {
+	// 每次获取RTP都刷新一下，避免缓存过期
+	p.RefreshRtp()
 	return p.Rtp
 }
 
 func (p *Player) GetRtp() float64 {
-	rtp, err := strconv.ParseFloat(p.Rtp, 64)
+	rtpStr := p.GetRtpStr()
+	rtp, err := strconv.ParseFloat(rtpStr, 64)
 	if err != nil {
 		return 97
 	}

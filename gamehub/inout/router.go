@@ -13,8 +13,6 @@ import (
 	"github.com/bitly/go-simplejson"
 	v1 "github.com/card-engine/game_common/api/game/v1"
 	client_utils "github.com/card-engine/game_common/api/game/v1/client"
-	rtp_rpc_v1 "github.com/card-engine/game_common/api/rtp/v1"
-	rtp_rpc_client "github.com/card-engine/game_common/api/rtp/v1/client"
 	"github.com/card-engine/game_common/gamehub/common"
 	"github.com/card-engine/game_common/gamehub/types"
 
@@ -105,18 +103,18 @@ func (r *InoutRouter) OnWebSocketHandler(c *websocket.Conn, operatorId string, t
 		return err
 	}
 
-	rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), r.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
-		PlayerId:  tokenInfo.PlayerId,
-		AppId:     tokenInfo.AppId,
-		GameBrand: "inout",
-		GameId:    tokenInfo.GameId,
-	})
-	if err != nil {
-		r.log.Errorf("GetPlayerRtp failed: %v", err)
-		return err
-	}
+	// rtp, err := rtp_rpc_client.GetPlayerRtp(context.Background(), r.rtpGrpcConn, &rtp_rpc_v1.GetPlayerRtpRequest{
+	// 	PlayerId:  tokenInfo.PlayerId,
+	// 	AppId:     tokenInfo.AppId,
+	// 	GameBrand: "inout",
+	// 	GameId:    tokenInfo.GameId,
+	// })
+	// if err != nil {
+	// 	r.log.Errorf("GetPlayerRtp failed: %v", err)
+	// 	return err
+	// }
 
-	inoutPlayer = common.NewPlayer(types.GameBrand_Inout, c, playerInfo, rtp.Rtp)
+	inoutPlayer = common.NewPlayer(types.GameBrand_Inout, c, playerInfo, r.rtpGrpcConn, r.log)
 
 	// inoutPlayer = &Player{
 	// 	gameBrand:  GameBrand_Inout,

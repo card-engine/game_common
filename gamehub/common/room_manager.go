@@ -1,14 +1,17 @@
 package common
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/card-engine/game_common/gamehub/const_val"
 	"github.com/card-engine/game_common/gamehub/event"
 	"github.com/card-engine/game_common/gamehub/types"
+	"github.com/card-engine/game_common/sfs/utils"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/ouqiang/timewheel"
+	"github.com/qd2ss/sfs"
 )
 
 type RoomManager struct {
@@ -91,6 +94,27 @@ func (r *RoomManager) ExitRoom(player types.PlayerImp, isDisconnect bool) {
 	// 如果是一次性房间，那么通知room也释放内存
 	if r.tableMatcherType == types.TableMatcherType_SINGLE {
 		room.OnDispose()
+	} else {
+		r.roomMapMu.Lock()
+		// 检测到了空房间，则销毁房间
+		if room.GetPlayerNum() <= 0 {
+			for roomType, rooms := range r.roomMap {
+				kept := rooms[:0]
+				for _, one := range rooms {
+					if one != room {
+						kept = append(kept, one)
+					}
+				}
+				if len(kept) == 0 {
+					delete(r.roomMap, roomType)
+				} else {
+					r.roomMap[roomType] = kept
+				}
+			}
+
+			room.OnDispose()
+		}
+		r.roomMapMu.Unlock()
 	}
 }
 
@@ -120,6 +144,45 @@ func (r *RoomManager) TryReConnectGame(player types.PlayerImp) (error, bool) {
 	}
 	//=========================配房逻辑==================================
 	return nil, ok
+}
+
+// 切换房间，可能因为rtp发生了变化，然后需要切换房间。
+func (r *RoomManager) SwitchRoom(player types.PlayerImp, args interface{}) error {
+	// 从旧房间移除（不关闭连接），再进入新房间
+	if oldRoom := player.GetRoom(); oldRoom != nil {
+		_ = oldRoom.OnDisConnect(player)
+	}
+	// 退出旧房间
+	r.ExitRoom(player, false)
+
+	player.SetRoomManager(r)
+
+	roomTypeStr := fmt.Sprintf("%v-%v", player.GetPlayerInfo().AppID, player.GetRtpStr())
+	roomArgs := &types.RtpRoomArgs{
+		Appid:    player.GetPlayerInfo().AppID,
+		Rtp:      player.GetRtpStr(),
+		Currency: player.GetPlayerInfo().Currency,
+	}
+	room := r.roomCreator.CreateRoom(roomArgs)
+
+	r.roomMapMu.Lock()
+	if err := room.OnSwitch(player, args); err == nil {
+		player.SetRoom(room)
+		r.roomMap[roomTypeStr] = append(r.roomMap[roomTypeStr], room)
+	} else {
+		r.log.Errorf("switch room create room %s failed, err: %v", roomTypeStr, err)
+		r.roomMapMu.Unlock()
+		return err
+	}
+	r.roomMapMu.Unlock()
+
+	playerIdent := player.GetPlayerIdent()
+	r.playerRoomMapMu.Lock()
+	r.playerRoomMap[playerIdent] = player.GetRoom()
+	r.players.Store(playerIdent, player)
+	r.playerRoomMapMu.Unlock()
+
+	return nil
 }
 
 func (r *RoomManager) OnJoin(player types.PlayerImp, roomType string, roomArgs interface{}) error {
@@ -165,6 +228,38 @@ func (r *RoomManager) OnJoin(player types.PlayerImp, roomType string, roomArgs i
 }
 
 func (r *RoomManager) OnMessage(player types.PlayerImp, msg interface{}) error {
+	if r.gameBrand == types.GameBrand_Spribe {
+		msgData, ok := msg.(sfs.SFSObject)
+		if !ok {
+			return fmt.Errorf("OnMessage: invalid data type %T", msg)
+		}
+
+		// 2. cmd 校验
+		cmdVal, ok := msgData["c"]
+		if !ok {
+			return fmt.Errorf("OnMessage: missing cmd field")
+		}
+
+		cmd, ok := cmdVal.(string)
+		if !ok || cmd == "" {
+			return fmt.Errorf("OnMessage: invalid cmd type %T", cmdVal)
+		}
+
+		if cmd == "PING_REQUEST" {
+			rsp := sfs.SFSObject{
+				"c": "PING_RESPONSE",
+				"p": sfs.SFSObject{},
+			}
+
+			buff, err := utils.Pack(1, 13, rsp)
+			if err != nil {
+				return err
+			}
+
+			return player.SendBinary(buff)
+		}
+	}
+
 	room := player.GetRoom()
 	if room == nil {
 		return nil
@@ -173,6 +268,7 @@ func (r *RoomManager) OnMessage(player types.PlayerImp, msg interface{}) error {
 }
 
 func (r *RoomManager) OnDisConnect(player types.PlayerImp) error {
+
 	room := player.GetRoom()
 	if room != nil {
 		return room.OnDisConnect(player)

@@ -20,6 +20,14 @@ type SpribePlayer struct {
 	Rtp        string
 }
 
+func (p *SpribePlayer) GetRoom() RoomImp {
+	return p.room
+}
+
+func (p *SpribePlayer) SetRoom(room RoomImp) {
+	p.room = room
+}
+
 // 直接发送原始文本消息
 func (p *SpribePlayer) Send(data string) error {
 	p.mu.Lock()
