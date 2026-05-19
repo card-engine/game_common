@@ -90,19 +90,89 @@ func (x *GetUserStatRequest) GetEndTime() *timestamppb.Timestamp {
 	return nil
 }
 
-type GetUserStatReply struct {
+type GetUserStatSnapshot struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TotalBet      float64                `protobuf:"fixed64,1,opt,name=totalBet,proto3" json:"totalBet,omitempty"`       // 总下注
-	TotalWin      float64                `protobuf:"fixed64,2,opt,name=totalWin,proto3" json:"totalWin,omitempty"`       // 总赢钱
+	Bet           float64                `protobuf:"fixed64,1,opt,name=bet,proto3" json:"bet,omitempty"`                 // 总下注
+	Win           float64                `protobuf:"fixed64,2,opt,name=win,proto3" json:"win,omitempty"`                 // 总赢钱
 	RoundCount    int64                  `protobuf:"varint,3,opt,name=roundCount,proto3" json:"roundCount,omitempty"`    // 记录数
 	RealtimeRtp   float32                `protobuf:"fixed32,4,opt,name=realtimeRtp,proto3" json:"realtimeRtp,omitempty"` // 实时rtp
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *GetUserStatSnapshot) Reset() {
+	*x = GetUserStatSnapshot{}
+	mi := &file_api_history_v1_game_stat_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserStatSnapshot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserStatSnapshot) ProtoMessage() {}
+
+func (x *GetUserStatSnapshot) ProtoReflect() protoreflect.Message {
+	mi := &file_api_history_v1_game_stat_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserStatSnapshot.ProtoReflect.Descriptor instead.
+func (*GetUserStatSnapshot) Descriptor() ([]byte, []int) {
+	return file_api_history_v1_game_stat_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *GetUserStatSnapshot) GetBet() float64 {
+	if x != nil {
+		return x.Bet
+	}
+	return 0
+}
+
+func (x *GetUserStatSnapshot) GetWin() float64 {
+	if x != nil {
+		return x.Win
+	}
+	return 0
+}
+
+func (x *GetUserStatSnapshot) GetRoundCount() int64 {
+	if x != nil {
+		return x.RoundCount
+	}
+	return 0
+}
+
+func (x *GetUserStatSnapshot) GetRealtimeRtp() float32 {
+	if x != nil {
+		return x.RealtimeRtp
+	}
+	return 0
+}
+
+type GetUserStatReply struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	TotalBet       float64                `protobuf:"fixed64,1,opt,name=totalBet,proto3" json:"totalBet,omitempty"`           // 总下注
+	TotalWin       float64                `protobuf:"fixed64,2,opt,name=totalWin,proto3" json:"totalWin,omitempty"`           // 总赢钱
+	RoundCount     int64                  `protobuf:"varint,3,opt,name=roundCount,proto3" json:"roundCount,omitempty"`        // 记录数
+	RealtimeRtp    float32                `protobuf:"fixed32,4,opt,name=realtimeRtp,proto3" json:"realtimeRtp,omitempty"`     // 实时rtp
+	RecentSnapshot *GetUserStatSnapshot   `protobuf:"bytes,5,opt,name=recentSnapshot,proto3" json:"recentSnapshot,omitempty"` // 最近快照
+	TodaySnapshot  *GetUserStatSnapshot   `protobuf:"bytes,6,opt,name=todaySnapshot,proto3" json:"todaySnapshot,omitempty"`   // 今日快照
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
 func (x *GetUserStatReply) Reset() {
 	*x = GetUserStatReply{}
-	mi := &file_api_history_v1_game_stat_proto_msgTypes[1]
+	mi := &file_api_history_v1_game_stat_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -114,7 +184,7 @@ func (x *GetUserStatReply) String() string {
 func (*GetUserStatReply) ProtoMessage() {}
 
 func (x *GetUserStatReply) ProtoReflect() protoreflect.Message {
-	mi := &file_api_history_v1_game_stat_proto_msgTypes[1]
+	mi := &file_api_history_v1_game_stat_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -127,7 +197,7 @@ func (x *GetUserStatReply) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserStatReply.ProtoReflect.Descriptor instead.
 func (*GetUserStatReply) Descriptor() ([]byte, []int) {
-	return file_api_history_v1_game_stat_proto_rawDescGZIP(), []int{1}
+	return file_api_history_v1_game_stat_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetUserStatReply) GetTotalBet() float64 {
@@ -158,6 +228,20 @@ func (x *GetUserStatReply) GetRealtimeRtp() float32 {
 	return 0
 }
 
+func (x *GetUserStatReply) GetRecentSnapshot() *GetUserStatSnapshot {
+	if x != nil {
+		return x.RecentSnapshot
+	}
+	return nil
+}
+
+func (x *GetUserStatReply) GetTodaySnapshot() *GetUserStatSnapshot {
+	if x != nil {
+		return x.TodaySnapshot
+	}
+	return nil
+}
+
 var File_api_history_v1_game_stat_proto protoreflect.FileDescriptor
 
 const file_api_history_v1_game_stat_proto_rawDesc = "" +
@@ -167,14 +251,23 @@ const file_api_history_v1_game_stat_proto_rawDesc = "" +
 	"\x05appId\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
 	"\bplayerId\x18\x02 \x01(\tR\bplayerId\x128\n" +
 	"\tstartTime\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x124\n" +
-	"\aendTime\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"\x8c\x01\n" +
+	"\aendTime\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"{\n" +
+	"\x13GetUserStatSnapshot\x12\x10\n" +
+	"\x03bet\x18\x01 \x01(\x01R\x03bet\x12\x10\n" +
+	"\x03win\x18\x02 \x01(\x01R\x03win\x12\x1e\n" +
+	"\n" +
+	"roundCount\x18\x03 \x01(\x03R\n" +
+	"roundCount\x12 \n" +
+	"\vrealtimeRtp\x18\x04 \x01(\x02R\vrealtimeRtp\"\x9e\x02\n" +
 	"\x10GetUserStatReply\x12\x1a\n" +
 	"\btotalBet\x18\x01 \x01(\x01R\btotalBet\x12\x1a\n" +
 	"\btotalWin\x18\x02 \x01(\x01R\btotalWin\x12\x1e\n" +
 	"\n" +
 	"roundCount\x18\x03 \x01(\x03R\n" +
 	"roundCount\x12 \n" +
-	"\vrealtimeRtp\x18\x04 \x01(\x02R\vrealtimeRtp2\\\n" +
+	"\vrealtimeRtp\x18\x04 \x01(\x02R\vrealtimeRtp\x12H\n" +
+	"\x0erecentSnapshot\x18\x05 \x01(\v2 .baccarat.v1.GetUserStatSnapshotR\x0erecentSnapshot\x12F\n" +
+	"\rtodaySnapshot\x18\x06 \x01(\v2 .baccarat.v1.GetUserStatSnapshotR\rtodaySnapshot2\\\n" +
 	"\vGameStatApi\x12M\n" +
 	"\vGetUserStat\x12\x1f.baccarat.v1.GetUserStatRequest\x1a\x1d.baccarat.v1.GetUserStatReplyBg\n" +
 	"\x1bdev.kratos.api.game_stat.v1B\x0eHistoryProtoV1P\x01Z6github.com/card-engine/game_common/api/game_stat/v1;v1b\x06proto3"
@@ -191,22 +284,25 @@ func file_api_history_v1_game_stat_proto_rawDescGZIP() []byte {
 	return file_api_history_v1_game_stat_proto_rawDescData
 }
 
-var file_api_history_v1_game_stat_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_api_history_v1_game_stat_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_api_history_v1_game_stat_proto_goTypes = []any{
 	(*GetUserStatRequest)(nil),    // 0: baccarat.v1.GetUserStatRequest
-	(*GetUserStatReply)(nil),      // 1: baccarat.v1.GetUserStatReply
-	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
+	(*GetUserStatSnapshot)(nil),   // 1: baccarat.v1.GetUserStatSnapshot
+	(*GetUserStatReply)(nil),      // 2: baccarat.v1.GetUserStatReply
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_api_history_v1_game_stat_proto_depIdxs = []int32{
-	2, // 0: baccarat.v1.GetUserStatRequest.startTime:type_name -> google.protobuf.Timestamp
-	2, // 1: baccarat.v1.GetUserStatRequest.endTime:type_name -> google.protobuf.Timestamp
-	0, // 2: baccarat.v1.GameStatApi.GetUserStat:input_type -> baccarat.v1.GetUserStatRequest
-	1, // 3: baccarat.v1.GameStatApi.GetUserStat:output_type -> baccarat.v1.GetUserStatReply
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 0: baccarat.v1.GetUserStatRequest.startTime:type_name -> google.protobuf.Timestamp
+	3, // 1: baccarat.v1.GetUserStatRequest.endTime:type_name -> google.protobuf.Timestamp
+	1, // 2: baccarat.v1.GetUserStatReply.recentSnapshot:type_name -> baccarat.v1.GetUserStatSnapshot
+	1, // 3: baccarat.v1.GetUserStatReply.todaySnapshot:type_name -> baccarat.v1.GetUserStatSnapshot
+	0, // 4: baccarat.v1.GameStatApi.GetUserStat:input_type -> baccarat.v1.GetUserStatRequest
+	2, // 5: baccarat.v1.GameStatApi.GetUserStat:output_type -> baccarat.v1.GetUserStatReply
+	5, // [5:6] is the sub-list for method output_type
+	4, // [4:5] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_history_v1_game_stat_proto_init() }
@@ -220,7 +316,7 @@ func file_api_history_v1_game_stat_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_history_v1_game_stat_proto_rawDesc), len(file_api_history_v1_game_stat_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

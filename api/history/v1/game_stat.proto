@@ -21,9 +21,18 @@ message GetUserStatRequest{
     google.protobuf.Timestamp endTime = 4;   // 结束时间
 }
 
+message GetUserStatSnapshot{
+    double bet = 1; // 总下注
+    double win = 2; // 总赢钱
+    int64  roundCount = 3; // 记录数
+    float  realtimeRtp = 4; // 实时rtp
+}
+
 message GetUserStatReply{
     double totalBet = 1; // 总下注
     double totalWin = 2; // 总赢钱
     int64  roundCount = 3; // 记录数
     float  realtimeRtp = 4; // 实时rtp
+    GetUserStatSnapshot recentSnapshot = 5; // 最近快照
+    GetUserStatSnapshot todaySnapshot = 6; // 今日快照
 }
