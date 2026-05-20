@@ -86,6 +86,7 @@ func (r *RoomManager) ExitRoom(player types.PlayerImp, isDisconnect bool) {
 	}
 	r.playerRoomMapMu.Unlock()
 
+	// 如果需要断开连接，那么关闭连接
 	if isDisconnect {
 		player.CloseConn()
 	}

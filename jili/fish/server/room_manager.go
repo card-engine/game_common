@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
+	pb "github.com/card-engine/game_common/gamehub/jili/annin_protocol"
 	"github.com/card-engine/game_common/jili/fish/message"
-	"github.com/card-engine/game_common/jili/fish/pb"
 )
 
 type RoomManager struct {

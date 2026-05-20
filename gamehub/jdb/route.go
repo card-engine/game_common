@@ -271,7 +271,7 @@ func (r *JDBRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp, er
 	// 	return nil, err
 	// }
 
-	player := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, r.rtpGrpcConn, r.log)
+	player := common.NewPlayer(types.GameBrand_Jdb, c, playerInfo, r.rtpGrpcConn, r.log)
 
 	// 初使化金币
 	balanceRsp, err := client_utils.Balance(context.Background(), r.apiGrpcConn, playerInfo.AppID, &v1.BalanceRequest{

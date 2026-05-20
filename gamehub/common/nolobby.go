@@ -10,16 +10,29 @@ type NoLobby struct {
 	roomManager types.RoomManagerImp
 
 	tableMatcherType types.TableMatcherType
+	gameBrand        types.GameBrand
+
+	commonMessageHandler types.CommonMessageHandler
 }
 
-func NewNoLobby(roomManager types.RoomManagerImp, tableMatcherType types.TableMatcherType) *NoLobby {
-	return &NoLobby{
+func NewNoLobby(roomManager types.RoomManagerImp, tableMatcherType types.TableMatcherType, gameBrand types.GameBrand) *NoLobby {
+	l := &NoLobby{
 		roomManager:      roomManager,
 		tableMatcherType: tableMatcherType,
+		gameBrand:        gameBrand,
 	}
+
+	if gameBrand == types.GameBrand_Jili {
+		l.commonMessageHandler = &JiliCommonMessageHandler{}
+	}
+
+	return l
 }
 
 func (l *NoLobby) OnMessage(player types.PlayerImp, data interface{}) error {
+	if l.commonMessageHandler != nil {
+		return l.commonMessageHandler.OnMessage(player, data)
+	}
 	return nil
 }
 

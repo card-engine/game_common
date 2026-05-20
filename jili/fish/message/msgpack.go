@@ -1,7 +1,7 @@
 package message
 
 import (
-	pb "github.com/card-engine/game_common/jili/fish/pb"
+	pb "github.com/card-engine/game_common/gamehub/jili/annin_protocol"
 	"google.golang.org/protobuf/proto"
 )
 

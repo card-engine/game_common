@@ -110,6 +110,10 @@ type LobbyCreator interface {
 	CreateLobby(roomManager RoomManagerImp) LobbyImp
 }
 
+type CommonMessageHandler interface {
+	OnMessage(player PlayerImp, data interface{}) error
+}
+
 // 配桌算法
 type TableMatcherType int
 
