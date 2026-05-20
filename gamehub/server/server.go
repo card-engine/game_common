@@ -43,7 +43,7 @@ func InitGameApiServer(gameBrand types.GameBrand, // 游戏品牌
 	rtpGrpcConn *google_grpc.ClientConn, // rtp 客户端
 	logger log.Logger) *GameApiServer {
 	// 没有大厅的使用自建无大厅创建器
-	return InitGameApiServerWithLobby(gameBrand, serverName, gameName, serverAddr, tableMatcherType, roomCreator, common.NewNoLobbyCreator(tableMatcherType), rdb, apiGrpcConn, rtpGrpcConn, logger)
+	return InitGameApiServerWithLobby(gameBrand, serverName, gameName, serverAddr, tableMatcherType, roomCreator, common.NewNoLobbyCreator(tableMatcherType, gameBrand), rdb, apiGrpcConn, rtpGrpcConn, logger)
 }
 
 // 有大厅的游戏的服务器

@@ -108,7 +108,7 @@ func (s *JiliRouter) onWebSocketHandler(token, retryCount string, c *websocket.C
 	// 	return err
 	// }
 
-	jiliPlayer := common.NewPlayer(types.GameBrand_Spribe, c, playerInfo, s.rtpGrpcConn, s.log)
+	jiliPlayer := common.NewPlayer(types.GameBrand_Jili, c, playerInfo, s.rtpGrpcConn, s.log)
 
 	defer func() {
 		if jiliPlayer != nil {
