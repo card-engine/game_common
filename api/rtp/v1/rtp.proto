@@ -36,6 +36,7 @@ message SelectSpinRequest{
     string currency = 7;
     string mock = 8;
     string round_ext_model = 9; // 扩展模式.BUY的填值[1, 2, 3],EXTRA的填[1.5, 3]
+    int64 spinId = 10;   //指定本局spin样本id
 }
 
 message SelectSpinReply{
