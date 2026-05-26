@@ -51,6 +51,8 @@ message SelectSpinReply{
     string rtp = 10;    // 本次rtp档位
     double rate = 11; // 本次spin的概率
     int32  compress = 12; // 压缩数据
+    int64  nextId = 13; // 下一个样本id
+    string groupId = 14; // 分组id
 }
 
 message GetPlayerRtpRequest{
