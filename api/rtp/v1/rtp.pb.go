@@ -34,6 +34,7 @@ type SelectSpinRequest struct {
 	Mock          string                 `protobuf:"bytes,8,opt,name=mock,proto3" json:"mock,omitempty"`
 	RoundExtModel string                 `protobuf:"bytes,9,opt,name=round_ext_model,json=roundExtModel,proto3" json:"round_ext_model,omitempty"` // 扩展模式.BUY的填值[1, 2, 3],EXTRA的填[1.5, 3]
 	SpinId        int64                  `protobuf:"varint,10,opt,name=spinId,proto3" json:"spinId,omitempty"`                                    //指定本局spin样本id
+	SpinTableName string                 `protobuf:"bytes,11,opt,name=spinTableName,proto3" json:"spinTableName,omitempty"`                       //指定本局spin样本表名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,6 +137,13 @@ func (x *SelectSpinRequest) GetSpinId() int64 {
 		return x.SpinId
 	}
 	return 0
+}
+
+func (x *SelectSpinRequest) GetSpinTableName() string {
+	if x != nil {
+		return x.SpinTableName
+	}
+	return ""
 }
 
 type SelectSpinReply struct {
@@ -770,7 +778,7 @@ var File_api_rtp_v1_rtp_proto protoreflect.FileDescriptor
 
 const file_api_rtp_v1_rtp_proto_rawDesc = "" +
 	"\n" +
-	"\x14api/rtp/v1/rtp.proto\x12\x06rtp.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9e\x02\n" +
+	"\x14api/rtp/v1/rtp.proto\x12\x06rtp.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc4\x02\n" +
 	"\x11SelectSpinRequest\x12\x14\n" +
 	"\x05appId\x18\x01 \x01(\tR\x05appId\x12\x1a\n" +
 	"\bplayerId\x18\x02 \x01(\tR\bplayerId\x12\x1c\n" +
@@ -783,7 +791,8 @@ const file_api_rtp_v1_rtp_proto_rawDesc = "" +
 	"\x04mock\x18\b \x01(\tR\x04mock\x12&\n" +
 	"\x0fround_ext_model\x18\t \x01(\tR\rroundExtModel\x12\x16\n" +
 	"\x06spinId\x18\n" +
-	" \x01(\x03R\x06spinId\"\xfe\x02\n" +
+	" \x01(\x03R\x06spinId\x12$\n" +
+	"\rspinTableName\x18\v \x01(\tR\rspinTableName\"\xfe\x02\n" +
 	"\x0fSelectSpinReply\x12\x16\n" +
 	"\x06spinId\x18\x01 \x01(\x03R\x06spinId\x12\x1c\n" +
 	"\tgameBrand\x18\x02 \x01(\tR\tgameBrand\x12\x16\n" +
