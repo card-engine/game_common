@@ -39,7 +39,7 @@ func Unpack(buff []byte) (int16, uint8, sfs.SFSObject, error) {
 	return action, controller, payload, nil
 }
 
-func Pack(controller int16, action uint8, data sfs.SFSObject) ([]byte, error) {
+func Pack(controller uint8, action int16, data sfs.SFSObject) ([]byte, error) {
 	sendData := sfs.SFSObject{
 		"a": action,
 		"c": controller,
