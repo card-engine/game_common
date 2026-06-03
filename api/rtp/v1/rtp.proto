@@ -36,8 +36,7 @@ message SelectSpinRequest{
     string currency = 7;
     string mock = 8;
     string round_ext_model = 9; // 扩展模式.BUY的填值[1, 2, 3],EXTRA的填[1.5, 3]
-    int64 spinId = 10;   //指定本局spin样本id
-    string spinTableName = 11; //指定本局spin样本表名
+    string fetchType = 10;   //获取数据方式：空默认按单条，GROUP按组获取
 }
 
 message SelectSpinReply{
@@ -53,8 +52,14 @@ message SelectSpinReply{
     string rtp = 10;    // 本次rtp档位
     double rate = 11; // 本次spin的概率
     int32  compress = 12; // 压缩数据
-    int64  nextId = 13; // 下一个样本id
-    string groupId = 14; // 分组id
+    string dataGroupId = 13; // 分组ID
+    repeated SpinData dataGroup = 14; // 分组结果集
+}
+
+message SpinData {
+    int32 groupSeq = 1; // 序号
+    double rate = 2; // 概率
+    bytes data = 3; // 数据
 }
 
 message GetPlayerRtpRequest{
