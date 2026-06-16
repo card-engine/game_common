@@ -33,6 +33,9 @@ service GameApi {
 
     // 交易接口，同时支持: 下注，退钱，派彩
     rpc Transaction(TransactionRequest) returns (TransactionReply);
+
+    // 统一账变接口（v2）
+    rpc Transfer(TransferRequest) returns (TransferReply);
 }
 
 message BalanceRequest {
@@ -199,4 +202,32 @@ message TransactionRequest{
 message TransactionReply{
     string currency = 1;
     double balance = 2;
+}
+
+message TransferRequest {
+    string tid = 1;              // 交易幂等键
+    string player_id = 2;
+    string game_brand = 3;
+    string game_id = 4;
+    string round_id = 5;
+    string pre_round_id = 6;
+    string currency = 7;
+    double amount = 8;           // 正数
+    string rtp = 9;
+    bytes game_data = 10;
+    string round_model = 11;
+    string trace_id = 12;
+    bool is_free = 13;
+    google.protobuf.Timestamp created_at = 14;
+
+    string reason = 15;          // bet | win | refund | end
+    bool is_end = 16;
+    bool is_buy = 17;
+    string bet_tid = 18;           // 关联下注 tid，非必填
+    string settlement_type = 19; // 空/sync | session | transfer
+}
+
+message TransferReply {
+    double balance = 1;
+    string currency = 2;
 }

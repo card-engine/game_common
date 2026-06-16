@@ -67,3 +67,13 @@ func Transaction(ctx context.Context, grpcClient *google_grpc.ClientConn, appid 
 	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
 	return client.Transaction(ctx, req)
 }
+
+// 统一账变接口（v2）
+func Transfer(ctx context.Context, grpcClient *google_grpc.ClientConn, appid string, req *v1.TransferRequest) (*v1.TransferReply, error) {
+	if req.Reason != "bet" && req.Reason != "win" && req.Reason != "refund" && req.Reason != "end" {
+		return nil, fmt.Errorf("Reason %s error", req.Reason)
+	}
+	client := v1.NewGameApiClient(grpcClient)
+	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
+	return client.Transfer(ctx, req)
+}

@@ -7,13 +7,12 @@
 package v1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1567,6 +1566,246 @@ func (x *TransactionReply) GetBalance() float64 {
 	return 0
 }
 
+type TransferRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Tid            string                 `protobuf:"bytes,1,opt,name=tid,proto3" json:"tid,omitempty"` // 交易幂等键
+	PlayerId       string                 `protobuf:"bytes,2,opt,name=player_id,json=playerId,proto3" json:"player_id,omitempty"`
+	GameBrand      string                 `protobuf:"bytes,3,opt,name=game_brand,json=gameBrand,proto3" json:"game_brand,omitempty"`
+	GameId         string                 `protobuf:"bytes,4,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	RoundId        string                 `protobuf:"bytes,5,opt,name=round_id,json=roundId,proto3" json:"round_id,omitempty"`
+	PreRoundId     string                 `protobuf:"bytes,6,opt,name=pre_round_id,json=preRoundId,proto3" json:"pre_round_id,omitempty"`
+	Currency       string                 `protobuf:"bytes,7,opt,name=currency,proto3" json:"currency,omitempty"`
+	Amount         float64                `protobuf:"fixed64,8,opt,name=amount,proto3" json:"amount,omitempty"` // 正数
+	Rtp            string                 `protobuf:"bytes,9,opt,name=rtp,proto3" json:"rtp,omitempty"`
+	GameData       []byte                 `protobuf:"bytes,10,opt,name=game_data,json=gameData,proto3" json:"game_data,omitempty"`
+	RoundModel     string                 `protobuf:"bytes,11,opt,name=round_model,json=roundModel,proto3" json:"round_model,omitempty"`
+	TraceId        string                 `protobuf:"bytes,12,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	IsFree         bool                   `protobuf:"varint,13,opt,name=is_free,json=isFree,proto3" json:"is_free,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Reason         string                 `protobuf:"bytes,15,opt,name=reason,proto3" json:"reason,omitempty"` // bet | win | refund | end
+	IsEnd          bool                   `protobuf:"varint,16,opt,name=is_end,json=isEnd,proto3" json:"is_end,omitempty"`
+	IsBuy          bool                   `protobuf:"varint,17,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
+	BetTid         string                 `protobuf:"bytes,18,opt,name=bet_tid,json=betTid,proto3" json:"bet_tid,omitempty"`                         // 关联下注 tid，非必填
+	SettlementType string                 `protobuf:"bytes,19,opt,name=settlement_type,json=settlementType,proto3" json:"settlement_type,omitempty"` // 空/sync | session | transfer
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *TransferRequest) Reset() {
+	*x = TransferRequest{}
+	mi := &file_api_game_v1_game_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TransferRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TransferRequest) ProtoMessage() {}
+
+func (x *TransferRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_game_v1_game_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TransferRequest.ProtoReflect.Descriptor instead.
+func (*TransferRequest) Descriptor() ([]byte, []int) {
+	return file_api_game_v1_game_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *TransferRequest) GetTid() string {
+	if x != nil {
+		return x.Tid
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetPlayerId() string {
+	if x != nil {
+		return x.PlayerId
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetGameBrand() string {
+	if x != nil {
+		return x.GameBrand
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetGameId() string {
+	if x != nil {
+		return x.GameId
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetRoundId() string {
+	if x != nil {
+		return x.RoundId
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetPreRoundId() string {
+	if x != nil {
+		return x.PreRoundId
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetAmount() float64 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *TransferRequest) GetRtp() string {
+	if x != nil {
+		return x.Rtp
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetGameData() []byte {
+	if x != nil {
+		return x.GameData
+	}
+	return nil
+}
+
+func (x *TransferRequest) GetRoundModel() string {
+	if x != nil {
+		return x.RoundModel
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetIsFree() bool {
+	if x != nil {
+		return x.IsFree
+	}
+	return false
+}
+
+func (x *TransferRequest) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *TransferRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetIsEnd() bool {
+	if x != nil {
+		return x.IsEnd
+	}
+	return false
+}
+
+func (x *TransferRequest) GetIsBuy() bool {
+	if x != nil {
+		return x.IsBuy
+	}
+	return false
+}
+
+func (x *TransferRequest) GetBetTid() string {
+	if x != nil {
+		return x.BetTid
+	}
+	return ""
+}
+
+func (x *TransferRequest) GetSettlementType() string {
+	if x != nil {
+		return x.SettlementType
+	}
+	return ""
+}
+
+type TransferReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Balance       float64                `protobuf:"fixed64,1,opt,name=balance,proto3" json:"balance,omitempty"`
+	Currency      string                 `protobuf:"bytes,2,opt,name=currency,proto3" json:"currency,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TransferReply) Reset() {
+	*x = TransferReply{}
+	mi := &file_api_game_v1_game_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TransferReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TransferReply) ProtoMessage() {}
+
+func (x *TransferReply) ProtoReflect() protoreflect.Message {
+	mi := &file_api_game_v1_game_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TransferReply.ProtoReflect.Descriptor instead.
+func (*TransferReply) Descriptor() ([]byte, []int) {
+	return file_api_game_v1_game_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *TransferReply) GetBalance() float64 {
+	if x != nil {
+		return x.Balance
+	}
+	return 0
+}
+
+func (x *TransferReply) GetCurrency() string {
+	if x != nil {
+		return x.Currency
+	}
+	return ""
+}
+
 var File_api_game_v1_game_proto protoreflect.FileDescriptor
 
 const file_api_game_v1_game_proto_rawDesc = "" +
@@ -1720,7 +1959,35 @@ const file_api_game_v1_game_proto_rawDesc = "" +
 	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"H\n" +
 	"\x10TransactionReply\x12\x1a\n" +
 	"\bcurrency\x18\x01 \x01(\tR\bcurrency\x12\x18\n" +
-	"\abalance\x18\x02 \x01(\x01R\abalance2\x86\x04\n" +
+	"\abalance\x18\x02 \x01(\x01R\abalance\"\xb0\x04\n" +
+	"\x0fTransferRequest\x12\x10\n" +
+	"\x03tid\x18\x01 \x01(\tR\x03tid\x12\x1b\n" +
+	"\tplayer_id\x18\x02 \x01(\tR\bplayerId\x12\x1d\n" +
+	"\n" +
+	"game_brand\x18\x03 \x01(\tR\tgameBrand\x12\x17\n" +
+	"\agame_id\x18\x04 \x01(\tR\x06gameId\x12\x19\n" +
+	"\bround_id\x18\x05 \x01(\tR\aroundId\x12 \n" +
+	"\fpre_round_id\x18\x06 \x01(\tR\n" +
+	"preRoundId\x12\x1a\n" +
+	"\bcurrency\x18\a \x01(\tR\bcurrency\x12\x16\n" +
+	"\x06amount\x18\b \x01(\x01R\x06amount\x12\x10\n" +
+	"\x03rtp\x18\t \x01(\tR\x03rtp\x12\x1b\n" +
+	"\tgame_data\x18\n" +
+	" \x01(\fR\bgameData\x12\x1f\n" +
+	"\vround_model\x18\v \x01(\tR\n" +
+	"roundModel\x12\x19\n" +
+	"\btrace_id\x18\f \x01(\tR\atraceId\x12\x17\n" +
+	"\ais_free\x18\r \x01(\bR\x06isFree\x129\n" +
+	"\n" +
+	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x16\n" +
+	"\x06reason\x18\x0f \x01(\tR\x06reason\x12\x15\n" +
+	"\x06is_end\x18\x10 \x01(\bR\x05isEnd\x12\x15\n" +
+	"\x06is_buy\x18\x11 \x01(\bR\x05isBuy\x12\x17\n" +
+	"\abet_tid\x18\x12 \x01(\tR\x06betTid\x12'\n" +
+	"\x0fsettlement_type\x18\x13 \x01(\tR\x0esettlementType\"E\n" +
+	"\rTransferReply\x12\x18\n" +
+	"\abalance\x18\x01 \x01(\x01R\abalance\x12\x1a\n" +
+	"\bcurrency\x18\x02 \x01(\tR\bcurrency2\xc4\x04\n" +
 	"\aGameApi\x129\n" +
 	"\aBalance\x12\x17.game.v1.BalanceRequest\x1a\x15.game.v1.BalanceReply\x12-\n" +
 	"\x03Bet\x12\x13.game.v1.BetRequest\x1a\x11.game.v1.BetReply\x12-\n" +
@@ -1729,8 +1996,9 @@ const file_api_game_v1_game_proto_rawDesc = "" +
 	"\x0fGameHistoryList\x12\x1b.game.v1.GameHistoryRequest\x1a\x19.game.v1.GameHistoryReply\x12Q\n" +
 	"\x0fJiliGameHistory\x12\x1f.game.v1.JiliGameHistoryRequest\x1a\x1d.game.v1.JiliGameHistoryReply\x12E\n" +
 	"\vAppGameList\x12\x1b.game.v1.AppGameListRequest\x1a\x19.game.v1.AppGameListReply\x12E\n" +
-	"\vTransaction\x12\x1b.game.v1.TransactionRequest\x1a\x19.game.v1.TransactionReplyBU\n" +
-	"\x16dev.kratos.api.game.v1B\vGameProtoV1P\x01Z,cn.qingdou.server/game_common/api/game/v1;v1b\x06proto3"
+	"\vTransaction\x12\x1b.game.v1.TransactionRequest\x1a\x19.game.v1.TransactionReply\x12<\n" +
+	"\bTransfer\x12\x18.game.v1.TransferRequest\x1a\x16.game.v1.TransferReplyBZ\n" +
+	"\x16dev.kratos.api.game.v1B\vGameProtoV1P\x01Z1github.com/card-engine/game_common/api/game/v1;v1b\x06proto3"
 
 var (
 	file_api_game_v1_game_proto_rawDescOnce sync.Once
@@ -1744,7 +2012,7 @@ func file_api_game_v1_game_proto_rawDescGZIP() []byte {
 	return file_api_game_v1_game_proto_rawDescData
 }
 
-var file_api_game_v1_game_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_api_game_v1_game_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_api_game_v1_game_proto_goTypes = []any{
 	(*BalanceRequest)(nil),         // 0: game.v1.BalanceRequest
 	(*BalanceReply)(nil),           // 1: game.v1.BalanceReply
@@ -1766,37 +2034,42 @@ var file_api_game_v1_game_proto_goTypes = []any{
 	(*AppGameList)(nil),            // 17: game.v1.AppGameList
 	(*TransactionRequest)(nil),     // 18: game.v1.TransactionRequest
 	(*TransactionReply)(nil),       // 19: game.v1.TransactionReply
-	(*timestamppb.Timestamp)(nil),  // 20: google.protobuf.Timestamp
+	(*TransferRequest)(nil),        // 20: game.v1.TransferRequest
+	(*TransferReply)(nil),          // 21: game.v1.TransferReply
+	(*timestamppb.Timestamp)(nil),  // 22: google.protobuf.Timestamp
 }
 var file_api_game_v1_game_proto_depIdxs = []int32{
 	12, // 0: game.v1.GameHistoryReply.list:type_name -> game.v1.GameHistory
-	20, // 1: game.v1.GameHistory.created_at:type_name -> google.protobuf.Timestamp
-	20, // 2: game.v1.JiliGameHistoryRequest.startTime:type_name -> google.protobuf.Timestamp
-	20, // 3: game.v1.JiliGameHistoryRequest.endTime:type_name -> google.protobuf.Timestamp
+	22, // 1: game.v1.GameHistory.created_at:type_name -> google.protobuf.Timestamp
+	22, // 2: game.v1.JiliGameHistoryRequest.startTime:type_name -> google.protobuf.Timestamp
+	22, // 3: game.v1.JiliGameHistoryRequest.endTime:type_name -> google.protobuf.Timestamp
 	12, // 4: game.v1.JiliGameHistoryReply.list:type_name -> game.v1.GameHistory
 	17, // 5: game.v1.AppGameListReply.list:type_name -> game.v1.AppGameList
-	20, // 6: game.v1.TransactionRequest.created_at:type_name -> google.protobuf.Timestamp
-	0,  // 7: game.v1.GameApi.Balance:input_type -> game.v1.BalanceRequest
-	2,  // 8: game.v1.GameApi.Bet:input_type -> game.v1.BetRequest
-	4,  // 9: game.v1.GameApi.Win:input_type -> game.v1.WinRequest
-	6,  // 10: game.v1.GameApi.Refund:input_type -> game.v1.RefundRequest
-	10, // 11: game.v1.GameApi.GameHistoryList:input_type -> game.v1.GameHistoryRequest
-	13, // 12: game.v1.GameApi.JiliGameHistory:input_type -> game.v1.JiliGameHistoryRequest
-	15, // 13: game.v1.GameApi.AppGameList:input_type -> game.v1.AppGameListRequest
-	18, // 14: game.v1.GameApi.Transaction:input_type -> game.v1.TransactionRequest
-	1,  // 15: game.v1.GameApi.Balance:output_type -> game.v1.BalanceReply
-	3,  // 16: game.v1.GameApi.Bet:output_type -> game.v1.BetReply
-	5,  // 17: game.v1.GameApi.Win:output_type -> game.v1.WinReply
-	7,  // 18: game.v1.GameApi.Refund:output_type -> game.v1.RefundReply
-	11, // 19: game.v1.GameApi.GameHistoryList:output_type -> game.v1.GameHistoryReply
-	14, // 20: game.v1.GameApi.JiliGameHistory:output_type -> game.v1.JiliGameHistoryReply
-	16, // 21: game.v1.GameApi.AppGameList:output_type -> game.v1.AppGameListReply
-	19, // 22: game.v1.GameApi.Transaction:output_type -> game.v1.TransactionReply
-	15, // [15:23] is the sub-list for method output_type
-	7,  // [7:15] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	22, // 6: game.v1.TransactionRequest.created_at:type_name -> google.protobuf.Timestamp
+	22, // 7: game.v1.TransferRequest.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 8: game.v1.GameApi.Balance:input_type -> game.v1.BalanceRequest
+	2,  // 9: game.v1.GameApi.Bet:input_type -> game.v1.BetRequest
+	4,  // 10: game.v1.GameApi.Win:input_type -> game.v1.WinRequest
+	6,  // 11: game.v1.GameApi.Refund:input_type -> game.v1.RefundRequest
+	10, // 12: game.v1.GameApi.GameHistoryList:input_type -> game.v1.GameHistoryRequest
+	13, // 13: game.v1.GameApi.JiliGameHistory:input_type -> game.v1.JiliGameHistoryRequest
+	15, // 14: game.v1.GameApi.AppGameList:input_type -> game.v1.AppGameListRequest
+	18, // 15: game.v1.GameApi.Transaction:input_type -> game.v1.TransactionRequest
+	20, // 16: game.v1.GameApi.Transfer:input_type -> game.v1.TransferRequest
+	1,  // 17: game.v1.GameApi.Balance:output_type -> game.v1.BalanceReply
+	3,  // 18: game.v1.GameApi.Bet:output_type -> game.v1.BetReply
+	5,  // 19: game.v1.GameApi.Win:output_type -> game.v1.WinReply
+	7,  // 20: game.v1.GameApi.Refund:output_type -> game.v1.RefundReply
+	11, // 21: game.v1.GameApi.GameHistoryList:output_type -> game.v1.GameHistoryReply
+	14, // 22: game.v1.GameApi.JiliGameHistory:output_type -> game.v1.JiliGameHistoryReply
+	16, // 23: game.v1.GameApi.AppGameList:output_type -> game.v1.AppGameListReply
+	19, // 24: game.v1.GameApi.Transaction:output_type -> game.v1.TransactionReply
+	21, // 25: game.v1.GameApi.Transfer:output_type -> game.v1.TransferReply
+	17, // [17:26] is the sub-list for method output_type
+	8,  // [8:17] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_api_game_v1_game_proto_init() }
@@ -1810,7 +2083,7 @@ func file_api_game_v1_game_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_game_v1_game_proto_rawDesc), len(file_api_game_v1_game_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
