@@ -26,6 +26,13 @@ type AppInfo struct {
 	Note             string  `json:"note" gorm:"column:note;comment:备注;"`
 	TriggerWinIfZero uint8   `json:"triggerWinIfZero" gorm:"column:trigger_win_if_zero;comment:派奖为0是否回调：0否, 1是;default:1"`
 
+	CooperationMode string `json:"cooperationMode" gorm:"column:cooperation_mode;default:REVENUE_SHARE;comment:合作模式"`
+	RtpMin          int    `json:"rtpMin"          gorm:"column:rtp_min;default:0;comment:RTP下限,0=不限制"`
+	RtpMax          int    `json:"rtpMax"          gorm:"column:rtp_max;default:0;comment:RTP上限,0=不限制"`
+	WalletMode      string `json:"walletMode"      gorm:"column:wallet_mode;default:SINGLE;comment:钱包模式"`
+	MerchantType    string `json:"merchantType"    gorm:"column:merchant_type;default:CASH;comment:商户类型"`
+	WhitelistIps    string `json:"whitelistIps"    gorm:"column:whitelist_ips;comment:IP白名单,预留"`
+
 	CreateTime        time.Time      `json:"createTime" gorm:"autoCreateTime;comment:创建时间;"`
 	UpdateTime        time.Time      `json:"updateTime" gorm:"autoCreateTime;comment:创建时间;"`
 	DeletedAt         gorm.DeletedAt `json:"-" gorm:"column:deleted_at;type:datetime(3);index"`
