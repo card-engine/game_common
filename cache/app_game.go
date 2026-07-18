@@ -19,14 +19,12 @@ type AppGameStore struct {
 	data map[string]*models.AppGame // key: appId:gameBrand:gameId
 }
 
-// NewAppGameStore 创建 AppGame 本地缓存，并设为包级默认 Store。
+// NewAppGameStore 创建 AppGame 本地缓存。
 func NewAppGameStore(db *gorm.DB) *AppGameStore {
-	s := &AppGameStore{
+	return &AppGameStore{
 		db:   db,
 		data: make(map[string]*models.AppGame),
 	}
-	defaultAppGameStore = s
-	return s
 }
 
 func (s *AppGameStore) Name() string {
@@ -134,19 +132,4 @@ func (s *AppGameStore) remove(key string) {
 	s.mu.Lock()
 	delete(s.data, key)
 	s.mu.Unlock()
-}
-
-var defaultAppGameStore *AppGameStore
-
-// SetDefaultAppGameStore 设置包级 AppGameStore。
-func SetDefaultAppGameStore(s *AppGameStore) {
-	defaultAppGameStore = s
-}
-
-// GetAppGame 从默认 AppGameStore 读取。
-func GetAppGame(appID, gameBrand, gameID string) (*models.AppGame, bool) {
-	if defaultAppGameStore == nil {
-		return nil, false
-	}
-	return defaultAppGameStore.Get(appID, gameBrand, gameID)
 }

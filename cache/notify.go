@@ -28,30 +28,26 @@ type NotifyMessage struct {
 	Key    string `json:"key,omitempty"`
 }
 
-// Publish 向 Redis 发布缓存刷新通知。
+// Publish 向 Redis 发布缓存刷新通知，固定使用 DefaultNotifyChannel（cache:notify）。
 //
 // 参数说明：
-//   - channel: Pub/Sub 频道，空则使用 DefaultNotifyChannel（cache:notify）
 //   - cacheType: 缓存类型，见 TypeAppInfo / TypeAppGame / TypeGameInfo
 //   - key: 刷新范围；空表示该类型全量刷新，非空按类型含义刷新：
 //
 // 各类型传参示例：
 //
 //	// AppInfo：key 为空全量；key 为 appId 刷新单个商户
-//	Publish(ctx, rdb, "", TypeAppInfo, "")
-//	Publish(ctx, rdb, "", TypeAppInfo, "appId")
+//	Publish(ctx, rdb, TypeAppInfo, "")
+//	Publish(ctx, rdb, TypeAppInfo, "appId")
 //
 //	// AppGame：key 为空全量；key 为 appId 刷新该商户下全部游戏配置
-//	Publish(ctx, rdb, "", TypeAppGame, "")
-//	Publish(ctx, rdb, "", TypeAppGame, "appId")
+//	Publish(ctx, rdb, TypeAppGame, "")
+//	Publish(ctx, rdb, TypeAppGame, "appId")
 //
 //	// GameInfo：key 为空全量；key 为 gameBrand 刷新该厂商下全部游戏
-//	Publish(ctx, rdb, "", TypeGameInfo, "")
-//	Publish(ctx, rdb, "", TypeGameInfo, "jili")
-func Publish(ctx context.Context, rdb *redis.Client, channel, cacheType, key string) error {
-	if channel == "" {
-		channel = DefaultNotifyChannel
-	}
+//	Publish(ctx, rdb, TypeGameInfo, "")
+//	Publish(ctx, rdb, TypeGameInfo, "jili")
+func Publish(ctx context.Context, rdb *redis.Client, cacheType, key string) error {
 	if cacheType == "" {
 		return fmt.Errorf("cache: publish type is required")
 	}
@@ -64,6 +60,7 @@ func Publish(ctx context.Context, rdb *redis.Client, channel, cacheType, key str
 	if err != nil {
 		return err
 	}
+	channel := DefaultNotifyChannel
 	if err := rdb.Publish(ctx, channel, payload).Err(); err != nil {
 		log.Errorf("[cache] publish failed channel=%s type=%s key=%q err=%v", channel, cacheType, key, err)
 		return err

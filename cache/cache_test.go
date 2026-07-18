@@ -239,25 +239,28 @@ func TestGameInfoStoreGetPutRemove(t *testing.T) {
 	}
 }
 
-func TestGetPackageDefaults(t *testing.T) {
-	_ = NewAppInfoStore(nil)
-	_ = NewAppGameStore(nil)
-	_ = NewGameInfoStore(nil)
-	defaultAppInfoStore.put(&models.AppInfo{AppId: "x", AccessKeyId: "y"})
-	defaultAppGameStore.put(&models.AppGame{AppId: "a", GameBrand: "b", GameId: "c"})
-	defaultGameInfoStore.put(&models.GameInfo{GameBrand: "jili", GameId: "99", Status: "ENABLE"})
+func TestManagerRegisterTypedAccessors(t *testing.T) {
+	mgr := NewManager(nil, nil, Options{})
+	appInfo := NewAppInfoStore(nil)
+	appGame := NewAppGameStore(nil)
+	gameInfo := NewGameInfoStore(nil)
+	mgr.Register(appInfo)
+	mgr.Register(appGame)
+	mgr.Register(gameInfo)
 
-	if got, ok := GetAppInfo("x"); !ok || got.AccessKeyId != "y" {
-		t.Fatalf("GetAppInfo: %+v ok=%v", got, ok)
+	if mgr.AppInfo() != appInfo {
+		t.Fatal("AppInfo accessor mismatch")
 	}
-	if got, ok := GetAppInfoByAccessKey("y"); !ok || got.AppId != "x" {
-		t.Fatalf("GetAppInfoByAccessKey: %+v ok=%v", got, ok)
+	if mgr.AppGame() != appGame {
+		t.Fatal("AppGame accessor mismatch")
 	}
-	if got, ok := GetAppGame("a", "b", "c"); !ok || got.GameBrand != "b" {
-		t.Fatalf("GetAppGame: %+v ok=%v", got, ok)
+	if mgr.GameInfo() != gameInfo {
+		t.Fatal("GameInfo accessor mismatch")
 	}
-	if got, ok := GetGameInfo("jili", "99"); !ok || got.Status != "ENABLE" {
-		t.Fatalf("GetGameInfo: %+v ok=%v", got, ok)
+
+	appInfo.put(&models.AppInfo{AppId: "x", AccessKeyId: "y"})
+	if got, ok := mgr.AppInfo().GetByAppID("x"); !ok || got.AccessKeyId != "y" {
+		t.Fatalf("GetByAppID via manager: %+v ok=%v", got, ok)
 	}
 }
 
@@ -266,5 +269,11 @@ func TestManagerStartRequiresRedis(t *testing.T) {
 	mgr.Register(&mockStore{name: "x"})
 	if err := mgr.Start(context.Background()); err == nil {
 		t.Fatal("expected error when redis is nil")
+	}
+}
+
+func TestInitRequiresDB(t *testing.T) {
+	if _, err := Init(context.Background(), nil, nil, Options{}); err == nil {
+		t.Fatal("expected error when db is nil")
 	}
 }

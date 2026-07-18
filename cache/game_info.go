@@ -18,14 +18,12 @@ type GameInfoStore struct {
 	data map[string]*models.GameInfo // key: gameBrand:gameId
 }
 
-// NewGameInfoStore 创建 GameInfo 本地缓存，并设为包级默认 Store。
+// NewGameInfoStore 创建 GameInfo 本地缓存。
 func NewGameInfoStore(db *gorm.DB) *GameInfoStore {
-	s := &GameInfoStore{
+	return &GameInfoStore{
 		db:   db,
 		data: make(map[string]*models.GameInfo),
 	}
-	defaultGameInfoStore = s
-	return s
 }
 
 func (s *GameInfoStore) Name() string {
@@ -121,19 +119,4 @@ func (s *GameInfoStore) remove(key string) {
 	s.mu.Lock()
 	delete(s.data, key)
 	s.mu.Unlock()
-}
-
-var defaultGameInfoStore *GameInfoStore
-
-// SetDefaultGameInfoStore 设置包级 GameInfoStore。
-func SetDefaultGameInfoStore(s *GameInfoStore) {
-	defaultGameInfoStore = s
-}
-
-// GetGameInfo 从默认 GameInfoStore 读取。
-func GetGameInfo(gameBrand, gameID string) (*models.GameInfo, bool) {
-	if defaultGameInfoStore == nil {
-		return nil, false
-	}
-	return defaultGameInfoStore.Get(gameBrand, gameID)
 }

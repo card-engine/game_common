@@ -19,21 +19,25 @@ type Options struct {
 	Logger log.Logger
 }
 
-// Manager 管理多个本地缓存 Store：启动全量加载、订阅 Redis 通知、定时全量兜底。
+// Manager 管理多个本地缓存 Store：启动全量预加载、订阅 Redis 通知、定时全量兜底。
 type Manager struct {
-	rdb     *redis.Client
-	db      *gorm.DB
-	opts    Options
-	log     *log.Helper
-	stores  map[string]Store
-	mu      sync.Mutex
-	loadMu  sync.Map // per-store sync.Mutex，避免并发 LoadAll/LoadOne 互相踩踏
-	cancel  context.CancelFunc
-	wg      sync.WaitGroup
-	started bool
+	rdb      *redis.Client
+	db       *gorm.DB
+	opts     Options
+	log      *log.Helper
+	stores   map[string]Store
+	appInfo  *AppInfoStore
+	appGame  *AppGameStore
+	gameInfo *GameInfoStore
+	mu       sync.Mutex
+	loadMu   sync.Map // per-store sync.Mutex，避免并发 LoadAll/LoadOne 互相踩踏
+	cancel   context.CancelFunc
+	wg       sync.WaitGroup
+	started  bool
+	warmedUp bool
 }
 
-// NewManager 创建缓存管理器。db 由各 Store 自行持有时仍可传入供扩展；rdb 用于订阅。
+// NewManager 创建缓存管理器。
 func NewManager(rdb *redis.Client, db *gorm.DB, opts Options) *Manager {
 	if opts.Channel == "" {
 		opts.Channel = DefaultNotifyChannel
@@ -51,15 +55,87 @@ func NewManager(rdb *redis.Client, db *gorm.DB, opts Options) *Manager {
 	}
 }
 
+// Init 启动初始化：注册 AppInfo/AppGame/GameInfo，全量预加载后启动订阅与定时刷新。
+// 业务侧通过返回的 Manager 访问各 Store，例如 mgr.AppInfo().GetByAppID(appId)。
+func Init(ctx context.Context, rdb *redis.Client, db *gorm.DB, opts Options) (*Manager, error) {
+	if db == nil {
+		return nil, fmt.Errorf("cache: db is nil")
+	}
+	mgr := NewManager(rdb, db, opts)
+	mgr.Register(NewAppInfoStore(db))
+	mgr.Register(NewAppGameStore(db))
+	mgr.Register(NewGameInfoStore(db))
+	if err := mgr.Start(ctx); err != nil {
+		return nil, err
+	}
+	return mgr, nil
+}
+
 // Register 注册一个 Store；同名重复注册会覆盖。
 func (m *Manager) Register(store Store) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.stores[store.Name()] = store
+	switch s := store.(type) {
+	case *AppInfoStore:
+		m.appInfo = s
+	case *AppGameStore:
+		m.appGame = s
+	case *GameInfoStore:
+		m.gameInfo = s
+	}
 	m.log.Infof("[cache] register store type=%s", store.Name())
 }
 
-// Start 全量加载所有 Store，然后启动 Pub/Sub 监听与定时全量刷新。
+// AppInfo 返回已注册的 AppInfoStore，未注册则为 nil。
+func (m *Manager) AppInfo() *AppInfoStore {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.appInfo
+}
+
+// AppGame 返回已注册的 AppGameStore，未注册则为 nil。
+func (m *Manager) AppGame() *AppGameStore {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.appGame
+}
+
+// GameInfo 返回已注册的 GameInfoStore，未注册则为 nil。
+func (m *Manager) GameInfo() *GameInfoStore {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.gameInfo
+}
+
+// WarmUp 对已注册 Store 执行全量预加载。Start 会自动调用；也可单独调用。
+func (m *Manager) WarmUp(ctx context.Context) error {
+	m.mu.Lock()
+	stores := make([]Store, 0, len(m.stores))
+	for _, s := range m.stores {
+		stores = append(stores, s)
+	}
+	m.mu.Unlock()
+
+	m.log.Infof("[cache] warmup start stores=%d", len(stores))
+	start := time.Now()
+	for _, s := range stores {
+		m.log.Infof("[cache] warmup load start type=%s", s.Name())
+		t0 := time.Now()
+		if err := m.safeLoadAll(ctx, s); err != nil {
+			m.log.Errorf("[cache] warmup load failed type=%s err=%v", s.Name(), err)
+			return fmt.Errorf("cache: warmup %s: %w", s.Name(), err)
+		}
+		m.log.Infof("[cache] warmup load done type=%s cost=%s", s.Name(), time.Since(t0))
+	}
+	m.mu.Lock()
+	m.warmedUp = true
+	m.mu.Unlock()
+	m.log.Infof("[cache] warmup done stores=%d cost=%s", len(stores), time.Since(start))
+	return nil
+}
+
+// Start 全量预加载所有 Store，然后启动 Pub/Sub 监听与定时全量刷新。
 func (m *Manager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	if m.started {
@@ -81,18 +157,14 @@ func (m *Manager) Start(ctx context.Context) error {
 
 	m.log.Infof("[cache] starting: stores=%d channel=%s", len(stores), m.opts.Channel)
 
-	for _, s := range stores {
-		m.log.Infof("[cache] initial load start type=%s", s.Name())
-		if err := m.safeLoadAll(runCtx, s); err != nil {
-			cancel()
-			m.mu.Lock()
-			m.started = false
-			m.cancel = nil
-			m.mu.Unlock()
-			m.log.Errorf("[cache] initial load failed type=%s err=%v", s.Name(), err)
-			return fmt.Errorf("cache: load all %s: %w", s.Name(), err)
-		}
-		m.log.Infof("[cache] initial load done type=%s", s.Name())
+	if err := m.WarmUp(runCtx); err != nil {
+		cancel()
+		m.mu.Lock()
+		m.started = false
+		m.cancel = nil
+		m.warmedUp = false
+		m.mu.Unlock()
+		return err
 	}
 
 	m.wg.Add(1)
@@ -123,6 +195,13 @@ func (m *Manager) Stop() {
 	}
 	m.wg.Wait()
 	m.log.Info("[cache] manager stopped")
+}
+
+// WarmedUp 是否已完成全量预加载。
+func (m *Manager) WarmedUp() bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.warmedUp
 }
 
 // Refresh 手动触发刷新：key 非空按 key，否则全量。

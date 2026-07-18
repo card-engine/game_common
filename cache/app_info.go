@@ -19,15 +19,13 @@ type AppInfoStore struct {
 	byAccessKey map[string]*models.AppInfo
 }
 
-// NewAppInfoStore 创建 AppInfo 本地缓存，并设为包级默认 Store。
+// NewAppInfoStore 创建 AppInfo 本地缓存。
 func NewAppInfoStore(db *gorm.DB) *AppInfoStore {
-	s := &AppInfoStore{
+	return &AppInfoStore{
 		db:          db,
 		byAppID:     make(map[string]*models.AppInfo),
 		byAccessKey: make(map[string]*models.AppInfo),
 	}
-	defaultAppInfoStore = s
-	return s
 }
 
 func (s *AppInfoStore) Name() string {
@@ -123,28 +121,4 @@ func (s *AppInfoStore) remove(appID string) {
 		delete(s.byAccessKey, old.AccessKeyId)
 	}
 	delete(s.byAppID, appID)
-}
-
-// 包级默认 Store，供 Manager 注册后业务侧便捷读取。
-var defaultAppInfoStore *AppInfoStore
-
-// SetDefaultAppInfoStore 设置包级 AppInfoStore（通常在 Register 后调用）。
-func SetDefaultAppInfoStore(s *AppInfoStore) {
-	defaultAppInfoStore = s
-}
-
-// GetAppInfo 从默认 AppInfoStore 按 appId 读取。
-func GetAppInfo(appID string) (*models.AppInfo, bool) {
-	if defaultAppInfoStore == nil {
-		return nil, false
-	}
-	return defaultAppInfoStore.GetByAppID(appID)
-}
-
-// GetAppInfoByAccessKey 从默认 AppInfoStore 按 accessKeyId 读取。
-func GetAppInfoByAccessKey(accessKeyID string) (*models.AppInfo, bool) {
-	if defaultAppInfoStore == nil {
-		return nil, false
-	}
-	return defaultAppInfoStore.GetByAccessKeyID(accessKeyID)
 }
