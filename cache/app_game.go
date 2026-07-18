@@ -41,40 +41,81 @@ func AppGameKey(appID, gameBrand, gameID string) string {
 	return fmt.Sprintf("%s:%s:%s", appID, gameBrand, gameID)
 }
 
-const appGameLoadBatchSize = 2000
+const appGameLoadConcurrency = 16
 
-// LoadAll 全量从 DB 加载 AppGame（分批拉取，避免一次性占用过大内存）。
+// LoadAll 按 appId 并发从 DB 加载全部 AppGame。
 func (s *AppGameStore) LoadAll(ctx context.Context) error {
-	var total int64
-	if err := s.db.WithContext(ctx).Model(&models.AppGame{}).Count(&total).Error; err != nil {
+	var appIDs []string
+	if err := s.db.WithContext(ctx).Model(&models.AppGame{}).
+		Distinct("app_id").
+		Pluck("app_id", &appIDs).Error; err != nil {
 		return err
 	}
+	if len(appIDs) == 0 {
+		s.mu.Lock()
+		s.data = make(map[string]*models.AppGame)
+		s.mu.Unlock()
+		log.Infof("[cache] appgame LoadAll done size=0 apps=0")
+		return nil
+	}
 
-	next := make(map[string]*models.AppGame, total)
-	var loaded int64
-	var batch []models.AppGame
-	err := s.db.WithContext(ctx).
-		Order("id ASC").
-		FindInBatches(&batch, appGameLoadBatchSize, func(tx *gorm.DB, batchIdx int) error {
-			for i := range batch {
-				item := batch[i]
+	next := make(map[string]*models.AppGame)
+	var nextMu sync.Mutex
+	var loadedApps int64
+
+	sem := make(chan struct{}, appGameLoadConcurrency)
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(appIDs))
+
+	log.Infof("[cache] appgame LoadAll start apps=%d concurrency=%d", len(appIDs), appGameLoadConcurrency)
+	for _, id := range appIDs {
+		wg.Add(1)
+		go func(appID string) {
+			defer wg.Done()
+			select {
+			case <-ctx.Done():
+				errCh <- ctx.Err()
+				return
+			case sem <- struct{}{}:
+			}
+			defer func() { <-sem }()
+
+			var list []models.AppGame
+			if err := s.db.WithContext(ctx).Where("app_id = ?", appID).Find(&list).Error; err != nil {
+				errCh <- fmt.Errorf("cache: appgame load appId=%s: %w", appID, err)
+				return
+			}
+
+			local := make(map[string]*models.AppGame, len(list))
+			for i := range list {
+				item := list[i]
 				cp := item
-				next[AppGameKey(cp.AppId, cp.GameBrand, cp.GameId)] = &cp
+				local[AppGameKey(cp.AppId, cp.GameBrand, cp.GameId)] = &cp
 			}
-			loaded += int64(len(batch))
-			if batchIdx%10 == 0 || loaded >= total {
-				log.Infof("[cache] appgame LoadAll progress loaded=%d/%d batch=%d", loaded, total, batchIdx)
+
+			nextMu.Lock()
+			for k, v := range local {
+				next[k] = v
 			}
-			return nil
-		}).Error
-	if err != nil {
+			loadedApps++
+			done := loadedApps
+			nextMu.Unlock()
+
+			if done%50 == 0 || int(done) == len(appIDs) {
+				log.Infof("[cache] appgame LoadAll progress apps=%d/%d", done, len(appIDs))
+			}
+		}(id)
+	}
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
 		return err
 	}
 
 	s.mu.Lock()
 	s.data = next
 	s.mu.Unlock()
-	log.Infof("[cache] appgame LoadAll done size=%d", len(next))
+	log.Infof("[cache] appgame LoadAll done size=%d apps=%d", len(next), len(appIDs))
 	return nil
 }
 

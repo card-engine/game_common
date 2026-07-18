@@ -119,15 +119,29 @@ func (m *Manager) WarmUp(ctx context.Context) error {
 
 	m.log.Infof("[cache] warmup start stores=%d", len(stores))
 	start := time.Now()
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, len(stores))
 	for _, s := range stores {
-		m.log.Infof("[cache] warmup load start type=%s", s.Name())
-		t0 := time.Now()
-		if err := m.safeLoadAll(ctx, s); err != nil {
-			m.log.Errorf("[cache] warmup load failed type=%s err=%v", s.Name(), err)
-			return fmt.Errorf("cache: warmup %s: %w", s.Name(), err)
-		}
-		m.log.Infof("[cache] warmup load done type=%s cost=%s", s.Name(), time.Since(t0))
+		wg.Add(1)
+		go func(store Store) {
+			defer wg.Done()
+			m.log.Infof("[cache] warmup load start type=%s", store.Name())
+			t0 := time.Now()
+			if err := m.safeLoadAll(ctx, store); err != nil {
+				m.log.Errorf("[cache] warmup load failed type=%s err=%v", store.Name(), err)
+				errCh <- fmt.Errorf("cache: warmup %s: %w", store.Name(), err)
+				return
+			}
+			m.log.Infof("[cache] warmup load done type=%s cost=%s", store.Name(), time.Since(t0))
+		}(s)
 	}
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		return err
+	}
+
 	m.mu.Lock()
 	m.warmedUp = true
 	m.mu.Unlock()
