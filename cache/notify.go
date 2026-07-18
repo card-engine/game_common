@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -13,13 +14,14 @@ const (
 
 	ActionReload = "reload"
 
-	TypeAppInfo = "appinfo"
-	TypeAppGame = "appgame"
+	TypeAppInfo  = "appinfo"
+	TypeAppGame  = "appgame"
+	TypeGameInfo = "gameinfo"
 )
 
 // NotifyMessage Redis Pub/Sub 通知消息。
 // Key 非空时按 key 刷新；Key 为空时全量刷新。
-// appinfo 的 key 为 appId；appgame 的 key 也为 appId（按整个商户刷新其下全部游戏）。
+// appinfo/appgame 的 key 为 appId；gameinfo 的 key 为 gameBrand（按整个厂商刷新）。
 type NotifyMessage struct {
 	Type   string `json:"type"`
 	Action string `json:"action"`
@@ -27,7 +29,25 @@ type NotifyMessage struct {
 }
 
 // Publish 向 Redis 发布缓存刷新通知。
-// key 为空表示全量刷新；非空表示按 key 刷新（appinfo/appgame 均为 appId）。
+//
+// 参数说明：
+//   - channel: Pub/Sub 频道，空则使用 DefaultNotifyChannel（cache:notify）
+//   - cacheType: 缓存类型，见 TypeAppInfo / TypeAppGame / TypeGameInfo
+//   - key: 刷新范围；空表示该类型全量刷新，非空按类型含义刷新：
+//
+// 各类型传参示例：
+//
+//	// AppInfo：key 为空全量；key 为 appId 刷新单个商户
+//	Publish(ctx, rdb, "", TypeAppInfo, "")
+//	Publish(ctx, rdb, "", TypeAppInfo, "appId")
+//
+//	// AppGame：key 为空全量；key 为 appId 刷新该商户下全部游戏配置
+//	Publish(ctx, rdb, "", TypeAppGame, "")
+//	Publish(ctx, rdb, "", TypeAppGame, "appId")
+//
+//	// GameInfo：key 为空全量；key 为 gameBrand 刷新该厂商下全部游戏
+//	Publish(ctx, rdb, "", TypeGameInfo, "")
+//	Publish(ctx, rdb, "", TypeGameInfo, "jili")
 func Publish(ctx context.Context, rdb *redis.Client, channel, cacheType, key string) error {
 	if channel == "" {
 		channel = DefaultNotifyChannel
@@ -44,7 +64,12 @@ func Publish(ctx context.Context, rdb *redis.Client, channel, cacheType, key str
 	if err != nil {
 		return err
 	}
-	return rdb.Publish(ctx, channel, payload).Err()
+	if err := rdb.Publish(ctx, channel, payload).Err(); err != nil {
+		log.Errorf("[cache] publish failed channel=%s type=%s key=%q err=%v", channel, cacheType, key, err)
+		return err
+	}
+	log.Infof("[cache] publish notify channel=%s type=%s key=%q", channel, cacheType, key)
+	return nil
 }
 
 func parseNotifyMessage(payload string) (*NotifyMessage, error) {

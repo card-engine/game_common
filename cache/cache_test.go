@@ -181,11 +181,56 @@ func TestAppGameStoreGetPutRemove(t *testing.T) {
 	}
 }
 
+func TestGameInfoReplaceByBrand(t *testing.T) {
+	s := NewGameInfoStore(nil)
+	s.put(&models.GameInfo{GameBrand: "jili", GameId: "1001"})
+	s.put(&models.GameInfo{GameBrand: "jili", GameId: "1002"})
+	s.put(&models.GameInfo{GameBrand: "pg", GameId: "2001"})
+
+	s.replaceByBrand("jili", []models.GameInfo{
+		{GameBrand: "jili", GameId: "1001"},
+		{GameBrand: "jili", GameId: "1003"},
+	})
+
+	if _, ok := s.Get("jili", "1002"); ok {
+		t.Fatal("old jili/1002 should be removed")
+	}
+	if got, ok := s.Get("jili", "1003"); !ok || got.GameId != "1003" {
+		t.Fatalf("new jili game missing: %+v ok=%v", got, ok)
+	}
+	if _, ok := s.Get("pg", "2001"); !ok {
+		t.Fatal("pg entry should remain")
+	}
+
+	s.replaceByBrand("jili", nil)
+	if _, ok := s.Get("jili", "1001"); ok {
+		t.Fatal("jili should be fully cleared")
+	}
+	if _, ok := s.Get("pg", "2001"); !ok {
+		t.Fatal("pg entry should remain after clearing jili")
+	}
+}
+
+func TestGameInfoStoreGetPutRemove(t *testing.T) {
+	s := NewGameInfoStore(nil)
+	s.put(&models.GameInfo{GameBrand: "jili", GameId: "1001", GameName: "demo"})
+	got, ok := s.Get("jili", "1001")
+	if !ok || got.GameName != "demo" {
+		t.Fatalf("Get failed: %+v ok=%v", got, ok)
+	}
+	s.remove(GameInfoKey("jili", "1001"))
+	if _, ok := s.Get("jili", "1001"); ok {
+		t.Fatal("should be removed")
+	}
+}
+
 func TestGetPackageDefaults(t *testing.T) {
 	_ = NewAppInfoStore(nil)
 	_ = NewAppGameStore(nil)
+	_ = NewGameInfoStore(nil)
 	defaultAppInfoStore.put(&models.AppInfo{AppId: "x", AccessKeyId: "y"})
 	defaultAppGameStore.put(&models.AppGame{AppId: "a", GameBrand: "b", GameId: "c"})
+	defaultGameInfoStore.put(&models.GameInfo{GameBrand: "jili", GameId: "99", Status: "ENABLE"})
 
 	if got, ok := GetAppInfo("x"); !ok || got.AccessKeyId != "y" {
 		t.Fatalf("GetAppInfo: %+v ok=%v", got, ok)
@@ -195,6 +240,9 @@ func TestGetPackageDefaults(t *testing.T) {
 	}
 	if got, ok := GetAppGame("a", "b", "c"); !ok || got.GameBrand != "b" {
 		t.Fatalf("GetAppGame: %+v ok=%v", got, ok)
+	}
+	if got, ok := GetGameInfo("jili", "99"); !ok || got.Status != "ENABLE" {
+		t.Fatalf("GetGameInfo: %+v ok=%v", got, ok)
 	}
 }
 
