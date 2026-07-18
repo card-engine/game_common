@@ -9,6 +9,7 @@ const DefaultRefreshInterval = 5 * time.Minute
 
 // Store 本地缓存存储接口。
 // Manager 负责调度 LoadAll / LoadOne；具体 map 读写由各实现自行维护。
+// 各 Store 的 Get* 方法采用 cache-aside：本地未命中时回源 DB，并回填本地缓存。
 type Store interface {
 	// Name 返回缓存类型名，与通知消息 type 字段对应，如 "appinfo" / "appgame"。
 	Name() string

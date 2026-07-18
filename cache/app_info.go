@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/card-engine/game_common/models"
+	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -77,27 +78,59 @@ func (s *AppInfoStore) LoadOne(ctx context.Context, key string) error {
 	return nil
 }
 
-// GetByAppID 从本地缓存按 appId 获取。
+// GetByAppID 按 appId 获取：先读本地缓存，未命中则查 DB 并回填本地。
 func (s *AppInfoStore) GetByAppID(appID string) (*models.AppInfo, bool) {
 	s.mu.RLock()
-	defer s.mu.RUnlock()
 	v, ok := s.byAppID[appID]
-	if !ok || v == nil {
+	if ok && v != nil {
+		cp := *v
+		s.mu.RUnlock()
+		return &cp, true
+	}
+	s.mu.RUnlock()
+
+	if s.db == nil {
 		return nil, false
 	}
-	cp := *v
+	var item models.AppInfo
+	err := s.db.Where("app_id = ?", appID).First(&item).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, false
+	}
+	if err != nil {
+		log.Errorf("[cache] appinfo get by appId from db failed appId=%s err=%v", appID, err)
+		return nil, false
+	}
+	s.put(&item)
+	cp := item
 	return &cp, true
 }
 
-// GetByAccessKeyID 从本地缓存按 accessKeyId 获取。
+// GetByAccessKeyID 按 accessKeyId 获取：先读本地缓存，未命中则查 DB 并回填本地。
 func (s *AppInfoStore) GetByAccessKeyID(accessKeyID string) (*models.AppInfo, bool) {
 	s.mu.RLock()
-	defer s.mu.RUnlock()
 	v, ok := s.byAccessKey[accessKeyID]
-	if !ok || v == nil {
+	if ok && v != nil {
+		cp := *v
+		s.mu.RUnlock()
+		return &cp, true
+	}
+	s.mu.RUnlock()
+
+	if s.db == nil {
 		return nil, false
 	}
-	cp := *v
+	var item models.AppInfo
+	err := s.db.Where("access_key = ?", accessKeyID).First(&item).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, false
+	}
+	if err != nil {
+		log.Errorf("[cache] appinfo get by accessKey from db failed accessKey=%s err=%v", accessKeyID, err)
+		return nil, false
+	}
+	s.put(&item)
+	cp := item
 	return &cp, true
 }
 

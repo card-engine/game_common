@@ -2,12 +2,14 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/card-engine/game_common/models"
+	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -72,15 +74,32 @@ func (s *GameInfoStore) LoadOne(ctx context.Context, key string) error {
 	return nil
 }
 
-// Get 从本地缓存获取 GameInfo。
+// Get 获取 GameInfo：先读本地缓存，未命中则查 DB 并回填本地。
 func (s *GameInfoStore) Get(gameBrand, gameID string) (*models.GameInfo, bool) {
+	key := GameInfoKey(gameBrand, gameID)
 	s.mu.RLock()
-	defer s.mu.RUnlock()
-	v, ok := s.data[GameInfoKey(gameBrand, gameID)]
-	if !ok || v == nil {
+	v, ok := s.data[key]
+	if ok && v != nil {
+		cp := *v
+		s.mu.RUnlock()
+		return &cp, true
+	}
+	s.mu.RUnlock()
+
+	if s.db == nil {
 		return nil, false
 	}
-	cp := *v
+	var item models.GameInfo
+	err := s.db.Where("game_brand = ? AND game_id = ?", gameBrand, gameID).First(&item).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, false
+	}
+	if err != nil {
+		log.Errorf("[cache] gameinfo get from db failed key=%s err=%v", key, err)
+		return nil, false
+	}
+	s.put(&item)
+	cp := item
 	return &cp, true
 }
 

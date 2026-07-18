@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -92,15 +93,32 @@ func (s *AppGameStore) LoadOne(ctx context.Context, key string) error {
 	return nil
 }
 
-// Get 从本地缓存获取 AppGame。
+// Get 获取 AppGame：先读本地缓存，未命中则查 DB 并回填本地。
 func (s *AppGameStore) Get(appID, gameBrand, gameID string) (*models.AppGame, bool) {
+	key := AppGameKey(appID, gameBrand, gameID)
 	s.mu.RLock()
-	defer s.mu.RUnlock()
-	v, ok := s.data[AppGameKey(appID, gameBrand, gameID)]
-	if !ok || v == nil {
+	v, ok := s.data[key]
+	if ok && v != nil {
+		cp := *v
+		s.mu.RUnlock()
+		return &cp, true
+	}
+	s.mu.RUnlock()
+
+	if s.db == nil {
 		return nil, false
 	}
-	cp := *v
+	var item models.AppGame
+	err := s.db.Where("app_id = ? AND game_brand = ? AND game_id = ?", appID, gameBrand, gameID).First(&item).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, false
+	}
+	if err != nil {
+		log.Errorf("[cache] appgame get from db failed key=%s err=%v", key, err)
+		return nil, false
+	}
+	s.put(&item)
+	cp := item
 	return &cp, true
 }
 
