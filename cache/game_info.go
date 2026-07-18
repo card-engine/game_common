@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/card-engine/game_common/models"
 	"gorm.io/gorm"
@@ -29,6 +30,10 @@ func NewGameInfoStore(db *gorm.DB) *GameInfoStore {
 
 func (s *GameInfoStore) Name() string {
 	return TypeGameInfo
+}
+
+func (s *GameInfoStore) RefreshInterval() time.Duration {
+	return 5 * time.Minute
 }
 
 // GameInfoKey 生成本地缓存查找 key。

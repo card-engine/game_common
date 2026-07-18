@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/card-engine/game_common/models"
 )
@@ -20,6 +21,8 @@ type mockStore struct {
 }
 
 func (m *mockStore) Name() string { return m.name }
+
+func (m *mockStore) RefreshInterval() time.Duration { return DefaultRefreshInterval }
 
 func (m *mockStore) LoadAll(ctx context.Context) error {
 	m.mu.Lock()
@@ -80,7 +83,7 @@ func TestNotifyMessageJSON(t *testing.T) {
 
 func TestManagerRefreshKeyVsAll(t *testing.T) {
 	store := &mockStore{name: TypeAppInfo}
-	mgr := NewManager(nil, nil, Options{RefreshInterval: -1})
+	mgr := NewManager(nil, nil, Options{})
 	mgr.Register(store)
 
 	if err := mgr.Refresh(context.Background(), TypeAppInfo, "app-1"); err != nil {
@@ -101,9 +104,21 @@ func TestManagerRefreshKeyVsAll(t *testing.T) {
 }
 
 func TestManagerRefreshUnknownType(t *testing.T) {
-	mgr := NewManager(nil, nil, Options{RefreshInterval: -1})
+	mgr := NewManager(nil, nil, Options{})
 	if err := mgr.Refresh(context.Background(), "unknown", ""); err == nil {
 		t.Fatal("expected error for unknown type")
+	}
+}
+
+func TestStoreRefreshIntervals(t *testing.T) {
+	if got := NewAppInfoStore(nil).RefreshInterval(); got != 5*time.Minute {
+		t.Fatalf("appinfo want 5m, got %s", got)
+	}
+	if got := NewAppGameStore(nil).RefreshInterval(); got != 10*time.Minute {
+		t.Fatalf("appgame want 10m, got %s", got)
+	}
+	if got := NewGameInfoStore(nil).RefreshInterval(); got != 5*time.Minute {
+		t.Fatalf("gameinfo want 5m, got %s", got)
 	}
 }
 
@@ -247,7 +262,7 @@ func TestGetPackageDefaults(t *testing.T) {
 }
 
 func TestManagerStartRequiresRedis(t *testing.T) {
-	mgr := NewManager(nil, nil, Options{RefreshInterval: -1})
+	mgr := NewManager(nil, nil, Options{})
 	mgr.Register(&mockStore{name: "x"})
 	if err := mgr.Start(context.Background()); err == nil {
 		t.Fatal("expected error when redis is nil")

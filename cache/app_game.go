@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/card-engine/game_common/models"
+	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -31,26 +33,49 @@ func (s *AppGameStore) Name() string {
 	return TypeAppGame
 }
 
+func (s *AppGameStore) RefreshInterval() time.Duration {
+	return 10 * time.Minute
+}
+
 // AppGameKey 生成本地缓存查找 key。
 func AppGameKey(appID, gameBrand, gameID string) string {
 	return fmt.Sprintf("%s:%s:%s", appID, gameBrand, gameID)
 }
 
-// LoadAll 全量从 DB 加载 AppGame。
+const appGameLoadBatchSize = 2000
+
+// LoadAll 全量从 DB 加载 AppGame（分批拉取，避免一次性占用过大内存）。
 func (s *AppGameStore) LoadAll(ctx context.Context) error {
-	var list []models.AppGame
-	if err := s.db.WithContext(ctx).Find(&list).Error; err != nil {
+	var total int64
+	if err := s.db.WithContext(ctx).Model(&models.AppGame{}).Count(&total).Error; err != nil {
 		return err
 	}
-	next := make(map[string]*models.AppGame, len(list))
-	for i := range list {
-		item := list[i]
-		cp := item
-		next[AppGameKey(cp.AppId, cp.GameBrand, cp.GameId)] = &cp
+
+	next := make(map[string]*models.AppGame, total)
+	var loaded int64
+	var batch []models.AppGame
+	err := s.db.WithContext(ctx).
+		Order("id ASC").
+		FindInBatches(&batch, appGameLoadBatchSize, func(tx *gorm.DB, batchIdx int) error {
+			for i := range batch {
+				item := batch[i]
+				cp := item
+				next[AppGameKey(cp.AppId, cp.GameBrand, cp.GameId)] = &cp
+			}
+			loaded += int64(len(batch))
+			if batchIdx%10 == 0 || loaded >= total {
+				log.Infof("[cache] appgame LoadAll progress loaded=%d/%d batch=%d", loaded, total, batchIdx)
+			}
+			return nil
+		}).Error
+	if err != nil {
+		return err
 	}
+
 	s.mu.Lock()
 	s.data = next
 	s.mu.Unlock()
+	log.Infof("[cache] appgame LoadAll done size=%d", len(next))
 	return nil
 }
 

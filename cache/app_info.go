@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/card-engine/game_common/models"
 	"gorm.io/gorm"
@@ -31,6 +32,10 @@ func NewAppInfoStore(db *gorm.DB) *AppInfoStore {
 
 func (s *AppInfoStore) Name() string {
 	return TypeAppInfo
+}
+
+func (s *AppInfoStore) RefreshInterval() time.Duration {
+	return 5 * time.Minute
 }
 
 // LoadAll 全量从 DB 加载 AppInfo。

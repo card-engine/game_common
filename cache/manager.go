@@ -15,8 +15,6 @@ import (
 type Options struct {
 	// Channel Redis Pub/Sub 频道，默认 cache:notify。
 	Channel string
-	// RefreshInterval 定时全量刷新间隔；0 表示默认 5m，负值表示禁用定时刷新。
-	RefreshInterval time.Duration
 	// Logger 可选；为空时使用全局默认 logger。
 	Logger log.Logger
 }
@@ -39,9 +37,6 @@ type Manager struct {
 func NewManager(rdb *redis.Client, db *gorm.DB, opts Options) *Manager {
 	if opts.Channel == "" {
 		opts.Channel = DefaultNotifyChannel
-	}
-	if opts.RefreshInterval == 0 {
-		opts.RefreshInterval = 5 * time.Minute
 	}
 	logger := opts.Logger
 	if logger == nil {
@@ -84,8 +79,7 @@ func (m *Manager) Start(ctx context.Context) error {
 	m.cancel = cancel
 	m.mu.Unlock()
 
-	m.log.Infof("[cache] starting: stores=%d channel=%s refreshInterval=%s",
-		len(stores), m.opts.Channel, m.opts.RefreshInterval)
+	m.log.Infof("[cache] starting: stores=%d channel=%s", len(stores), m.opts.Channel)
 
 	for _, s := range stores {
 		m.log.Infof("[cache] initial load start type=%s", s.Name())
@@ -104,12 +98,13 @@ func (m *Manager) Start(ctx context.Context) error {
 	m.wg.Add(1)
 	go m.subscribeLoop(runCtx)
 
-	if m.opts.RefreshInterval > 0 {
+	for _, s := range stores {
+		interval := s.RefreshInterval()
+		if interval <= 0 {
+			interval = DefaultRefreshInterval
+		}
 		m.wg.Add(1)
-		go m.refreshLoop(runCtx)
-		m.log.Infof("[cache] scheduled refresh enabled interval=%s", m.opts.RefreshInterval)
-	} else {
-		m.log.Info("[cache] scheduled refresh disabled")
+		go m.refreshLoopOne(runCtx, s, interval)
 	}
 	m.log.Info("[cache] manager started")
 	return nil
@@ -229,27 +224,20 @@ func (m *Manager) subscribeLoop(ctx context.Context) {
 	}
 }
 
-func (m *Manager) refreshLoop(ctx context.Context) {
+// refreshLoopOne 单个 Store 独立定时全量刷新，互不影响。
+func (m *Manager) refreshLoopOne(ctx context.Context, store Store, interval time.Duration) {
 	defer m.wg.Done()
-	ticker := time.NewTicker(m.opts.RefreshInterval)
+	m.log.Infof("[cache] scheduled refresh enabled type=%s interval=%s", store.Name(), interval)
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ctx.Done():
-			m.log.Info("[cache] scheduled refresh stopped")
+			m.log.Infof("[cache] scheduled refresh stopped type=%s", store.Name())
 			return
 		case <-ticker.C:
-			m.mu.Lock()
-			stores := make([]Store, 0, len(m.stores))
-			for _, s := range m.stores {
-				stores = append(stores, s)
-			}
-			m.mu.Unlock()
-			m.log.Infof("[cache] scheduled refresh tick stores=%d", len(stores))
-			for _, s := range stores {
-				if err := m.applyReload(ctx, s, ""); err != nil {
-					m.log.Errorf("[cache] scheduled reload failed type=%s err=%v", s.Name(), err)
-				}
+			if err := m.applyReload(ctx, store, ""); err != nil {
+				m.log.Errorf("[cache] scheduled reload failed type=%s err=%v", store.Name(), err)
 			}
 		}
 	}
