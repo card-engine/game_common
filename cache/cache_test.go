@@ -120,6 +120,9 @@ func TestStoreRefreshIntervals(t *testing.T) {
 	if got := NewGameInfoStore(nil).RefreshInterval(); got != 5*time.Minute {
 		t.Fatalf("gameinfo want 5m, got %s", got)
 	}
+	if got := NewAppGameBrandStore(nil).RefreshInterval(); got != 10*time.Minute {
+		t.Fatalf("appgamebrand want 10m, got %s", got)
+	}
 }
 
 func TestAppGameReplaceByAppID(t *testing.T) {
@@ -239,14 +242,56 @@ func TestGameInfoStoreGetPutRemove(t *testing.T) {
 	}
 }
 
+func TestAppGameBrandReplaceByAppID(t *testing.T) {
+	s := NewAppGameBrandStore(nil)
+	s.put(&models.AppGameBrand{AppId: "app1", GameBrand: "jili", GameType: "slot"})
+	s.put(&models.AppGameBrand{AppId: "app1", GameBrand: "pg", GameType: "slot"})
+	s.put(&models.AppGameBrand{AppId: "app2", GameBrand: "jili", GameType: "slot"})
+
+	s.replaceByAppID("app1", []models.AppGameBrand{
+		{AppId: "app1", GameBrand: "jili", GameType: "slot", GameGgr: 0.15},
+		{AppId: "app1", GameBrand: "jili", GameType: "fish", GameGgr: 0.20},
+	})
+
+	if _, ok := s.Get("app1", "pg", "slot"); ok {
+		t.Fatal("old app1/pg/slot should be removed")
+	}
+	if got, ok := s.Get("app1", "jili", "fish"); !ok || got.GameGgr != 0.20 {
+		t.Fatalf("new app1 config missing: %+v ok=%v", got, ok)
+	}
+	if _, ok := s.Get("app2", "jili", "slot"); !ok {
+		t.Fatal("app2 entry should remain")
+	}
+
+	s.replaceByAppID("app1", nil)
+	if _, ok := s.Get("app1", "jili", "slot"); ok {
+		t.Fatal("app1 should be fully cleared")
+	}
+}
+
+func TestAppGameBrandStoreGetPutRemove(t *testing.T) {
+	s := NewAppGameBrandStore(nil)
+	s.put(&models.AppGameBrand{AppId: "app1", GameBrand: "jili", GameType: "slot", GameGgr: 0.12})
+	got, ok := s.Get("app1", "jili", "slot")
+	if !ok || got.GameGgr != 0.12 {
+		t.Fatalf("Get failed: %+v ok=%v", got, ok)
+	}
+	s.remove(AppGameBrandKey("app1", "jili", "slot"))
+	if _, ok := s.Get("app1", "jili", "slot"); ok {
+		t.Fatal("should be removed")
+	}
+}
+
 func TestManagerRegisterTypedAccessors(t *testing.T) {
 	mgr := NewManager(nil, nil, Options{})
 	appInfo := NewAppInfoStore(nil)
 	appGame := NewAppGameStore(nil)
 	gameInfo := NewGameInfoStore(nil)
+	appGameBrand := NewAppGameBrandStore(nil)
 	mgr.Register(appInfo)
 	mgr.Register(appGame)
 	mgr.Register(gameInfo)
+	mgr.Register(appGameBrand)
 
 	if mgr.AppInfo() != appInfo {
 		t.Fatal("AppInfo accessor mismatch")
@@ -256,6 +301,9 @@ func TestManagerRegisterTypedAccessors(t *testing.T) {
 	}
 	if mgr.GameInfo() != gameInfo {
 		t.Fatal("GameInfo accessor mismatch")
+	}
+	if mgr.AppGameBrand() != appGameBrand {
+		t.Fatal("AppGameBrand accessor mismatch")
 	}
 
 	appInfo.put(&models.AppInfo{AppId: "x", AccessKeyId: "y"})
