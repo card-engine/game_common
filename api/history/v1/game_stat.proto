@@ -28,6 +28,24 @@ message GetUserStatSnapshot{
     float  realtimeRtp = 4; // 实时rtp
 }
 
+// BehaviorProfile 近 1h 玩家行为画像（TTL 1h，不随 short FIFO 窗口失真）。
+message BehaviorProfile {
+    double minBet = 1;         // 1h 内最小单局注额
+    double maxBet = 2;         // 1h 内最大单局注额（历史峰值）
+    double lastBet = 3;        // 上一局注额
+    int64  sameBetStreak = 4;  // 当前注额连续局数（换档重置为 1）
+    int64  rampSteps = 5;      // 升档次数（bet 严格增大时 +1）
+    int64  peakRounds = 6;     // 在 maxBet 档上的累计局数
+    double peakBetTotal = 7;   // maxBet 档累计下注
+    double peakWinTotal = 8;   // maxBet 档累计派彩
+    float  peakRtp = 9;        // maxBet 档 RTP（peakWin/peakBet*100）
+    int64  totalRounds = 11;   // 1h 内总局数
+    int64  betDownSteps = 12;  // 降档次数；0 表示全程单调升档
+    double lastRampFrom = 13;  // 最近一次升档起点注额
+    double lastRampTo = 14;    // 最近一次升档终点注额
+    int64  lastRampRounds = 15;// 升档前在 lastRampFrom 档停留局数
+}
+
 message GetUserStatReply{
     double totalBet = 1; // 总下注
     double totalWin = 2; // 总赢钱
@@ -35,4 +53,6 @@ message GetUserStatReply{
     float  realtimeRtp = 4; // 实时rtp
     GetUserStatSnapshot recentSnapshot = 5; // 最近快照
     GetUserStatSnapshot todaySnapshot = 6; // 今日快照
+    repeated double recentBets = 7; // 近 N 局注额，旧→新
+    BehaviorProfile behavior = 8; // 近 1h 行为画像
 }
