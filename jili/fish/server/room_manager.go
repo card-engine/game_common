@@ -62,9 +62,9 @@ func (r *RoomManager) OnMessage(player *JiliPlayer, cmd int32, msg []byte) error
 		return nil
 	}
 
-	// 心跳包
+	// 心跳包：MsgPack 要求 proto.Message 或 nil，[]byte{} 会 panic
 	if cmd == int32(pb.UserToServer_U2S_HEART_CHECK_REQ) {
-		if sendData, err := message.MsgPack(uint32(pb.ServerToUser_S2U_HEART_CHECK_ACK), []byte{}); err == nil {
+		if sendData, err := message.MsgPack(uint32(pb.ServerToUser_S2U_HEART_CHECK_ACK), nil); err == nil {
 			return player.Send(sendData)
 		} else {
 			return err
