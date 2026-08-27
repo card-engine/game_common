@@ -22,6 +22,8 @@ message GetGameBetConfigRequest{
 message GetGameBetConfigReply{
   GameBetConfig betConfig = 1;  // 游戏下注配置
   string configJson = 2; //原始游戏下注配置json字符串
+  int64 controlMaxRate = 3; // 单局最大派彩倍数
+  double controlMaxCash = 4; // 单局最大派彩金额
 }
 
 message GameBetConfig{

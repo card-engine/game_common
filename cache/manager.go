@@ -21,21 +21,22 @@ type Options struct {
 
 // Manager 管理多个本地缓存 Store：启动全量预加载、订阅 Redis 通知、定时全量兜底。
 type Manager struct {
-	rdb          *redis.Client
-	db           *gorm.DB
-	opts         Options
-	log          *log.Helper
-	stores       map[string]Store
-	appInfo      *AppInfoStore
-	appGame      *AppGameStore
-	gameInfo     *GameInfoStore
-	appGameBrand *AppGameBrandStore
-	mu           sync.Mutex
-	loadMu       sync.Map // per-store sync.Mutex，避免并发 LoadAll/LoadOne 互相踩踏
-	cancel       context.CancelFunc
-	wg           sync.WaitGroup
-	started      bool
-	warmedUp     bool
+	rdb           *redis.Client
+	db            *gorm.DB
+	opts          Options
+	log           *log.Helper
+	stores        map[string]Store
+	appInfo       *AppInfoStore
+	appGame       *AppGameStore
+	gameInfo      *GameInfoStore
+	appGameBrand  *AppGameBrandStore
+	gameBetConfig *GameBetConfigStore
+	mu            sync.Mutex
+	loadMu        sync.Map // per-store sync.Mutex，避免并发 LoadAll/LoadOne 互相踩踏
+	cancel        context.CancelFunc
+	wg            sync.WaitGroup
+	started       bool
+	warmedUp      bool
 }
 
 // NewManager 创建缓存管理器。
@@ -56,7 +57,7 @@ func NewManager(rdb *redis.Client, db *gorm.DB, opts Options) *Manager {
 	}
 }
 
-// Init 启动初始化：注册 AppInfo/AppGame/GameInfo/AppGameBrand，全量预加载后启动订阅与定时刷新。
+// Init 启动初始化：注册 AppInfo/AppGame/GameInfo/AppGameBrand/GameBetConfig，全量预加载后启动订阅与定时刷新。
 // 业务侧通过返回的 Manager 访问各 Store，例如 mgr.AppInfo().GetByAppID(appId)。
 func Init(ctx context.Context, rdb *redis.Client, db *gorm.DB, opts Options) (*Manager, error) {
 	if db == nil {
@@ -67,6 +68,7 @@ func Init(ctx context.Context, rdb *redis.Client, db *gorm.DB, opts Options) (*M
 	mgr.Register(NewAppGameStore(db))
 	mgr.Register(NewGameInfoStore(db))
 	mgr.Register(NewAppGameBrandStore(db))
+	mgr.Register(NewGameBetConfigStore(db))
 	if err := mgr.Start(ctx); err != nil {
 		return nil, err
 	}
@@ -87,6 +89,8 @@ func (m *Manager) Register(store Store) {
 		m.gameInfo = s
 	case *AppGameBrandStore:
 		m.appGameBrand = s
+	case *GameBetConfigStore:
+		m.gameBetConfig = s
 	}
 	m.log.Infof("[cache] register store type=%s", store.Name())
 }
@@ -117,6 +121,13 @@ func (m *Manager) AppGameBrand() *AppGameBrandStore {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.appGameBrand
+}
+
+// GameBetConfig 返回已注册的 GameBetConfigStore，未注册则为 nil。
+func (m *Manager) GameBetConfig() *GameBetConfigStore {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.gameBetConfig
 }
 
 // WarmUp 对已注册 Store 执行全量预加载。Start 会自动调用；也可单独调用。
