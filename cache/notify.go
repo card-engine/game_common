@@ -14,11 +14,12 @@ const (
 
 	ActionReload = "reload"
 
-	TypeAppInfo       = "appinfo"
-	TypeAppGame       = "appgame"
-	TypeGameInfo      = "gameinfo"
-	TypeAppGameBrand  = "appgamebrand"
-	TypeGameBetConfig = "gamebetconfig"
+	TypeAppInfo          = "appinfo"
+	TypeAppGame          = "appgame"
+	TypeGameInfo         = "gameinfo"
+	TypeAppGameBrand     = "appgamebrand"
+	TypeGameBetConfig    = "gamebetconfig"
+	TypeGameGlobalConfig = "gameglobalconfig"
 )
 
 // NotifyMessage Redis Pub/Sub 通知消息。
@@ -33,7 +34,7 @@ type NotifyMessage struct {
 // Publish 向 Redis 发布缓存刷新通知，固定使用 DefaultNotifyChannel（cache:notify）。
 //
 // 参数说明：
-//   - cacheType: 缓存类型，见 TypeAppInfo / TypeAppGame / TypeGameInfo / TypeAppGameBrand / TypeGameBetConfig
+//   - cacheType: 缓存类型，见 TypeAppInfo / TypeAppGame / TypeGameInfo / TypeAppGameBrand / TypeGameBetConfig / TypeGameGlobalConfig
 //   - key: 刷新范围；空表示该类型全量刷新，非空按类型含义刷新：
 //
 // 各类型传参示例：
@@ -58,6 +59,10 @@ type NotifyMessage struct {
 //	Publish(ctx, rdb, TypeGameBetConfig, "")
 //	Publish(ctx, rdb, TypeGameBetConfig, "appId")
 //	Publish(ctx, rdb, TypeGameBetConfig, "all")
+//
+//	// GameGlobalConfig：key 为空全量；key 为 gkey 刷新单条全局配置
+//	Publish(ctx, rdb, TypeGameGlobalConfig, "")
+//	Publish(ctx, rdb, TypeGameGlobalConfig, "some.config.key")
 func Publish(ctx context.Context, rdb *redis.Client, cacheType, key string) error {
 	if cacheType == "" {
 		return fmt.Errorf("cache: publish type is required")

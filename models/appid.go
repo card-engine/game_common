@@ -14,6 +14,7 @@ type AppInfo struct {
 	AppId           string `json:"appId" gorm:"column:app_id;comment:应用ID;uniqueIndex"`
 	CallBackUrl     string `json:"callBackUrl" gorm:"comment:api回调接口,需要商户提供;"`
 	Currency        string `json:"currency" gorm:"column:currency;comment:货币类型;"`
+	CurrencySymbol  string `json:"currencySymbol" gorm:"column:currency_symbol;type:varchar(8);comment:货币符号;"`
 	AccessKeyId     string `json:"accessKey" gorm:"column:access_key;comment:访问密钥Id;index"`
 	AccessKeySecret string `json:"accessKeySecret" gorm:"column:access_secret;comment:访问密钥;"`
 	Country         string `json:"country" gorm:"column:country;comment:国家如中国cn,美国us;"`
@@ -32,6 +33,8 @@ type AppInfo struct {
 	WalletMode      string `json:"walletMode"      gorm:"column:wallet_mode;default:SINGLE;comment:钱包模式"`
 	MerchantType    string `json:"merchantType"    gorm:"column:merchant_type;default:CASH;comment:商户类型"`
 	WhitelistIps    string `json:"whitelistIps"    gorm:"column:whitelist_ips;comment:IP白名单,预留"`
+	Tag             string `json:"tag"             gorm:"column:tag;type:varchar(64);comment:标签;"`
+	ConfigJson      string `json:"configJson"      gorm:"column:config_json;type:longtext;comment:扩展配置JSON;"`
 
 	CreateTime        time.Time      `json:"createTime" gorm:"autoCreateTime;comment:创建时间;"`
 	UpdateTime        time.Time      `json:"updateTime" gorm:"autoCreateTime;comment:创建时间;"`
