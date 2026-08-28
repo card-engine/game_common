@@ -32,7 +32,7 @@ func (s *GameGlobalConfigStore) Name() string {
 }
 
 func (s *GameGlobalConfigStore) RefreshInterval() time.Duration {
-	return 60 * time.Minute
+	return 4 * time.Hour
 }
 
 // LoadAll 全量从 DB 加载 GameGlobalConfig。

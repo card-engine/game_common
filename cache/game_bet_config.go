@@ -33,7 +33,7 @@ func (s *GameBetConfigStore) Name() string {
 }
 
 func (s *GameBetConfigStore) RefreshInterval() time.Duration {
-	return 5 * time.Minute
+	return 4 * time.Hour
 }
 
 // GameBetConfigKey 生成商户级配置缓存 key。

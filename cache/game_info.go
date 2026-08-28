@@ -33,7 +33,7 @@ func (s *GameInfoStore) Name() string {
 }
 
 func (s *GameInfoStore) RefreshInterval() time.Duration {
-	return 5 * time.Minute
+	return 10 * time.Minute
 }
 
 // GameInfoKey 生成本地缓存查找 key。

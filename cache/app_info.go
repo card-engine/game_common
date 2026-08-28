@@ -34,7 +34,7 @@ func (s *AppInfoStore) Name() string {
 }
 
 func (s *AppInfoStore) RefreshInterval() time.Duration {
-	return 5 * time.Minute
+	return 10 * time.Minute
 }
 
 // LoadAll 全量从 DB 加载 AppInfo。
