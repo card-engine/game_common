@@ -37,6 +37,7 @@ message SelectSpinRequest{
     string mock = 8;
     string round_ext_model = 9; // 扩展模式.BUY的填值[1, 2, 3],EXTRA的填[1.5, 3]
     string fetchType = 10;   //获取数据方式：空默认按单条，GROUP按组获取
+    double originBet = 11;   // 基础bet
 }
 
 message SelectSpinReply{
@@ -54,6 +55,7 @@ message SelectSpinReply{
     int32  compress = 12; // 压缩数据
     string dataGroupId = 13; // 分组ID
     repeated SpinData dataGroup = 14; // 分组结果集
+    string controlTag = 15; // 控制标记
 }
 
 message SpinData {
