@@ -11,6 +11,9 @@ option java_outer_classname = "GameBetConfigProtoV1";
 service GameBetConfigApi {
   // 获取游戏下注配置详情
   rpc GetGameBetConfig(GetGameBetConfigRequest) returns (GetGameBetConfigReply);
+
+  // 获取游戏各类配置
+  rpc GetGameConfig(GetGameConfigRequest) returns (GetGameConfigReply);
 }
 
 message GetGameBetConfigRequest{
@@ -32,4 +35,17 @@ message GameBetConfig{
   double defaultBet = 3; // 默认下注金额
   double maxWinLimit = 4; // 最大中奖金额
   repeated double betOptions = 5; // 下注选项
+}
+
+message GetGameConfigRequest{
+  string appId = 1; //appid
+  string gameBrand = 2; //游戏品牌
+  string gameId = 3; //游戏id
+  string configKey = 4; // 配置key
+  string playerId = 5; // 玩家id
+  string playerRtp = 6; // 玩家rtp
+}
+
+message GetGameConfigReply{
+  string configValue = 1; //原始配置json字符串(每个key对应的配置结构可能不一样)
 }

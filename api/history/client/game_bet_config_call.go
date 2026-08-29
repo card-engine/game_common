@@ -13,3 +13,9 @@ func GetGameBetConfig(ctx context.Context, grpcClient *google_grpc.ClientConn, r
 	client := v1.NewGameBetConfigApiClient(grpcClient)
 	return client.GetGameBetConfig(ctx, req)
 }
+
+// 获取游戏各类配置
+func GetGameConfig(ctx context.Context, grpcClient *google_grpc.ClientConn, req *v1.GetGameConfigRequest) (*v1.GetGameConfigReply, error) {
+	client := v1.NewGameBetConfigApiClient(grpcClient)
+	return client.GetGameConfig(ctx, req)
+}
