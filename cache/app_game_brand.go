@@ -41,7 +41,7 @@ func AppGameBrandKey(appID, gameBrand, gameType string) string {
 	return fmt.Sprintf("%s:%s:%s", appID, gameBrand, gameType)
 }
 
-const appGameBrandLoadConcurrency = 16
+const appGameBrandLoadConcurrency = 2
 
 // LoadAll 按 appId 并发从 DB 加载全部 AppGameBrand。
 func (s *AppGameBrandStore) LoadAll(ctx context.Context) error {

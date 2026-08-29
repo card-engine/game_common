@@ -8,7 +8,7 @@ import (
 )
 
 // GlobalRtpTiers 全局允许的 RTP 档位（升序）
-var GlobalRtpTiers = []int{50, 65, 75, 85, 90, 95, 97, 100, 150, 500}
+var GlobalRtpTiers = []int{50, 65, 75, 85, 90, 95, 97, 100, 150, 250, 500}
 
 var (
 	ErrInvalidRtp       = errors.New("invalid rtp value")
