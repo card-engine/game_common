@@ -2,13 +2,67 @@ package models
 
 import (
 	"errors"
+	"math/rand"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-// GlobalRtpTiers 全局允许的 RTP 档位（升序）
-var GlobalRtpTiers = []int{50, 65, 75, 85, 90, 95, 97, 100, 150, 250, 500}
+// GlobalRtpTiers 全局允许的 RTP 档位（升序，含合并档位）
+var GlobalRtpTiers = []int{50, 65, 75, 85, 90, 92, 95, 96, 97, 100, 150, 250, 500}
+
+// MergedRtpTier 合并档位：由相邻两个基础档位按权重随机合并。
+// 较低档位概率 P(B) = (A-C)/(B-C)，较高档位概率 P(C) = 1 - P(B)，其中 B < A < C。
+type MergedRtpTier struct {
+	Tier      int
+	LowerTier int
+	UpperTier int
+}
+
+var mergedRtpTiers = []MergedRtpTier{
+	{Tier: 92, LowerTier: 90, UpperTier: 95},
+	{Tier: 96, LowerTier: 95, UpperTier: 97},
+}
+
+func lookupMergedRtpTier(tier int) (MergedRtpTier, bool) {
+	for _, m := range mergedRtpTiers {
+		if m.Tier == tier {
+			return m, true
+		}
+	}
+	return MergedRtpTier{}, false
+}
+
+// IsMergedRtpTier 判断是否为合并档位（无独立 RTP 配置，需解析到基础档位）。
+func IsMergedRtpTier(tier int) bool {
+	_, ok := lookupMergedRtpTier(tier)
+	return ok
+}
+
+// MergedRtpTierWeights 返回合并档位对应两个基础档位的选取权重。
+func MergedRtpTierWeights(tier int) (lowerWeight, upperWeight float64, ok bool) {
+	m, ok := lookupMergedRtpTier(tier)
+	if !ok {
+		return 0, 0, false
+	}
+	// B < A < C => (A-C)/(B-C) ∈ (0,1)
+	lowerWeight = float64(m.Tier-m.UpperTier) / float64(m.LowerTier-m.UpperTier)
+	upperWeight = 1 - lowerWeight
+	return lowerWeight, upperWeight, true
+}
+
+// ResolveMergedRtpTier 将合并档位随机解析为基础档位；非合并档位原样返回。
+func ResolveMergedRtpTier(tier int) int {
+	m, ok := lookupMergedRtpTier(tier)
+	if !ok {
+		return tier
+	}
+	lowerWeight, _, _ := MergedRtpTierWeights(tier)
+	if rand.Float64() < lowerWeight {
+		return m.LowerTier
+	}
+	return m.UpperTier
+}
 
 var (
 	ErrInvalidRtp       = errors.New("invalid rtp value")
