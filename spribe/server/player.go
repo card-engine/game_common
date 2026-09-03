@@ -118,7 +118,9 @@ func (p *SpribePlayer) SetBalanceByWinReply(winReply *v1.WinReply) error {
 }
 
 func (p *SpribePlayer) SetBalanceByBetReply(betReply *v1.BetReply) error {
-	return p.setBalance(betReply.Balance)
+	// 只更新本地余额，是否推送余额由各游戏显式控制
+	p.PlayerInfo.Balance = betReply.Balance
+	return nil
 }
 
 func (p *SpribePlayer) SetBalanceByRefundReply(refundReply *v1.RefundReply) error {
