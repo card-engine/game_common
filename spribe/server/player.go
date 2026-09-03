@@ -111,9 +111,9 @@ func (p *SpribePlayer) SetBalanceByBalanceReply(balanceReply *v1.BalanceReply) e
 
 func (p *SpribePlayer) SetBalanceByWinReply(winReply *v1.WinReply) error {
 	if winReply.HashBalance {
-		return p.setBalance(winReply.Balance)
+		// 只更新本地余额，是否推送余额由各游戏显式控制
+		p.PlayerInfo.Balance = winReply.Balance
 	}
-
 	return nil
 }
 

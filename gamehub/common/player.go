@@ -159,11 +159,15 @@ func (p *Player) SetBalanceByBalanceReply(balanceReply *v1.BalanceReply) error {
 }
 
 func (p *Player) SetBalanceByWinReply(winReply *v1.WinReply) error {
-	if winReply.HashBalance {
-		return p.setBalance(winReply.Balance)
+	if !winReply.HashBalance {
+		return nil
 	}
-
-	return nil
+	// Spribe：只更新本地余额，是否推送 newBalance 由各游戏显式控制
+	if p.gameBrand == types.GameBrand_Spribe {
+		p.PlayerInfo.Balance = winReply.Balance
+		return nil
+	}
+	return p.setBalance(winReply.Balance)
 }
 
 func (p *Player) SetBalanceByBetReply(betReply *v1.BetReply) error {
