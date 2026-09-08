@@ -8,29 +8,60 @@ import (
 	"strings"
 )
 
-// GlobalRtpTiers 全局允许的 RTP 档位（升序，含合并档位）
-var GlobalRtpTiers = []int{50, 65, 75, 85, 90, 92, 95, 96, 97, 100, 150, 250, 500}
+// baseRtpTiers 基础 RTP 档位（有独立配置，合并档位只能基于它们计算）。
+var baseRtpTiers = []int{50, 65, 75, 85, 90, 95, 97, 100, 150, 250, 500}
+
+// mergedRtpTierValues 合并档位列表（无独立配置，由相邻两个基础档位按权重随机合成）。
+var mergedRtpTierValues = []int{80, 88, 92, 93, 96}
+
+// GlobalRtpTiers 全局允许的 RTP 档位（升序，含基础档位与合并档位）。
+var GlobalRtpTiers []int
+
+func init() {
+	GlobalRtpTiers = make([]int, 0, len(baseRtpTiers)+len(mergedRtpTierValues))
+	GlobalRtpTiers = append(GlobalRtpTiers, baseRtpTiers...)
+	GlobalRtpTiers = append(GlobalRtpTiers, mergedRtpTierValues...)
+	sort.Ints(GlobalRtpTiers)
+}
 
 // MergedRtpTier 合并档位：由相邻两个基础档位按权重随机合并。
-// 较低档位概率 P(B) = (A-C)/(B-C)，较高档位概率 P(C) = 1 - P(B)，其中 B < A < C。
+// 较低档位概率 P(B) = (A-C)/(B-C)，较高档位概率 P(C) = 1 - P(B)，其中 B < A < C，且 B、C ∈ baseRtpTiers。
 type MergedRtpTier struct {
 	Tier      int
 	LowerTier int
 	UpperTier int
 }
 
-var mergedRtpTiers = []MergedRtpTier{
-	{Tier: 92, LowerTier: 90, UpperTier: 95},
-	{Tier: 96, LowerTier: 95, UpperTier: 97},
+// adjacentBaseTiers 在 baseRtpTiers 中查找夹住 A 的相邻基础档位 B、C（B < A < C）。
+func adjacentBaseTiers(a int) (b, c int, ok bool) {
+	i := sort.SearchInts(baseRtpTiers, a)
+	if i == 0 || i >= len(baseRtpTiers) {
+		return 0, 0, false
+	}
+	if baseRtpTiers[i] == a {
+		return 0, 0, false // A 本身就是基础档位
+	}
+	return baseRtpTiers[i-1], baseRtpTiers[i], true
 }
 
 func lookupMergedRtpTier(tier int) (MergedRtpTier, bool) {
-	for _, m := range mergedRtpTiers {
-		if m.Tier == tier {
-			return m, true
+	for _, t := range mergedRtpTierValues {
+		if t != tier {
+			continue
 		}
+		lower, upper, ok := adjacentBaseTiers(tier)
+		if !ok {
+			return MergedRtpTier{}, false
+		}
+		return MergedRtpTier{Tier: tier, LowerTier: lower, UpperTier: upper}, true
 	}
 	return MergedRtpTier{}, false
+}
+
+// IsBaseRtpTier 判断是否为基础档位。
+func IsBaseRtpTier(tier int) bool {
+	i := sort.SearchInts(baseRtpTiers, tier)
+	return i < len(baseRtpTiers) && baseRtpTiers[i] == tier
 }
 
 // IsMergedRtpTier 判断是否为合并档位（无独立 RTP 配置，需解析到基础档位）。

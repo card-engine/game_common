@@ -22,10 +22,31 @@ func TestFixRtp(t *testing.T) {
 			wantAdj:   false,
 		},
 		{
+			name:      "不限区间，合并档位 80",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "80",
+			wantFixed: "80",
+			wantAdj:   false,
+		},
+		{
+			name:      "不限区间，合并档位 88",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "88",
+			wantFixed: "88",
+			wantAdj:   false,
+		},
+		{
 			name:      "不限区间，合并档位 92",
 			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
 			rtp:       "92",
 			wantFixed: "92",
+			wantAdj:   false,
+		},
+		{
+			name:      "不限区间，合并档位 93",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "93",
+			wantFixed: "93",
 			wantAdj:   false,
 		},
 		{
@@ -106,43 +127,67 @@ func TestFixRtp(t *testing.T) {
 }
 
 func TestMergedRtpTier(t *testing.T) {
-	if !IsMergedRtpTier(92) || !IsMergedRtpTier(96) {
-		t.Fatal("92 and 96 should be merged rtp tiers")
+	for _, tier := range []int{80, 88, 92, 93, 96} {
+		if !IsMergedRtpTier(tier) {
+			t.Fatalf("%d should be a merged rtp tier", tier)
+		}
+		if IsBaseRtpTier(tier) {
+			t.Fatalf("%d should not be a base rtp tier", tier)
+		}
 	}
-	if IsMergedRtpTier(90) || IsMergedRtpTier(95) || IsMergedRtpTier(97) {
-		t.Fatal("90, 95 and 97 should not be merged rtp tiers")
-	}
-
-	lower92, upper92, ok := MergedRtpTierWeights(92)
-	if !ok {
-		t.Fatal("MergedRtpTierWeights(92) should succeed")
-	}
-	if lower92 != 0.6 || upper92 != 0.4 {
-		t.Fatalf("MergedRtpTierWeights(92) = (%v, %v), want (0.6, 0.4)", lower92, upper92)
-	}
-
-	lower96, upper96, ok := MergedRtpTierWeights(96)
-	if !ok {
-		t.Fatal("MergedRtpTierWeights(96) should succeed")
-	}
-	if lower96 != 0.5 || upper96 != 0.5 {
-		t.Fatalf("MergedRtpTierWeights(96) = (%v, %v), want (0.5, 0.5)", lower96, upper96)
+	for _, tier := range []int{75, 85, 90, 95, 97} {
+		if IsMergedRtpTier(tier) {
+			t.Fatalf("%d should not be a merged rtp tier", tier)
+		}
+		if !IsBaseRtpTier(tier) {
+			t.Fatalf("%d should be a base rtp tier", tier)
+		}
 	}
 
-	resolved92 := make(map[int]int)
-	for i := 0; i < 1000; i++ {
-		resolved92[ResolveMergedRtpTier(92)]++
+	cases := []struct {
+		tier        int
+		lowerWeight float64
+		upperWeight float64
+		lowerTier   int
+		upperTier   int
+	}{
+		{80, 0.5, 0.5, 75, 85},
+		{88, 0.4, 0.6, 85, 90},
+		{92, 0.6, 0.4, 90, 95},
+		{93, 0.4, 0.6, 90, 95},
+		{96, 0.5, 0.5, 95, 97},
 	}
-	if resolved92[90] == 0 || resolved92[95] == 0 {
-		t.Fatalf("ResolveMergedRtpTier(92) should hit both 90 and 95, got %v", resolved92)
-	}
+	for _, c := range cases {
+		m, ok := lookupMergedRtpTier(c.tier)
+		if !ok {
+			t.Fatalf("lookupMergedRtpTier(%d) should succeed", c.tier)
+		}
+		if m.LowerTier != c.lowerTier || m.UpperTier != c.upperTier {
+			t.Fatalf("lookupMergedRtpTier(%d) neighbors = (%d, %d), want (%d, %d)",
+				c.tier, m.LowerTier, m.UpperTier, c.lowerTier, c.upperTier)
+		}
+		if !IsBaseRtpTier(m.LowerTier) || !IsBaseRtpTier(m.UpperTier) {
+			t.Fatalf("merged tier %d neighbors must be base tiers, got (%d, %d)",
+				c.tier, m.LowerTier, m.UpperTier)
+		}
 
-	resolved96 := make(map[int]int)
-	for i := 0; i < 1000; i++ {
-		resolved96[ResolveMergedRtpTier(96)]++
-	}
-	if resolved96[95] == 0 || resolved96[97] == 0 {
-		t.Fatalf("ResolveMergedRtpTier(96) should hit both 95 and 97, got %v", resolved96)
+		lower, upper, ok := MergedRtpTierWeights(c.tier)
+		if !ok {
+			t.Fatalf("MergedRtpTierWeights(%d) should succeed", c.tier)
+		}
+		if lower != c.lowerWeight || upper != c.upperWeight {
+			t.Fatalf("MergedRtpTierWeights(%d) = (%v, %v), want (%v, %v)",
+				c.tier, lower, upper, c.lowerWeight, c.upperWeight)
+		}
+
+		resolved := make(map[int]int)
+		for i := 0; i < 1000; i++ {
+			resolved[ResolveMergedRtpTier(c.tier)]++
+		}
+		if resolved[c.lowerTier] == 0 || resolved[c.upperTier] == 0 {
+			t.Fatalf("ResolveMergedRtpTier(%d) should hit both %d and %d, got %v",
+				c.tier, c.lowerTier, c.upperTier, resolved)
+		}
 	}
 	if ResolveMergedRtpTier(95) != 95 {
 		t.Fatal("non-merged tier should be returned as-is")
@@ -151,7 +196,7 @@ func TestMergedRtpTier(t *testing.T) {
 
 func TestAllowedRtpTiers(t *testing.T) {
 	app := &AppInfo{RtpMin: 50, RtpMax: 97}
-	want := []int{50, 65, 75, 85, 90, 92, 95, 96, 97}
+	want := []int{50, 65, 75, 80, 85, 88, 90, 92, 93, 95, 96, 97}
 	got := app.AllowedRtpTiers()
 	if len(got) != len(want) {
 		t.Fatalf("AllowedRtpTiers() len = %d, want %d", len(got), len(want))
