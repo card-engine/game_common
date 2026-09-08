@@ -39,7 +39,7 @@ type AppInfo struct {
 	CreateTime        time.Time      `json:"createTime" gorm:"autoCreateTime;comment:创建时间;"`
 	UpdateTime        time.Time      `json:"updateTime" gorm:"autoCreateTime;comment:创建时间;"`
 	DeletedAt         gorm.DeletedAt `json:"-" gorm:"column:deleted_at;type:datetime(3);index"`
-	ShardingState     uint8          `json:"shardingState" gorm:"column:sharding_state;comment:分表状态,0否,1是;default:0"`
+	ShardingState     uint8          `json:"shardingState" gorm:"column:sharding_state;comment:分表状态,0否,1主表+月表,2热表+日冷;default:0"`
 	ShardingStartDate *time.Time     `json:"shardingStartDate" gorm:"column:sharding_start_date;comment:分表开始日期;default:null"`
 }
 
