@@ -22,6 +22,13 @@ func TestFixRtp(t *testing.T) {
 			wantAdj:   false,
 		},
 		{
+			name:      "不限区间，合并档位 70",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "70",
+			wantFixed: "70",
+			wantAdj:   false,
+		},
+		{
 			name:      "不限区间，合并档位 80",
 			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
 			rtp:       "80",
@@ -29,10 +36,24 @@ func TestFixRtp(t *testing.T) {
 			wantAdj:   false,
 		},
 		{
+			name:      "不限区间，合并档位 82",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "82",
+			wantFixed: "82",
+			wantAdj:   false,
+		},
+		{
 			name:      "不限区间，合并档位 88",
 			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
 			rtp:       "88",
 			wantFixed: "88",
+			wantAdj:   false,
+		},
+		{
+			name:      "不限区间，合并档位 91",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "91",
+			wantFixed: "91",
 			wantAdj:   false,
 		},
 		{
@@ -54,6 +75,27 @@ func TestFixRtp(t *testing.T) {
 			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
 			rtp:       "96",
 			wantFixed: "96",
+			wantAdj:   false,
+		},
+		{
+			name:      "不限区间，合并档位 98",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "98",
+			wantFixed: "98",
+			wantAdj:   false,
+		},
+		{
+			name:      "不限区间，合并档位 99",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "99",
+			wantFixed: "99",
+			wantAdj:   false,
+		},
+		{
+			name:      "不限区间，合并档位 300",
+			app:       &AppInfo{RtpMin: 0, RtpMax: 0},
+			rtp:       "300",
+			wantFixed: "300",
 			wantAdj:   false,
 		},
 		{
@@ -127,7 +169,7 @@ func TestFixRtp(t *testing.T) {
 }
 
 func TestMergedRtpTier(t *testing.T) {
-	for _, tier := range []int{80, 88, 92, 93, 96} {
+	for _, tier := range []int{70, 80, 82, 88, 91, 92, 93, 96, 98, 99, 300} {
 		if !IsMergedRtpTier(tier) {
 			t.Fatalf("%d should be a merged rtp tier", tier)
 		}
@@ -135,7 +177,7 @@ func TestMergedRtpTier(t *testing.T) {
 			t.Fatalf("%d should not be a base rtp tier", tier)
 		}
 	}
-	for _, tier := range []int{75, 85, 90, 95, 97} {
+	for _, tier := range []int{65, 75, 85, 90, 95, 97, 100, 250, 500} {
 		if IsMergedRtpTier(tier) {
 			t.Fatalf("%d should not be a merged rtp tier", tier)
 		}
@@ -151,11 +193,17 @@ func TestMergedRtpTier(t *testing.T) {
 		lowerTier   int
 		upperTier   int
 	}{
+		{70, 0.5, 0.5, 65, 75},
 		{80, 0.5, 0.5, 75, 85},
+		{82, 0.3, 0.7, 75, 85},
 		{88, 0.4, 0.6, 85, 90},
+		{91, float64(91-95) / float64(90-95), 1 - float64(91-95)/float64(90-95), 90, 95},
 		{92, 0.6, 0.4, 90, 95},
 		{93, 0.4, 0.6, 90, 95},
 		{96, 0.5, 0.5, 95, 97},
+		{98, float64(98-100) / float64(97-100), 1 - float64(98-100)/float64(97-100), 97, 100},
+		{99, float64(99-100) / float64(97-100), 1 - float64(99-100)/float64(97-100), 97, 100},
+		{300, float64(300-500) / float64(250-500), 1 - float64(300-500)/float64(250-500), 250, 500},
 	}
 	for _, c := range cases {
 		m, ok := lookupMergedRtpTier(c.tier)
@@ -196,7 +244,7 @@ func TestMergedRtpTier(t *testing.T) {
 
 func TestAllowedRtpTiers(t *testing.T) {
 	app := &AppInfo{RtpMin: 50, RtpMax: 97}
-	want := []int{50, 65, 75, 80, 85, 88, 90, 92, 93, 95, 96, 97}
+	want := []int{50, 65, 70, 75, 80, 82, 85, 88, 90, 91, 92, 93, 95, 96, 97}
 	got := app.AllowedRtpTiers()
 	if len(got) != len(want) {
 		t.Fatalf("AllowedRtpTiers() len = %d, want %d", len(got), len(want))

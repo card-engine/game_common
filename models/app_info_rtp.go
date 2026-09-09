@@ -12,7 +12,7 @@ import (
 var baseRtpTiers = []int{50, 65, 75, 85, 90, 95, 97, 100, 150, 250, 500}
 
 // mergedRtpTierValues 合并档位列表（无独立配置，由相邻两个基础档位按权重随机合成）。
-var mergedRtpTierValues = []int{80, 88, 92, 93, 96}
+var mergedRtpTierValues = []int{70, 80, 82, 88, 91, 92, 93, 96, 98, 99, 300}
 
 // GlobalRtpTiers 全局允许的 RTP 档位（升序，含基础档位与合并档位）。
 var GlobalRtpTiers []int
