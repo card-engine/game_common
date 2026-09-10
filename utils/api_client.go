@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -41,6 +42,10 @@ func NewApiClient(maxIdleConns, maxIdleConnsPerHost int, timeout time.Duration) 
 }
 
 func (c *ApiClient) Do(accessKeyID, accessKeySecret, apiURL string, data []byte) ([]byte, error) {
+	return c.DoWithContext(context.Background(), accessKeyID, accessKeySecret, apiURL, data)
+}
+
+func (c *ApiClient) DoWithContext(ctx context.Context, accessKeyID, accessKeySecret, apiURL string, data []byte) ([]byte, error) {
 	// 生成随机字符串和时间戳
 	nonce := generateNonce(128)
 	timestamp := time.Now().Unix()
@@ -49,7 +54,7 @@ func (c *ApiClient) Do(accessKeyID, accessKeySecret, apiURL string, data []byte)
 	signature := generateSignature(accessKeySecret, nonce, timestamp)
 
 	// 设置请求头
-	req, err := http.NewRequest("POST", apiURL, bytes.NewReader(data))
+	req, err := http.NewRequestWithContext(ctx, "POST", apiURL, bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("Api Callback Error creating request: %w", err)
 	}
