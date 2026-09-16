@@ -61,8 +61,14 @@ func (b *KafkaBus) Publish(ctx context.Context, topic string, evt *Event) error 
 		return err
 	}
 
+	key := evt.EventID
+	if evt.Metadata != nil {
+		if k := evt.Metadata["kafkaKey"]; k != "" {
+			key = k
+		}
+	}
 	return writer.WriteMessages(ctx, kafka.Message{
-		Key:   []byte(evt.EventID),
+		Key:   []byte(key),
 		Value: data,
 	})
 }

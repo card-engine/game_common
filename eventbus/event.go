@@ -35,13 +35,21 @@ func (e *Event) DecodePayload(out interface{}) error {
 
 // 工具函数：创建新事件
 func NewEvent(eventType, source string, payload interface{}) *Event {
+	return NewEventWithID(generateUUID(), eventType, source, payload)
+}
+
+// NewEventWithID 使用业务幂等键作为 EventID（如结算 factId）。
+func NewEventWithID(eventID, eventType, source string, payload interface{}) *Event {
 	payloadData, err := json.Marshal(payload)
 	if err != nil {
 		log.Errorf("Failed to marshal payload: %v", err)
 		return nil
 	}
+	if eventID == "" {
+		eventID = generateUUID()
+	}
 	return &Event{
-		EventID:   generateUUID(),
+		EventID:   eventID,
 		Type:      eventType,
 		Source:    source,
 		Payload:   payloadData,
