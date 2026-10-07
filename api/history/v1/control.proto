@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package control.v1;
+
+option go_package = "github.com/card-engine/game_common/api/history/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.control.v1";
+option java_outer_classname = "ControlProtoV1";
+
+// 运营活动旁路。Decide 失败或未命中时 hit=false，调用方继续基础 RTP。
+service ControlApi {
+  rpc Decide(DecideRequest) returns (DecideReply);
+  rpc Settle(SettleRequest) returns (SettleReply);
+  rpc Release(ReleaseRequest) returns (ReleaseReply);
+}
+
+message DecideRequest {
+  string appId = 1;
+  string playerId = 2;
+  string uniqueId = 3;
+  string platform = 4; // ai777 / api5 / select_spin
+  string gameBrand = 5;
+  string gameId = 6;
+  string roundId = 7;
+  string currency = 8;
+  string roundModel = 9; // DEFAULT / BUY / EXTRA
+  string baseRtp = 10;   // 调用方已取到的基础 RTP
+  double bet = 11;
+  bool pinned = 12; // 点控预留。true 时不抬档、不扣局
+}
+
+message DecideReply {
+  bool hit = 1;
+  string campaignType = 2;
+  int64 campaignId = 3;
+  string rtp = 4; // 未命中时等于 baseRtp
+  double maxWin = 5;
+  double maxRate = 6;
+  bool track = 7;
+  bool consume = 8;
+  string skipReason = 9;
+  string reason = 10;
+}
+
+message SettleRequest {
+  string appId = 1;
+  string playerId = 2;
+  string platform = 3;
+  string roundId = 4;
+  string gameBrand = 5;
+  string gameId = 6;
+  string currency = 7;
+  double bet = 8;
+  double win = 9; // 该 RoundID 的整局派彩
+}
+
+message SettleReply {
+  bool saved = 1;
+}
+
+message ReleaseRequest {
+  string appId = 1;
+  string playerId = 2;
+  string platform = 3;
+  string roundId = 4;
+}
+
+message ReleaseReply {}
