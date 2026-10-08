@@ -36,6 +36,12 @@ service GameApi {
 
     // 统一账变接口（v2）
     rpc Transfer(TransferRequest) returns (TransferReply);
+
+    // 设置玩家点控 RTP。appId 走 metadata x-md-global-appid。
+    rpc SetPlayerRtp(SetPlayerRtpRequest) returns (SetPlayerRtpReply);
+
+    // 清除玩家点控 RTP。appId 走 metadata x-md-global-appid。
+    rpc UnsetPlayerRtp(UnsetPlayerRtpRequest) returns (UnsetPlayerRtpReply);
 }
 
 message BalanceRequest {
@@ -230,4 +236,21 @@ message TransferRequest {
 message TransferReply {
     double balance = 1;
     string currency = 2;
+}
+
+message SetPlayerRtpRequest {
+    repeated string playerIds = 1; // 账号id，1～1000
+    string rtp = 2; // RTP 档位
+}
+
+message SetPlayerRtpReply {
+    repeated string playerIds = 1; // 实际设置成功的账号id
+}
+
+message UnsetPlayerRtpRequest {
+    repeated string playerIds = 1; // 账号id，1～1000
+}
+
+message UnsetPlayerRtpReply {
+    repeated string playerIds = 1; // 实际清除成功的账号id
 }

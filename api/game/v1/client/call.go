@@ -77,3 +77,17 @@ func Transfer(ctx context.Context, grpcClient *google_grpc.ClientConn, appid str
 	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
 	return client.Transfer(ctx, req)
 }
+
+// 设置玩家点控 RTP
+func SetPlayerRtp(ctx context.Context, grpcClient *google_grpc.ClientConn, appid string, req *v1.SetPlayerRtpRequest) (*v1.SetPlayerRtpReply, error) {
+	client := v1.NewGameApiClient(grpcClient)
+	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
+	return client.SetPlayerRtp(ctx, req)
+}
+
+// 清除玩家点控 RTP
+func UnsetPlayerRtp(ctx context.Context, grpcClient *google_grpc.ClientConn, appid string, req *v1.UnsetPlayerRtpRequest) (*v1.UnsetPlayerRtpReply, error) {
+	client := v1.NewGameApiClient(grpcClient)
+	ctx = metadata.AppendToClientContext(ctx, "x-md-global-appid", appid)
+	return client.UnsetPlayerRtp(ctx, req)
+}
