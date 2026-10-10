@@ -35,6 +35,12 @@ type AppInfo struct {
 	WhitelistIps    string `json:"whitelistIps"    gorm:"column:whitelist_ips;comment:IP白名单,预留"`
 	Tag             string `json:"tag"             gorm:"column:tag;type:varchar(64);comment:标签;"`
 	ConfigJson      string `json:"configJson"      gorm:"column:config_json;type:longtext;comment:扩展配置JSON;"`
+	CreatedBy       string `json:"createdBy"       gorm:"column:created_by;type:varchar(32);comment:创建人;"`
+	UpdatedBy       string `json:"updatedBy"       gorm:"column:updated_by;type:varchar(32);comment:更新人;"`
+
+	HugeRtpWinStatus      uint8 `json:"hugeRtpWinStatus" gorm:"column:huge_rtp_win_status;comment:高爆稳赢开关,0关1开;default:0"`
+	DynamicCallbackStatus uint8 `json:"dynamicCallbackStatus" gorm:"column:dynamic_callback_status;comment:动态回调地址开关,0关1开;default:0"`
+	AlertRtpStatus        uint8 `json:"alertRtpStatus" gorm:"column:alert_rtp_status;comment:预警RTP开关,0关1开;default:0"`
 
 	CreateTime        time.Time      `json:"createTime" gorm:"autoCreateTime;comment:创建时间;"`
 	UpdateTime        time.Time      `json:"updateTime" gorm:"autoCreateTime;comment:创建时间;"`
