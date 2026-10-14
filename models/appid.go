@@ -22,7 +22,7 @@ type AppInfo struct {
 
 	Rtp string `json:"rtp" gorm:"column:rtp;comment:默认rtp;default:95"`
 
-	State            uint8   `json:"state" gorm:"column:state;comment:状态,0正常,1禁用;default:0"`
+	State            uint8   `json:"state" gorm:"column:state;comment:状态,1正常,0禁用;default:1"`
 	Rate             float64 `json:"rate"  gorm:"column:rate;comment:费率;"`
 	Note             string  `json:"note" gorm:"column:note;comment:备注;"`
 	TriggerWinIfZero uint8   `json:"triggerWinIfZero" gorm:"column:trigger_win_if_zero;comment:派奖为0是否回调：0否, 1是;default:1"`
