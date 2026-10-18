@@ -14,8 +14,11 @@ func TestModeFromState(t *testing.T) {
 	if ModeFromState(1) != MainAndHistory {
 		t.Fatalf("state1 want MainAndHistory")
 	}
-	if ModeFromState(2) != HotAndDaily {
-		t.Fatalf("state2 want HotAndDaily")
+	if ModeFromState(2) != OnlyMain {
+		t.Fatalf("state2 deprecated, want OnlyMain")
+	}
+	if ModeFromState(3) != MainAndDaily {
+		t.Fatalf("state3 want MainAndDaily")
 	}
 }
 
@@ -25,9 +28,12 @@ func TestInitializeRulesModes(t *testing.T) {
 		{AppId: "a0", ShardingState: 0},
 		{AppId: "a1", ShardingState: 1},
 		{AppId: "a2", ShardingState: 2},
+		{AppId: "a3", ShardingState: 3},
 	})
-	if router.GetMode("a0") != OnlyMain || router.GetMode("a1") != MainAndHistory || router.GetMode("a2") != HotAndDaily {
-		t.Fatalf("unexpected modes: %v %v %v", router.GetMode("a0"), router.GetMode("a1"), router.GetMode("a2"))
+	if router.GetMode("a0") != OnlyMain || router.GetMode("a1") != MainAndHistory ||
+		router.GetMode("a2") != OnlyMain || router.GetMode("a3") != MainAndDaily {
+		t.Fatalf("unexpected modes: %v %v %v %v",
+			router.GetMode("a0"), router.GetMode("a1"), router.GetMode("a2"), router.GetMode("a3"))
 	}
 	if router.GetMode("missing") != OnlyMain {
 		t.Fatalf("missing should default OnlyMain")
@@ -36,79 +42,68 @@ func TestInitializeRulesModes(t *testing.T) {
 
 func TestGetWriteTable(t *testing.T) {
 	router := NewAppGameRecordRouter()
-	router.UpdateRule("18038", HotAndDaily, nil)
+	router.UpdateRule("18038", MainAndDaily, nil)
 	router.UpdateRule("1001", MainAndHistory, nil)
 
-	if got := router.GetWriteTable("18038", true); got != "app_game_record_18038_hot" {
-		t.Fatalf("write hot got %s", got)
+	if got := router.GetWriteTable("18038"); got != "app_game_record_18038" {
+		t.Fatalf("state3 write got %s", got)
 	}
-	if got := router.GetWriteTable("18038", false); got != "app_game_record_18038" {
-		t.Fatalf("write main got %s", got)
-	}
-	if got := router.GetWriteTable("1001", true); got != "app_game_record_1001" {
-		t.Fatalf("state1 ignore writeHot, got %s", got)
+	if got := router.GetWriteTable("1001"); got != "app_game_record_1001" {
+		t.Fatalf("state1 write got %s", got)
 	}
 }
 
 func TestGetSettleTables(t *testing.T) {
 	router := NewAppGameRecordRouter()
-	router.UpdateRule("18038", HotAndDaily, nil)
 	now := time.Date(2026, 9, 8, 12, 0, 0, 0, time.UTC)
 
-	tables := router.GetSettleTables("18038", SettleOpt{
-		FallbackMain:   true,
-		RecentColdDays: 2,
-		Now:            now,
-	})
-	want := []string{
-		"app_game_record_18038_hot",
-		"app_game_record_18038_20260908",
-		"app_game_record_18038_20260907",
-		"app_game_record_18038_20260906",
-		"app_game_record_18038",
-	}
-	if len(tables) != len(want) {
-		t.Fatalf("len=%d want %d tables=%v", len(tables), len(want), tables)
-	}
-	for i := range want {
-		if tables[i] != want[i] {
-			t.Fatalf("idx %d got %s want %s", i, tables[i], want[i])
-		}
-	}
-
-	onlyMain := router.GetSettleTables("1001", SettleOpt{FallbackMain: true})
+	onlyMain := router.GetSettleTables("1001", SettleOpt{})
 	if len(onlyMain) != 1 || onlyMain[0] != "app_game_record_1001" {
 		t.Fatalf("state0/1 settle tables=%v", onlyMain)
 	}
+
+	router.UpdateRule("18039", MainAndDaily, nil)
+	mainDaily := router.GetSettleTables("18039", SettleOpt{
+		RecentColdDays: 1,
+		Now:            now,
+	})
+	wantMainDaily := []string{
+		"app_game_record_18039",
+		"app_game_record_18039_20260908",
+		"app_game_record_18039_20260907",
+	}
+	if len(mainDaily) != len(wantMainDaily) {
+		t.Fatalf("state3 settle len=%d want %d tables=%v", len(mainDaily), len(wantMainDaily), mainDaily)
+	}
+	for i := range wantMainDaily {
+		if mainDaily[i] != wantMainDaily[i] {
+			t.Fatalf("state3 settle idx %d got %s want %s", i, mainDaily[i], wantMainDaily[i])
+		}
+	}
 }
 
-func TestGetColdAndHotTable(t *testing.T) {
+func TestGetColdTable(t *testing.T) {
 	router := NewAppGameRecordRouter()
-	if router.GetHotTable("18038") != "app_game_record_18038_hot" {
-		t.Fatal("hot")
-	}
 	day := time.Date(2026, 9, 8, 1, 2, 3, 0, time.FixedZone("CST", 8*3600))
 	if router.GetColdTable("18038", day) != "app_game_record_18038_20260907" {
 		// CST 01:02 → UTC 前一日 17:02 → 20260907
 		t.Fatalf("cold utc day got %s", router.GetColdTable("18038", day))
 	}
-	if !IsHotTable("app_game_record_18038_hot") || IsHotTable("app_game_record_18038_20260908") {
-		t.Fatal("IsHotTable")
-	}
 }
 
-func TestGetQueryTablesHotAndDaily(t *testing.T) {
+func TestGetQueryTablesMainAndDaily(t *testing.T) {
 	router := NewAppGameRecordRouter()
 	start := time.Date(2026, 9, 7, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2026, 9, 8, 23, 0, 0, 0, time.UTC)
-	router.UpdateRule("18038", HotAndDaily, &start)
+	router.UpdateRule("18038", MainAndDaily, &start)
 
 	tables := router.GetQueryTables("18038", start, end)
 	mustContain := []string{
-		"app_game_record_18038_hot",
 		"app_game_record_18038",
+		"app_game_record_18038_20260906", // start-1 pad
 		"app_game_record_18038_20260907",
 		"app_game_record_18038_20260908",
+		"app_game_record_18038_20260909", // end+1 pad
 	}
 	set := map[string]struct{}{}
 	for _, tb := range tables {
@@ -118,6 +113,9 @@ func TestGetQueryTablesHotAndDaily(t *testing.T) {
 		if _, ok := set[w]; !ok {
 			t.Fatalf("missing %s in %v", w, tables)
 		}
+	}
+	if got := router.GetWriteTable("18038"); got != "app_game_record_18038" {
+		t.Fatalf("state3 write must be main, got %s", got)
 	}
 }
 

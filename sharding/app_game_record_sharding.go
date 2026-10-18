@@ -13,17 +13,21 @@ import (
 type ShardMode int
 
 const (
-	OnlyMain       ShardMode = iota // 0 只有主表（小商户）
-	MainAndHistory                  // 1 主表 + 月历史表（大商户）
-	HotAndDaily                     // 2 热表 + 日冷表（超大商户）
+	OnlyMain       ShardMode = 0 // 只有主表（小商户），sharding_state=0
+	MainAndHistory ShardMode = 1 // 主表 + 月历史表（大商户），sharding_state=1
+	MainAndDaily   ShardMode = 3 // 主表 + UTC 日冷表，sharding_state=3
+	// sharding_state=2（热表+日冷）已废弃，不再映射，按 OnlyMain 处理。
 )
 
 // DefaultRecentColdDays 结算/幂等查单时默认回看近几日冷表天数。
 const DefaultRecentColdDays = 2
 
-// SettleOpt 结算/幂等查单候选表选项（仅 HotAndDaily 生效）。
+// DefaultColdDayPad 历史查询日冷表相对 [start,end] 各扩的天数。
+// 冷表按归档 UTC 日命名，可能与 bet_time 差 1 天。
+const DefaultColdDayPad = 1
+
+// SettleOpt 结算/幂等查单候选表选项（MainAndDaily 生效）。
 type SettleOpt struct {
-	FallbackMain   bool      // 是否包含旧主表兜底
 	RecentColdDays int       // 近 N 日冷表；<=0 时用 DefaultRecentColdDays
 	Now            time.Time // 锚点时间；零值用 time.Now().UTC()
 }
@@ -55,9 +59,10 @@ func ModeFromState(state uint8) ShardMode {
 	switch state {
 	case 1:
 		return MainAndHistory
-	case 2:
-		return HotAndDaily
+	case 3:
+		return MainAndDaily
 	default:
+		// 含已废弃的 sharding_state=2
 		return OnlyMain
 	}
 }
@@ -103,14 +108,9 @@ func (r *AppGameRecordRouter) GetMode(appID string) ShardMode {
 	return OnlyMain
 }
 
-// GetMainTable 获取旧主表名（state 0/1 写表；state=2 过渡期兜底）
+// GetMainTable 获取主表名（state 0/1/3 写表）
 func (r *AppGameRecordRouter) GetMainTable(appID string) string {
 	return fmt.Sprintf("%s_%s", r.TablePrefix, appID)
-}
-
-// GetHotTable 获取热表名（未完结）
-func (r *AppGameRecordRouter) GetHotTable(appID string) string {
-	return fmt.Sprintf("%s_%s_hot", r.TablePrefix, appID)
 }
 
 // GetColdTable 获取日冷表名（UTC 日期 YYYYMMDD）
@@ -118,19 +118,16 @@ func (r *AppGameRecordRouter) GetColdTable(appID string, t time.Time) string {
 	return fmt.Sprintf("%s_%s_%s", r.TablePrefix, appID, t.UTC().Format("20060102"))
 }
 
-// GetWriteTable 获取写入表：HotAndDaily 且 writeHot 时写热表，否则写主表。
-func (r *AppGameRecordRouter) GetWriteTable(appID string, writeHot bool) string {
-	if writeHot && r.GetMode(appID) == HotAndDaily {
-		return r.GetHotTable(appID)
-	}
+// GetWriteTable 获取写入表，始终为主表。
+func (r *AppGameRecordRouter) GetWriteTable(appID string) string {
 	return r.GetMainTable(appID)
 }
 
 // GetSettleTables 结算/幂等候选表有序列表。
-// state=2: [hot] + 近 N 日冷表 + (FallbackMain ? [main] : [])
+// state=3: [main] + 近 N 日冷表
 // 其它: [main]
 func (r *AppGameRecordRouter) GetSettleTables(appID string, opt SettleOpt) []string {
-	if r.GetMode(appID) != HotAndDaily {
+	if r.GetMode(appID) != MainAndDaily {
 		return []string{r.GetMainTable(appID)}
 	}
 	now := opt.Now
@@ -143,13 +140,10 @@ func (r *AppGameRecordRouter) GetSettleTables(appID string, opt SettleOpt) []str
 	if days <= 0 {
 		days = DefaultRecentColdDays
 	}
-	tables := make([]string, 0, 1+days+1)
-	tables = append(tables, r.GetHotTable(appID))
+	tables := make([]string, 0, 1+days)
+	tables = append(tables, r.GetMainTable(appID))
 	for i := 0; i <= days; i++ {
 		tables = append(tables, r.GetColdTable(appID, now.AddDate(0, 0, -i)))
-	}
-	if opt.FallbackMain {
-		tables = append(tables, r.GetMainTable(appID))
 	}
 	return tables
 }
@@ -162,14 +156,15 @@ func (r *AppGameRecordRouter) GetQueryTables(appID string, start, end time.Time)
 	if !ok || rule.Mode == OnlyMain {
 		return []string{r.GetMainTable(appID)}
 	}
-	if rule.Mode == HotAndDaily {
-		return r.getTablesHotAndDaily(appID, rule, start, end)
+	if rule.Mode == MainAndDaily {
+		return r.getTablesMainAndDaily(appID, rule, start, end)
 	}
 	return r.getTablesWithHistory(appID, rule, start, end)
 }
 
-// getTablesHotAndDaily：热表 + 日冷表（按查询区间）+ 过渡主表 + 存量月表。
-func (r *AppGameRecordRouter) getTablesHotAndDaily(appID string, rule *AppGameRecordShardRule, start, end time.Time) []string {
+// getTablesMainAndDaily：主表 + UTC 日冷表（按查询区间，各扩 DefaultColdDayPad 天）。
+// 不含热表；不扫存量月表（state=3 终态只进日冷，月迁任务会跳过）。
+func (r *AppGameRecordRouter) getTablesMainAndDaily(appID string, rule *AppGameRecordShardRule, start, end time.Time) []string {
 	var tables []string
 	seen := make(map[string]struct{})
 	add := func(name string) {
@@ -180,8 +175,7 @@ func (r *AppGameRecordRouter) getTablesHotAndDaily(appID string, rule *AppGameRe
 		tables = append(tables, name)
 	}
 
-	add(r.GetHotTable(appID))
-	add(r.GetMainTable(appID)) // 过渡期旧主表存量
+	add(r.GetMainTable(appID))
 
 	actualStart := start
 	if rule.shardingStartDate != nil && rule.shardingStartDate.After(start) {
@@ -189,18 +183,10 @@ func (r *AppGameRecordRouter) getTablesHotAndDaily(appID string, rule *AppGameRe
 	}
 	startDay := time.Date(actualStart.UTC().Year(), actualStart.UTC().Month(), actualStart.UTC().Day(), 0, 0, 0, 0, time.UTC)
 	endDay := time.Date(end.UTC().Year(), end.UTC().Month(), end.UTC().Day(), 0, 0, 0, 0, time.UTC)
+	startDay = startDay.AddDate(0, 0, -DefaultColdDayPad)
+	endDay = endDay.AddDate(0, 0, DefaultColdDayPad)
 	for d := startDay; !d.After(endDay); d = d.AddDate(0, 0, 1) {
 		add(r.GetColdTable(appID, d))
-	}
-
-	// 存量月表：覆盖查询区间内、且早于近 30 天窗口的月份（与 MainAndHistory 一致）
-	now := time.Now()
-	startMonth := time.Date(actualStart.Year(), actualStart.Month(), 1, 0, 0, 0, 0, time.UTC)
-	endMonth := time.Date(end.Year(), end.Month(), 1, 0, 0, 0, 0, time.UTC)
-	for d := startMonth; !d.After(endMonth); d = d.AddDate(0, 1, 0) {
-		if d.Before(now.AddDate(0, 0, -30)) {
-			add(fmt.Sprintf("%s_%s_%s", r.TablePrefix, appID, d.Format("200601")))
-		}
 	}
 	return tables
 }
@@ -241,9 +227,4 @@ func BuildAppGameRecordUnionSQL(tables []string, fields, whereClause string) str
 		sqlParts = append(sqlParts, part)
 	}
 	return strings.Join(sqlParts, " UNION ALL ")
-}
-
-// IsHotTable 判断表名是否为热表。
-func IsHotTable(table string) bool {
-	return strings.HasSuffix(table, "_hot")
 }
