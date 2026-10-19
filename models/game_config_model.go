@@ -20,7 +20,7 @@ const (
 //	{
 //	  "control_config": { "control_max": { "rate": 500, "win": -1 } },
 //	  "bet_config": {},
-//	  "pg_config": { "banner": 1, "head": 1, "verifyFlag": 1, "currencySymbol": 1 }
+//	  "pg_config": { "banner": 1, "head": 1, "verifyFlag": 1, "currencySymbol": 1, "showK": 1 }
 //	}
 type GameConfigModel struct {
 	ControlConfig *ControlConfig `json:"control_config,omitempty"`
@@ -48,6 +48,7 @@ type PgConfig struct {
 	Head           int `json:"head"`           // 顶部信息是否显示
 	VerifyFlag     int `json:"verifyFlag"`     // PG 防伪标志是否显示
 	CurrencySymbol int `json:"currencySymbol"` // 货币符号是否显示
+	ShowK          int `json:"showK"`          // 是否显示 k
 }
 
 // BetConfig 下注档位配置。
