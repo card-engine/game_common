@@ -22,3 +22,13 @@ func Settle(ctx context.Context, grpcClient *google_grpc.ClientConn, req *v1.Set
 func Release(ctx context.Context, grpcClient *google_grpc.ClientConn, req *v1.ReleaseRequest) (*v1.ReleaseReply, error) {
 	return v1.NewControlApiClient(grpcClient).Release(ctx, req)
 }
+
+// StartNurture 开启一次养客。
+func StartNurture(ctx context.Context, grpcClient *google_grpc.ClientConn, req *v1.StartNurtureRequest) (*v1.StartNurtureReply, error) {
+	return v1.NewControlApiClient(grpcClient).StartNurture(ctx, req)
+}
+
+// CancelNurture 取消当前 active 养客。
+func CancelNurture(ctx context.Context, grpcClient *google_grpc.ClientConn, req *v1.CancelNurtureRequest) (*v1.CancelNurtureReply, error) {
+	return v1.NewControlApiClient(grpcClient).CancelNurture(ctx, req)
+}

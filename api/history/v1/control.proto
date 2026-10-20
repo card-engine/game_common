@@ -12,6 +12,10 @@ service ControlApi {
   rpc Decide(DecideRequest) returns (DecideReply);
   rpc Settle(SettleRequest) returns (SettleReply);
   rpc Release(ReleaseRequest) returns (ReleaseReply);
+  // StartNurture 开启一次养客。同玩家已有 active 养客时该玩家失败。
+  rpc StartNurture(StartNurtureRequest) returns (StartNurtureReply);
+  // CancelNurture 取消当前 active 养客。
+  rpc CancelNurture(CancelNurtureRequest) returns (CancelNurtureReply);
 }
 
 message DecideRequest {
@@ -66,3 +70,35 @@ message ReleaseRequest {
 }
 
 message ReleaseReply {}
+
+message StartNurtureRequest {
+  string appId = 1;
+  repeated string playerIds = 2;
+  double stopProfit = 3; // 养客金额 / 止盈
+  int32 patronType = 4;  // 0 快速 / 1 慢速 / 2 极速；显式档位非 0 时覆盖预设
+  int32 targetRtp = 5;
+  double maxWinRate = 6;
+  int32 roundLimit = 7;
+  double turnoverLimit = 8; // 0 表示不限制累计投注
+  int32 validDays = 9;      // 0 不按日历结束
+}
+
+message StartNurtureReply {
+  repeated string okPlayerIds = 1;
+  repeated NurturePlayerFailure failed = 2;
+}
+
+message CancelNurtureRequest {
+  string appId = 1;
+  repeated string playerIds = 2;
+}
+
+message CancelNurtureReply {
+  repeated string okPlayerIds = 1;
+  repeated NurturePlayerFailure failed = 2;
+}
+
+message NurturePlayerFailure {
+  string playerId = 1;
+  string reason = 2; // already_active / not_active / invalid / coin_merchant / store
+}
