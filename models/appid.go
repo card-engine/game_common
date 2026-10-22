@@ -12,6 +12,7 @@ type AppInfo struct {
 	Name string `json:"name" gorm:"column:name;comment:商户名称;"`
 
 	AppId           string `json:"appId" gorm:"column:app_id;comment:应用ID;uniqueIndex"`
+	AgentId         uint64 `json:"agentId" gorm:"column:agent_id;type:bigint unsigned;comment:总代ID,预留;index"`
 	CallBackUrl     string `json:"callBackUrl" gorm:"comment:api回调接口,需要商户提供;"`
 	Currency        string `json:"currency" gorm:"column:currency;comment:货币类型;"`
 	CurrencySymbol  string `json:"currencySymbol" gorm:"column:currency_symbol;type:varchar(8);comment:货币符号;"`
