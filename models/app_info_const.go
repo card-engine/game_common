@@ -9,4 +9,7 @@ const (
 
 	MerchantTypeCash = "CASH" // 现金（默认）
 	MerchantTypeCoin = "COIN" // 金币
+
+	MerchantEnvProd = "PROD" // 生产（默认）
+	MerchantEnvTest = "TEST" // 测试
 )

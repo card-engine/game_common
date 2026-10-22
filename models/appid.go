@@ -32,6 +32,7 @@ type AppInfo struct {
 	RtpMax          int    `json:"rtpMax"          gorm:"column:rtp_max;default:0;comment:RTP上限,0=不限制"`
 	WalletMode      string `json:"walletMode"      gorm:"column:wallet_mode;default:SINGLE;comment:钱包模式"`
 	MerchantType    string `json:"merchantType"    gorm:"column:merchant_type;default:CASH;comment:商户类型"`
+	MerchantEnv     string `json:"merchantEnv"     gorm:"column:merchant_env;type:varchar(32);default:PROD;comment:环境,PROD生产,TEST测试"`
 	WhitelistIps    string `json:"whitelistIps"    gorm:"column:whitelist_ips;comment:IP白名单,预留"`
 	Tag             string `json:"tag"             gorm:"column:tag;type:varchar(64);comment:标签;"`
 	ConfigJson      string `json:"configJson"      gorm:"column:config_json;type:longtext;comment:扩展配置JSON;"`
@@ -51,4 +52,14 @@ type AppInfo struct {
 
 func (AppInfo) TableName() string {
 	return "app_info"
+}
+
+// IsProd 是否为生产商户；
+func (a *AppInfo) IsProd() bool {
+	return a.MerchantEnv == MerchantEnvProd
+}
+
+// IsTest 是否为测试商户
+func (a *AppInfo) IsTest() bool {
+	return a.MerchantEnv == MerchantEnvTest
 }
