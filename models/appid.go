@@ -15,7 +15,7 @@ type AppInfo struct {
 	CallBackUrl     string `json:"callBackUrl" gorm:"comment:api回调接口,需要商户提供;"`
 	Currency        string `json:"currency" gorm:"column:currency;comment:货币类型;"`
 	CurrencySymbol  string `json:"currencySymbol" gorm:"column:currency_symbol;type:varchar(8);comment:货币符号;"`
-	AccessKeyId     string `json:"accessKey" gorm:"column:access_key;comment:访问密钥Id;index"`
+	AccessKeyId     string `json:"accessKey" gorm:"column:access_key;comment:访问密钥Id;uniqueIndex"`
 	AccessKeySecret string `json:"accessKeySecret" gorm:"column:access_secret;comment:访问密钥;"`
 	Country         string `json:"country" gorm:"column:country;comment:国家如中国cn,美国us;"`
 	TimeZone        string `json:"timeZone" gorm:"column:time_zone;comment:时区;default:'Asia/Kolkata'"`
@@ -43,7 +43,7 @@ type AppInfo struct {
 	AlertRtpStatus        uint8 `json:"alertRtpStatus" gorm:"column:alert_rtp_status;comment:预警RTP开关,0关1开;default:0"`
 
 	CreateTime        time.Time      `json:"createTime" gorm:"autoCreateTime;comment:创建时间;"`
-	UpdateTime        time.Time      `json:"updateTime" gorm:"autoCreateTime;comment:创建时间;"`
+	UpdateTime        time.Time      `json:"updateTime" gorm:"autoUpdateTime;comment:更新时间;"`
 	DeletedAt         gorm.DeletedAt `json:"-" gorm:"column:deleted_at;type:datetime(3);index"`
 	ShardingState     uint8          `json:"shardingState" gorm:"column:sharding_state;comment:分表状态,0否,1主表+月表,3主表+日冷;default:0"`
 	ShardingStartDate *time.Time     `json:"shardingStartDate" gorm:"column:sharding_start_date;comment:分表开始日期;default:null"`
