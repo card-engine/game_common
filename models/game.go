@@ -19,6 +19,7 @@ type AppGame struct {
 	GameBrand    string    `gorm:"column:game_brand;type:varchar(32);default:NULL;comment:'游戏厂商:jili,pg'" json:"game_brand"`      // 游戏厂商
 	Status       string    `gorm:"column:status;type:varchar(8);default:ENABLE;comment:'状态：ENABLE,DISABLE'" json:"status"`        // 状态
 	Rtp          string    `gorm:"column:rtp;type:varchar(32);default:NULL" json:"rtp"`
+	RtpModel     string    `gorm:"column:rtp_model;type:varchar(32);default:'';comment:'rtp模式'" json:"rtp_model"`                 // rtp模式
 	ProxyModel   string    `gorm:"column:proxy_model;type:varchar(8);default:Local;comment:'代理模式：空值或Local为本地'" json:"proxyModel"` // 代理模式                                // 状态
 	ConfigJson   string    `gorm:"column:config_json;type:longtext;default:NULL;comment:'扩展配置JSON'" json:"config_json"`
 	CreatedAt    time.Time `gorm:"column:created_at;type:datetime;default:CURRENT_TIMESTAMP;comment:'创建时间'" json:"created_at"`                                        // 创建时间

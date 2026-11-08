@@ -28,6 +28,7 @@ type GameInfo struct {
 	Rtp             string    `gorm:"column:rtp;type:varchar(32)" json:"rtp"`
 	RtpModel        string    `gorm:"column:rtp_model;type:varchar(32)" json:"rtp_model"`
 	RtpSupportLevel string    `gorm:"column:rtp_support_level;type:varchar(64)" json:"rtp_support_level"`
+	RtpSupportModel string    `gorm:"column:rtp_support_model;type:varchar(64);default:'';comment:'支持的rtp模式列表,多个用英文逗号分隔'" json:"rtp_support_model"` // 支持的rtp模式列表
 	ProxyModel      string    `gorm:"column:proxy_model;type:varchar(16)" json:"proxy_model"`
 	SpinDataModel   string    `gorm:"column:spin_data_model;type:varchar(16)" json:"spin_data_model"`
 	ResType         string    `gorm:"column:res_type;type:varchar(16)" json:"res_type"`
