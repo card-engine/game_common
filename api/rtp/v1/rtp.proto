@@ -57,6 +57,7 @@ message SelectSpinReply{
     string dataGroupId = 13; // 分组ID
     repeated SpinData dataGroup = 14; // 分组结果集
     string controlTag = 15; // 控制标记
+    string rtpModel = 16; // 游戏RTP模型
 }
 
 message SpinData {

@@ -171,6 +171,7 @@ type SelectSpinReply struct {
 	DataGroupId    string                 `protobuf:"bytes,13,opt,name=dataGroupId,proto3" json:"dataGroupId,omitempty"`                // 分组ID
 	DataGroup      []*SpinData            `protobuf:"bytes,14,rep,name=dataGroup,proto3" json:"dataGroup,omitempty"`                    // 分组结果集
 	ControlTag     string                 `protobuf:"bytes,15,opt,name=controlTag,proto3" json:"controlTag,omitempty"`                  // 控制标记
+	RtpModel       string                 `protobuf:"bytes,16,opt,name=rtpModel,proto3" json:"rtpModel,omitempty"`                      // 游戏RTP模型(来自game_info.rtp_model)
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -306,6 +307,13 @@ func (x *SelectSpinReply) GetDataGroup() []*SpinData {
 func (x *SelectSpinReply) GetControlTag() string {
 	if x != nil {
 		return x.ControlTag
+	}
+	return ""
+}
+
+func (x *SelectSpinReply) GetRtpModel() string {
+	if x != nil {
+		return x.RtpModel
 	}
 	return ""
 }
@@ -869,7 +877,7 @@ const file_api_rtp_v1_rtp_proto_rawDesc = "" +
 	"\tfetchType\x18\n" +
 	" \x01(\tR\tfetchType\x12\x1c\n" +
 	"\toriginBet\x18\v \x01(\x01R\toriginBet\x12\x18\n" +
-	"\aroundId\x18\f \x01(\tR\aroundId\"\xbe\x03\n" +
+	"\aroundId\x18\f \x01(\tR\aroundId\"\xda\x03\n" +
 	"\x0fSelectSpinReply\x12\x16\n" +
 	"\x06spinId\x18\x01 \x01(\x03R\x06spinId\x12\x1c\n" +
 	"\tgameBrand\x18\x02 \x01(\tR\tgameBrand\x12\x16\n" +
@@ -889,7 +897,8 @@ const file_api_rtp_v1_rtp_proto_rawDesc = "" +
 	"\tdataGroup\x18\x0e \x03(\v2\x10.rtp.v1.SpinDataR\tdataGroup\x12\x1e\n" +
 	"\n" +
 	"controlTag\x18\x0f \x01(\tR\n" +
-	"controlTag\"N\n" +
+	"controlTag\x12\x1a\n" +
+	"\brtpModel\x18\x10 \x01(\tR\brtpModel\"N\n" +
 	"\bSpinData\x12\x1a\n" +
 	"\bgroupSeq\x18\x01 \x01(\x05R\bgroupSeq\x12\x12\n" +
 	"\x04rate\x18\x02 \x01(\x01R\x04rate\x12\x12\n" +
