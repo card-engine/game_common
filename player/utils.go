@@ -12,6 +12,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/card-engine/game_common/models"
+	"github.com/card-engine/game_common/utils"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -296,21 +297,10 @@ func GetCurrencyByToken(rdb *redis.Client, token string) (string, error) {
 	return currency, nil
 }
 
-var currencySymbolMap = map[string]string{
-	"INR": "₹",
-	// 可以根据需要添加更多货币映射
-	"USD": "$",
-	"EUR": "€",
-	"GBP": "£",
-}
-
 // Deprecated: GetCurrencySymbol 已废弃，请使用 utils.GetCurrencySymbol
 // GetCurrencySymbol 通过货币字母缩写获取货币符号
 func GetCurrencySymbol(currencyCode string) string {
-	if symbol, ok := currencySymbolMap[currencyCode]; ok {
-		return symbol
-	}
-	return "" // 如果未找到对应的符号，返回空字符串
+	return utils.GetCurrencySymbol(currencyCode)
 }
 
 // Deprecated: 通过token设置金币金额, 请使用UpdateBalance
