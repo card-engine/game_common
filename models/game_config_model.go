@@ -11,6 +11,7 @@ const (
 	GameGlobalConfigKeyControlConfig = "control_config"
 	GameGlobalConfigKeyBetConfig     = "bet_config"
 	GameGlobalConfigKeyPgConfig      = "pg_config"
+	GameGlobalConfigKey2jConfig      = "2j_config"
 )
 
 // GameConfigModel app_game / app_info 的 config_json 结构。
@@ -26,6 +27,7 @@ type GameConfigModel struct {
 	ControlConfig *ControlConfig `json:"control_config,omitempty"`
 	BetConfig     *BetConfig     `json:"bet_config,omitempty"`
 	PgConfig      *PgConfig      `json:"pg_config,omitempty"`
+	TwoJConfig    *TwoJConfig    `json:"2j_config,omitempty"`
 }
 
 // ControlConfig 风控/派彩上限配置。
@@ -49,6 +51,21 @@ type PgConfig struct {
 	VerifyFlag     int `json:"verifyFlag"`     // PG 防伪标志是否显示
 	CurrencySymbol int `json:"currencySymbol"` // 货币符号是否显示
 	ShowK          int `json:"showK"`          // 是否显示 k
+}
+
+// TwoJ 金额规格（对齐官方 getMchAmountSpec）。
+const (
+	TwoJAmountSpecHigh   = "High"
+	TwoJAmountSpecMiddle = "Middle"
+	TwoJAmountSpecLow    = "Low"
+	TwoJAmountSpecIN     = "IN"
+	TwoJAmountSpecBR     = "BR"
+	TwoJAmountSpecCrypto = "Crypto"
+)
+
+// TwoJConfig 2J 显示配置（gkey=2j_config）。
+type TwoJConfig struct {
+	AmountSpec string `json:"amountSpec"` // High/Low/Middle/IN/BR/Crypto
 }
 
 // BetConfig 下注档位配置。
@@ -128,6 +145,40 @@ func ParsePgConfigJSON(raw string) (*PgConfig, error) {
 	return &cfg, nil
 }
 
+// NormalizeTwoJAmountSpec 规范化 2J 金额规格；空/未知回落 Low。
+func NormalizeTwoJAmountSpec(raw string) string {
+	switch strings.TrimSpace(raw) {
+	case TwoJAmountSpecHigh, "high", "HIGH":
+		return TwoJAmountSpecHigh
+	case TwoJAmountSpecMiddle, "middle", "MIDDLE":
+		return TwoJAmountSpecMiddle
+	case TwoJAmountSpecLow, "low", "LOW", "":
+		return TwoJAmountSpecLow
+	case TwoJAmountSpecIN, "in", "In":
+		return TwoJAmountSpecIN
+	case TwoJAmountSpecBR, "br", "Br":
+		return TwoJAmountSpecBR
+	case TwoJAmountSpecCrypto, "crypto", "CRYPTO":
+		return TwoJAmountSpecCrypto
+	default:
+		return TwoJAmountSpecLow
+	}
+}
+
+// ParseTwoJConfigJSON 解析 2j_config 的 gvalue。
+func ParseTwoJConfigJSON(raw string) (*TwoJConfig, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" || raw == "{}" {
+		return &TwoJConfig{AmountSpec: TwoJAmountSpecLow}, nil
+	}
+	var cfg TwoJConfig
+	if err := json.Unmarshal([]byte(raw), &cfg); err != nil {
+		return nil, fmt.Errorf("parse 2j_config: %w", err)
+	}
+	cfg.AmountSpec = NormalizeTwoJAmountSpec(cfg.AmountSpec)
+	return &cfg, nil
+}
+
 // MarshalControlConfig 序列化 ControlConfig。
 func MarshalControlConfig(cfg *ControlConfig) (string, error) {
 	if cfg == nil {
@@ -160,6 +211,19 @@ func MarshalPgConfig(cfg *PgConfig) (string, error) {
 	data, err := json.Marshal(cfg)
 	if err != nil {
 		return "", fmt.Errorf("marshal pg_config: %w", err)
+	}
+	return string(data), nil
+}
+
+// MarshalTwoJConfig 序列化 TwoJConfig。
+func MarshalTwoJConfig(cfg *TwoJConfig) (string, error) {
+	if cfg == nil {
+		cfg = &TwoJConfig{}
+	}
+	out := TwoJConfig{AmountSpec: NormalizeTwoJAmountSpec(cfg.AmountSpec)}
+	data, err := json.Marshal(out)
+	if err != nil {
+		return "", fmt.Errorf("marshal 2j_config: %w", err)
 	}
 	return string(data), nil
 }
@@ -228,6 +292,8 @@ func (g *GameGlobalConfig) ParseValue() (any, error) {
 		return g.ParseBetConfig()
 	case GameGlobalConfigKeyPgConfig:
 		return g.ParsePgConfig()
+	case GameGlobalConfigKey2jConfig:
+		return g.ParseTwoJConfig()
 	default:
 		return nil, fmt.Errorf("unsupported game global config gkey: %s", g.GKey)
 	}
@@ -255,6 +321,14 @@ func (g *GameGlobalConfig) ParsePgConfig() (*PgConfig, error) {
 		return &PgConfig{}, nil
 	}
 	return ParsePgConfigJSON(g.GValue)
+}
+
+// ParseTwoJConfig 解析 gkey=2j_config 的 gvalue。
+func (g *GameGlobalConfig) ParseTwoJConfig() (*TwoJConfig, error) {
+	if g == nil {
+		return &TwoJConfig{AmountSpec: TwoJAmountSpecLow}, nil
+	}
+	return ParseTwoJConfigJSON(g.GValue)
 }
 
 // SetControlConfig 设置 gkey=control_config 的 gvalue。
@@ -295,6 +369,20 @@ func (g *GameGlobalConfig) SetPgConfig(cfg *PgConfig) error {
 		return err
 	}
 	g.GKey = GameGlobalConfigKeyPgConfig
+	g.GValue = raw
+	return nil
+}
+
+// SetTwoJConfig 设置 gkey=2j_config 的 gvalue。
+func (g *GameGlobalConfig) SetTwoJConfig(cfg *TwoJConfig) error {
+	if g == nil {
+		return fmt.Errorf("game global config is nil")
+	}
+	raw, err := MarshalTwoJConfig(cfg)
+	if err != nil {
+		return err
+	}
+	g.GKey = GameGlobalConfigKey2jConfig
 	g.GValue = raw
 	return nil
 }
