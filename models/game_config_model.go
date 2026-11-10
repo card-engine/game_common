@@ -21,7 +21,8 @@ const (
 //	{
 //	  "control_config": { "control_max": { "rate": 500, "win": -1 } },
 //	  "bet_config": {},
-//	  "pg_config": { "banner": 1, "head": 1, "verifyFlag": 1, "currencySymbol": 1, "showK": 1 }
+//	  "pg_config": { "banner": 1, "head": 1, "verifyFlag": 1, "currencySymbol": 1, "showK": 1 },
+//	  "2j_config": { "amountSpec": "Low" }
 //	}
 type GameConfigModel struct {
 	ControlConfig *ControlConfig `json:"control_config,omitempty"`
@@ -63,7 +64,8 @@ const (
 	TwoJAmountSpecCrypto = "Crypto"
 )
 
-// TwoJConfig 2J 显示配置（gkey=2j_config）。
+// TwoJConfig 2J 显示配置。
+// 对应 game_global_config 中 gkey=2j_config 的 gvalue，以及 app_info.config_json.2j_config。
 type TwoJConfig struct {
 	AmountSpec string `json:"amountSpec"` // High/Low/Middle/IN/BR/Crypto
 }
