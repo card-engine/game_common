@@ -124,7 +124,7 @@ func (l *Lobby) onJoinTableReq(player types.PlayerImp, data []byte) error {
 	return nil
 }
 
-func (l *Lobby) OnLogin(player types.PlayerImp) error {
+func (l *Lobby) OnLogin(player types.PlayerImp, data interface{}) error {
 	// var currency int32
 	// if v, ok := game_pb.Currency_value[player.GetCurrency()]; ok {
 	// 	currency = v

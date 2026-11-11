@@ -36,7 +36,7 @@ func (l *NoLobby) OnMessage(player types.PlayerImp, data interface{}) error {
 	return nil
 }
 
-func (l *NoLobby) OnLogin(player types.PlayerImp) error {
+func (l *NoLobby) OnLogin(player types.PlayerImp, data interface{}) error {
 	// 尝试重连游戏
 	err, ok := l.roomManager.TryReConnectGame(player)
 	if ok { //有重连

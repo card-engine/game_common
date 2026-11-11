@@ -138,7 +138,7 @@ func (s *JiliRouter) onWebSocketHandler(token, retryCount string, c *websocket.C
 		return err
 	}
 
-	if err := s.lobby.OnLogin(jiliPlayer); err != nil {
+	if err := s.lobby.OnLogin(jiliPlayer, nil); err != nil {
 		return err
 	}
 

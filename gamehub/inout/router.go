@@ -360,7 +360,7 @@ func (r *InoutRouter) onInitData(player types.PlayerImp) error {
 	}
 
 	// 剩下的交给房间处理
-	if err := r.lobby.OnLogin(player); err != nil {
+	if err := r.lobby.OnLogin(player, nil); err != nil {
 		r.log.Errorf("OnLogin failed: %v", err)
 		return err
 	}

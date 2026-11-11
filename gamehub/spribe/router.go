@@ -216,7 +216,7 @@ func (r *SpribeRouter) onLogin(c *websocket.Conn, buff []byte) (types.PlayerImp,
 	// 	conn.Close()
 	// 	return nil, err
 	// }
-	if err := r.lobby.OnLogin(player); err != nil {
+	if err := r.lobby.OnLogin(player, data); err != nil {
 		return nil, err
 	}
 	return player, nil

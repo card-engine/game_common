@@ -101,8 +101,8 @@ type RoomCreator interface {
 type LobbyImp interface {
 	// 玩家收到了消息了
 	OnMessage(player PlayerImp, data interface{}) error
-	// 玩家登录游戏
-	OnLogin(player PlayerImp) error
+	// 玩家登录游戏；data 为登录包 payload（JDB 为 SFSObject，其它品牌可为 nil）
+	OnLogin(player PlayerImp, data interface{}) error
 }
 
 // 大厅创建器
