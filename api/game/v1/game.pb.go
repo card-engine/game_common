@@ -338,6 +338,7 @@ type WinRequest struct {
 	Win              float64                `protobuf:"fixed64,8,opt,name=win,proto3" json:"win,omitempty"`                          //赢钱
 	BetTransactionId string                 `protobuf:"bytes,9,opt,name=betTransactionId,proto3" json:"betTransactionId,omitempty"`  // 下注交易id(必填，用来查关联下注记录)
 	GameData         []byte                 `protobuf:"bytes,10,opt,name=game_data,json=gameData,proto3" json:"game_data,omitempty"` // 游戏数据
+	IsFinished       bool                   `protobuf:"varint,11,opt,name=isFinished,proto3" json:"isFinished,omitempty"`            //本局是否结束
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -440,6 +441,13 @@ func (x *WinRequest) GetGameData() []byte {
 		return x.GameData
 	}
 	return nil
+}
+
+func (x *WinRequest) GetIsFinished() bool {
+	if x != nil {
+		return x.IsFinished
+	}
+	return false
 }
 
 type WinReply struct {
@@ -2023,7 +2031,7 @@ const file_api_game_v1_game_proto_rawDesc = "" +
 	"\x10preTransactionId\x18\x0e \x01(\tR\x10preTransactionId\"@\n" +
 	"\bBetReply\x12\x1a\n" +
 	"\bcurrency\x18\x01 \x01(\tR\bcurrency\x12\x18\n" +
-	"\abalance\x18\x02 \x01(\x01R\abalance\"\xa1\x02\n" +
+	"\abalance\x18\x02 \x01(\x01R\abalance\"\xc1\x02\n" +
 	"\n" +
 	"WinRequest\x12\x1a\n" +
 	"\bplayerId\x18\x01 \x01(\tR\bplayerId\x12\x18\n" +
@@ -2038,7 +2046,10 @@ const file_api_game_v1_game_proto_rawDesc = "" +
 	"\x03win\x18\b \x01(\x01R\x03win\x12*\n" +
 	"\x10betTransactionId\x18\t \x01(\tR\x10betTransactionId\x12\x1b\n" +
 	"\tgame_data\x18\n" +
-	" \x01(\fR\bgameData\"b\n" +
+	" \x01(\fR\bgameData\x12\x1e\n" +
+	"\n" +
+	"isFinished\x18\v \x01(\bR\n" +
+	"isFinished\"b\n" +
 	"\bWinReply\x12\x1a\n" +
 	"\bcurrency\x18\x01 \x01(\tR\bcurrency\x12\x18\n" +
 	"\abalance\x18\x02 \x01(\x01R\abalance\x12 \n" +

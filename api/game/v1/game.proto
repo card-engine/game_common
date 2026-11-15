@@ -89,6 +89,7 @@ message WinRequest{
     double win = 8; //赢钱
     string betTransactionId = 9; // 下注交易id(必填，用来查关联下注记录)
     bytes game_data = 10; // 游戏数据
+    bool isFinished = 11; //本局是否结束
 }
 
 message WinReply{
