@@ -39,6 +39,7 @@ message SelectSpinRequest{
     string fetchType = 10;   //获取数据方式：空默认按单条，GROUP按组获取
     double originBet = 11;   // 基础bet
     string roundId = 12; // 牌局号
+    double roundModelBet = 13; // 选局bet路由
 }
 
 message SelectSpinReply{
