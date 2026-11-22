@@ -114,11 +114,11 @@ func TestStoreRefreshIntervals(t *testing.T) {
 	if got := NewAppInfoStore(nil).RefreshInterval(); got != 5*time.Minute {
 		t.Fatalf("appinfo want 5m, got %s", got)
 	}
-	if got := NewAppGameStore(nil).RefreshInterval(); got != 10*time.Minute {
-		t.Fatalf("appgame want 10m, got %s", got)
+	if got := NewAppGameStore(nil).RefreshInterval(); got != 80*time.Minute {
+		t.Fatalf("appgame want 80m, got %s", got)
 	}
-	if got := NewGameInfoStore(nil).RefreshInterval(); got != 5*time.Minute {
-		t.Fatalf("gameinfo want 5m, got %s", got)
+	if got := NewGameInfoStore(nil).RefreshInterval(); got != 30*time.Minute {
+		t.Fatalf("gameinfo want 30m, got %s", got)
 	}
 	if got := NewAppGameBrandStore(nil).RefreshInterval(); got != 10*time.Minute {
 		t.Fatalf("appgamebrand want 10m, got %s", got)

@@ -33,7 +33,7 @@ func (s *AppGameStore) Name() string {
 }
 
 func (s *AppGameStore) RefreshInterval() time.Duration {
-	return 30 * time.Minute
+	return 80 * time.Minute
 }
 
 // AppGameKey 生成本地缓存查找 key（appId/brand/gameId 均 trim+小写）。
