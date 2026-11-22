@@ -282,6 +282,61 @@ func TestAppGameBrandStoreGetPutRemove(t *testing.T) {
 	}
 }
 
+func TestAppGameKeyCaseInsensitive(t *testing.T) {
+	s := NewAppGameStore(nil)
+	s.put(&models.AppGame{AppId: "1111", GameBrand: "PG", GameId: "40", GameName: "Jungle Delight"})
+	got, ok := s.Get("1111", "pg", "40")
+	if !ok || got.GameName != "Jungle Delight" {
+		t.Fatalf("lowercase lookup missed: %+v ok=%v", got, ok)
+	}
+	got, ok = s.Get("1111", "PG", "40")
+	if !ok || got.GameBrand != "PG" {
+		t.Fatalf("uppercase lookup should return original fields: %+v ok=%v", got, ok)
+	}
+	if AppGameKey("1111", "PG", "40") != AppGameKey(" 1111 ", "pg", "40") {
+		t.Fatal("AppGameKey should ignore case and surrounding space")
+	}
+}
+
+func TestGameInfoKeyCaseInsensitive(t *testing.T) {
+	s := NewGameInfoStore(nil)
+	s.put(&models.GameInfo{GameBrand: "PG", GameId: "40", GameName: "Jungle Delight"})
+	got, ok := s.Get("pg", "40")
+	if !ok || got.GameName != "Jungle Delight" {
+		t.Fatalf("lowercase lookup missed: %+v ok=%v", got, ok)
+	}
+	if _, ok := s.Get("PG", "40"); !ok {
+		t.Fatal("uppercase lookup should hit")
+	}
+}
+
+func TestAppGameReplaceByAppID_MixedCase(t *testing.T) {
+	s := NewAppGameStore(nil)
+	s.put(&models.AppGame{AppId: "App1", GameBrand: "PG", GameId: "40"})
+	s.replaceByAppID("APP1", nil)
+	if _, ok := s.Get("app1", "pg", "40"); ok {
+		t.Fatal("mixed-case appId replace should clear")
+	}
+}
+
+func TestGameInfoReplaceByBrand_MixedCase(t *testing.T) {
+	s := NewGameInfoStore(nil)
+	s.put(&models.GameInfo{GameBrand: "PG", GameId: "40"})
+	s.replaceByBrand("pg", nil)
+	if _, ok := s.Get("PG", "40"); ok {
+		t.Fatal("mixed-case brand replace should clear")
+	}
+}
+
+func TestAppGameBrandKeyCaseInsensitive(t *testing.T) {
+	s := NewAppGameBrandStore(nil)
+	s.put(&models.AppGameBrand{AppId: "1111", GameBrand: "PG", GameType: "SLOT", GameGgr: 0.1})
+	got, ok := s.Get("1111", "pg", "slot")
+	if !ok || got.GameGgr != 0.1 {
+		t.Fatalf("lowercase lookup missed: %+v ok=%v", got, ok)
+	}
+}
+
 func TestManagerRegisterTypedAccessors(t *testing.T) {
 	mgr := NewManager(nil, nil, Options{})
 	appInfo := NewAppInfoStore(nil)

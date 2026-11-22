@@ -36,9 +36,9 @@ func (s *GameInfoStore) RefreshInterval() time.Duration {
 	return 10 * time.Minute
 }
 
-// GameInfoKey 生成本地缓存查找 key。
+// GameInfoKey 生成本地缓存查找 key（brand/gameId 均 trim+小写）。
 func GameInfoKey(gameBrand, gameID string) string {
-	return fmt.Sprintf("%s:%s", gameBrand, gameID)
+	return cacheKeyPart(gameBrand) + ":" + cacheKeyPart(gameID)
 }
 
 // LoadAll 全量从 DB 加载 GameInfo。
@@ -113,7 +113,7 @@ func (s *GameInfoStore) Len() int {
 func (s *GameInfoStore) replaceByBrand(gameBrand string, list []models.GameInfo) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	prefix := gameBrand + ":"
+	prefix := cacheKeyPart(gameBrand) + ":"
 	for k := range s.data {
 		if strings.HasPrefix(k, prefix) {
 			delete(s.data, k)

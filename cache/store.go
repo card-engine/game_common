@@ -2,10 +2,16 @@ package cache
 
 import (
 	"context"
+	"strings"
 	"time"
 )
 
 const DefaultRefreshInterval = 5 * time.Minute
+
+// cacheKeyPart 缓存 map key 分段：去空白并小写，避免 PG/pg 这类大小写导致永远 miss。
+func cacheKeyPart(s string) string {
+	return strings.ToLower(strings.TrimSpace(s))
+}
 
 // Store 本地缓存存储接口。
 // Manager 负责调度 LoadAll / LoadOne；具体 map 读写由各实现自行维护。

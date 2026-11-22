@@ -36,9 +36,9 @@ func (s *AppGameBrandStore) RefreshInterval() time.Duration {
 	return 1 * time.Hour
 }
 
-// AppGameBrandKey 生成本地缓存查找 key。
+// AppGameBrandKey 生成本地缓存查找 key（appId/brand/gameType 均 trim+小写）。
 func AppGameBrandKey(appID, gameBrand, gameType string) string {
-	return fmt.Sprintf("%s:%s:%s", appID, gameBrand, gameType)
+	return cacheKeyPart(appID) + ":" + cacheKeyPart(gameBrand) + ":" + cacheKeyPart(gameType)
 }
 
 const appGameBrandLoadConcurrency = 2
@@ -166,7 +166,7 @@ func (s *AppGameBrandStore) Get(appID, gameBrand, gameType string) (*models.AppG
 func (s *AppGameBrandStore) replaceByAppID(appID string, list []models.AppGameBrand) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	prefix := appID + ":"
+	prefix := cacheKeyPart(appID) + ":"
 	for k := range s.data {
 		if strings.HasPrefix(k, prefix) {
 			delete(s.data, k)
