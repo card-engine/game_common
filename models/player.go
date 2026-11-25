@@ -3,14 +3,16 @@ package models
 import "time"
 
 type Player struct {
-	AId       uint64     `gorm:"primaryKey;comment:我方平台的用户id;"`
-	AppId     string     `gorm:"size:64;comment:商用id;uniqueIndex:idx_app_account"`
-	AccountId string     `gorm:"size:64;comment:第三方平台的用户id;uniqueIndex:idx_app_account"`
-	NickName  string     `gorm:"comment:昵称;"`
-	Balance   float64    `gorm:"comment:余额;"`
-	Rtp       string     `gorm:"comment:游戏RTP;"`
-	HasSetRtp bool       `gorm:"comment:是否设置了rtp;default:false"`
-	RtpTime   *time.Time `gorm:"column:rtp_time;comment:rtp更新时间;"`
+	AId               uint64     `gorm:"primaryKey;comment:我方平台的用户id;"`
+	AppId             string     `gorm:"size:64;comment:商用id;uniqueIndex:idx_app_account"`
+	AccountId         string     `gorm:"size:64;comment:第三方平台的用户id;uniqueIndex:idx_app_account"`
+	NickName          string     `gorm:"comment:昵称;"`
+	Balance           float64    `gorm:"comment:余额;"`
+	Rtp               string     `gorm:"comment:游戏RTP;"`
+	HasSetRtp         bool       `gorm:"comment:是否设置了rtp;default:false"`
+	RtpTime           *time.Time `gorm:"column:rtp_time;comment:rtp更新时间;"`
+	PersonWinMaxMult  int        `gorm:"column:person_win_max_mult;comment:单局最大赢钱倍数，0=不限制;default:0"`
+	PersonWinMaxScore int64      `gorm:"column:person_win_max_score;comment:单局最大赢钱数(当地货币)，0=不限制;default:0"`
 
 	CreateTime time.Time `gorm:"autoCreateTime;comment:创建时间;"`
 	UpdateTime time.Time `gorm:"autoUpdateTime;comment:创建时间;"`

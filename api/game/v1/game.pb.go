@@ -1815,11 +1815,13 @@ func (x *TransferReply) GetCurrency() string {
 }
 
 type SetPlayerRtpRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PlayerIds     []string               `protobuf:"bytes,1,rep,name=playerIds,proto3" json:"playerIds,omitempty"` // 账号id，1～1000
-	Rtp           string                 `protobuf:"bytes,2,opt,name=rtp,proto3" json:"rtp,omitempty"`             // RTP 档位
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	PlayerIds         []string               `protobuf:"bytes,1,rep,name=playerIds,proto3" json:"playerIds,omitempty"`                  // 账号id，1～1000
+	Rtp               string                 `protobuf:"bytes,2,opt,name=rtp,proto3" json:"rtp,omitempty"`                              // RTP 档位
+	PersonWinMaxMult  int32                  `protobuf:"varint,3,opt,name=personWinMaxMult,proto3" json:"personWinMaxMult,omitempty"`   // 单局最大赢钱倍数；0=不限制
+	PersonWinMaxScore int64                  `protobuf:"varint,4,opt,name=personWinMaxScore,proto3" json:"personWinMaxScore,omitempty"` // 单局最大赢钱数(当地货币)；0=不限制
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *SetPlayerRtpRequest) Reset() {
@@ -1864,6 +1866,20 @@ func (x *SetPlayerRtpRequest) GetRtp() string {
 		return x.Rtp
 	}
 	return ""
+}
+
+func (x *SetPlayerRtpRequest) GetPersonWinMaxMult() int32 {
+	if x != nil {
+		return x.PersonWinMaxMult
+	}
+	return 0
+}
+
+func (x *SetPlayerRtpRequest) GetPersonWinMaxScore() int64 {
+	if x != nil {
+		return x.PersonWinMaxScore
+	}
+	return 0
 }
 
 type SetPlayerRtpReply struct {
@@ -2182,10 +2198,12 @@ const file_api_game_v1_game_proto_rawDesc = "" +
 	"\x0fsettlement_type\x18\x13 \x01(\tR\x0esettlementType\"E\n" +
 	"\rTransferReply\x12\x18\n" +
 	"\abalance\x18\x01 \x01(\x01R\abalance\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"E\n" +
+	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"\x9f\x01\n" +
 	"\x13SetPlayerRtpRequest\x12\x1c\n" +
 	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\x12\x10\n" +
-	"\x03rtp\x18\x02 \x01(\tR\x03rtp\"1\n" +
+	"\x03rtp\x18\x02 \x01(\tR\x03rtp\x12*\n" +
+	"\x10personWinMaxMult\x18\x03 \x01(\x05R\x10personWinMaxMult\x12,\n" +
+	"\x11personWinMaxScore\x18\x04 \x01(\x03R\x11personWinMaxScore\"1\n" +
 	"\x11SetPlayerRtpReply\x12\x1c\n" +
 	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\"5\n" +
 	"\x15UnsetPlayerRtpRequest\x12\x1c\n" +

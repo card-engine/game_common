@@ -242,6 +242,8 @@ message TransferReply {
 message SetPlayerRtpRequest {
     repeated string playerIds = 1; // 账号id，1～1000
     string rtp = 2; // RTP 档位
+    int32 personWinMaxMult = 3; // 单局最大赢钱倍数；0=不限制
+    int64 personWinMaxScore = 4; // 单局最大赢钱数(当地货币)；0=不限制
 }
 
 message SetPlayerRtpReply {
