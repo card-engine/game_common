@@ -1820,6 +1820,7 @@ type SetPlayerRtpRequest struct {
 	Rtp               string                 `protobuf:"bytes,2,opt,name=rtp,proto3" json:"rtp,omitempty"`                              // RTP 档位
 	PersonWinMaxMult  int32                  `protobuf:"varint,3,opt,name=personWinMaxMult,proto3" json:"personWinMaxMult,omitempty"`   // 单局最大赢钱倍数；0=不限制
 	PersonWinMaxScore int64                  `protobuf:"varint,4,opt,name=personWinMaxScore,proto3" json:"personWinMaxScore,omitempty"` // 单局最大赢钱数(当地货币)；0=不限制
+	UpdateOps         string                 `protobuf:"bytes,5,opt,name=updateOps,proto3" json:"updateOps,omitempty"`                  // 操作用户
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -1882,6 +1883,13 @@ func (x *SetPlayerRtpRequest) GetPersonWinMaxScore() int64 {
 	return 0
 }
 
+func (x *SetPlayerRtpRequest) GetUpdateOps() string {
+	if x != nil {
+		return x.UpdateOps
+	}
+	return ""
+}
+
 type SetPlayerRtpReply struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PlayerIds     []string               `protobuf:"bytes,1,rep,name=playerIds,proto3" json:"playerIds,omitempty"` // 实际设置成功的账号id
@@ -1929,6 +1937,7 @@ func (x *SetPlayerRtpReply) GetPlayerIds() []string {
 type UnsetPlayerRtpRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PlayerIds     []string               `protobuf:"bytes,1,rep,name=playerIds,proto3" json:"playerIds,omitempty"` // 账号id，1～1000
+	UpdateOps     string                 `protobuf:"bytes,2,opt,name=updateOps,proto3" json:"updateOps,omitempty"` // 操作用户
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1968,6 +1977,13 @@ func (x *UnsetPlayerRtpRequest) GetPlayerIds() []string {
 		return x.PlayerIds
 	}
 	return nil
+}
+
+func (x *UnsetPlayerRtpRequest) GetUpdateOps() string {
+	if x != nil {
+		return x.UpdateOps
+	}
+	return ""
 }
 
 type UnsetPlayerRtpReply struct {
@@ -2198,16 +2214,18 @@ const file_api_game_v1_game_proto_rawDesc = "" +
 	"\x0fsettlement_type\x18\x13 \x01(\tR\x0esettlementType\"E\n" +
 	"\rTransferReply\x12\x18\n" +
 	"\abalance\x18\x01 \x01(\x01R\abalance\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"\x9f\x01\n" +
+	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"\xbd\x01\n" +
 	"\x13SetPlayerRtpRequest\x12\x1c\n" +
 	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\x12\x10\n" +
 	"\x03rtp\x18\x02 \x01(\tR\x03rtp\x12*\n" +
 	"\x10personWinMaxMult\x18\x03 \x01(\x05R\x10personWinMaxMult\x12,\n" +
-	"\x11personWinMaxScore\x18\x04 \x01(\x03R\x11personWinMaxScore\"1\n" +
+	"\x11personWinMaxScore\x18\x04 \x01(\x03R\x11personWinMaxScore\x12\x1c\n" +
+	"\tupdateOps\x18\x05 \x01(\tR\tupdateOps\"1\n" +
 	"\x11SetPlayerRtpReply\x12\x1c\n" +
-	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\"5\n" +
+	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\"S\n" +
 	"\x15UnsetPlayerRtpRequest\x12\x1c\n" +
-	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\"3\n" +
+	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds\x12\x1c\n" +
+	"\tupdateOps\x18\x02 \x01(\tR\tupdateOps\"3\n" +
 	"\x13UnsetPlayerRtpReply\x12\x1c\n" +
 	"\tplayerIds\x18\x01 \x03(\tR\tplayerIds2\xde\x05\n" +
 	"\aGameApi\x129\n" +
