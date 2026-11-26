@@ -22,6 +22,9 @@ service HistoryApi {
    //  获取下注的条数据，以及下注的总金额，以及赢钱的总金额
    rpc GetTotalBetAndWin(GetTotalBetAndWinRequest) returns (GetTotalBetAndWinReply);
 
+   // 玩家按游戏聚合报表（含按日明细）
+   rpc GetPlayerGameReport(GetPlayerGameReportRequest) returns (GetPlayerGameReportReply);
+
    // 创建一条记录(初使状态)
    rpc CreateGameRecord(CreateGameRecordRequest) returns (CreateGameRecordReply);
 
@@ -114,12 +117,42 @@ message GameHistory{
 message GameHistoryByTimeRequest{
     string appId = 1; //appid
     string gameBrand = 2; //游戏品牌
-    string gameId = 3; //游戏id
+    string gameId = 3; //游戏id（可选；空=该品牌下全部游戏，有值=指定游戏）
     string playerId = 4; //账号id
 
     string status = 5; // 数据的状态，空为所有
     int64 startTime = 6; // 开始时间戳（单位：毫秒）
     int64 endTime = 7;   // 结束时间戳（单位：毫秒）
+}
+
+message GetPlayerGameReportRequest {
+    string appId = 1;
+    string gameBrand = 2;
+    string playerId = 3;
+    string status = 4;       // 记录状态，空为全部
+    string currency = 5;     // 可选，按货币过滤
+    int64 startTime = 6;     // 开始时间戳（毫秒，可选；与 endTime 都未传时默认近 3 天）
+    int64 endTime = 7;       // 结束时间戳（毫秒，可选）
+    string timezone = 8;     // 日报聚合时区，默认 UTC
+}
+
+message PlayerGameDailyStat {
+    string statDate = 1;     // yyyy/MM/dd
+    double bet = 2;
+    double netWin = 3;       // win - bet
+}
+
+message PlayerGameReportItem {
+    string gameId = 1;
+    string gameType = 2;
+    double totalBet = 3;
+    double totalNetWin = 4;
+    string lastReportDate = 5;
+    repeated PlayerGameDailyStat dailyStats = 6;
+}
+
+message GetPlayerGameReportReply {
+    repeated PlayerGameReportItem items = 1;
 }
 
 

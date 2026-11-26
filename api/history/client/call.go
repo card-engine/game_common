@@ -28,3 +28,8 @@ func GameHistoryDetail(ctx context.Context, grpcClient *google_grpc.ClientConn, 
 	client := v1.NewHistoryApiClient(grpcClient)
 	return client.GameHistoryDetail(ctx, req)
 }
+
+func GetPlayerGameReport(ctx context.Context, grpcClient *google_grpc.ClientConn, req *v1.GetPlayerGameReportRequest) (*v1.GetPlayerGameReportReply, error) {
+	client := v1.NewHistoryApiClient(grpcClient)
+	return client.GetPlayerGameReport(ctx, req)
+}
